@@ -1,0 +1,17 @@
+INSERT INTO roles(id,name,description) values ('76a6da77-ebb4-432e-b149-a23823ed5dae', 'ROLE_STUDENT', 'Quyền sinh viên'),
+                         ('2444cad5-9e22-4d4e-a1d8-df5ea6c35d35', 'ROLE_STUDENT_ADMIN', 'Quyền quản trị viên sinh viên'),
+                         ('7baf05ed-db4a-414c-8168-1c7f2045bdb7', 'ROLE_TEACHER', 'Quyền giáo viên'),
+                         ('2826c48f-6fe1-4984-8a93-ab3579d3923d', 'ROLE_SUPER_ADMIN', 'Quyền quản trị viên');
+
+INSERT INTO faculties (id, name, description) VALUES
+                      ('1cd9e7b7-df55-4795-b7ac-b02da0723105', 'Khoa Xây dựng dân dụng & Công nghiệp', NULL),
+                      ('ff9a3862-0e30-48e6-80b8-6924dcd9390e', 'Khoa Công nghệ thông tin', NULL),
+                      ('1a9b1136-edce-4de2-b819-f53708608ee5', 'Khoa Cầu đường', NULL),
+                      ('f2b611c3-3351-4ee2-bc4a-26cbbf09196c', 'Khoa Kiến trúc & Quy hoạch', NULL),
+                      ('01b1f5cd-6a56-4069-b548-b6fb36a17dd9', 'Khoa Kinh tế & Quản lý xây dựng', NULL),
+                      ('e857ca46-75d9-46fc-82ab-81bb3ead1a76', 'Khoa Vật liệu xây dựng', NULL),
+                      ('13bc6ed9-a8d6-4366-9aa4-569d8bab57e7', 'Khoa Công trình thuỷ', NULL),
+                      ('9d0a303d-6d6a-4cd0-91f5-7f7fedf8690e', 'Khoa Cơ khí', NULL),
+                      ('83726edf-e264-4bf5-8235-78af780224aa', 'Khoa Kỹ thuật môi trường', NULL),
+                      ('23362f4f-48fd-4e0f-b714-d6fa1c708fca', 'Khoa XD công trình biển & Dầu khí', NULL),
+                      ('4678b3a0-6cae-4837-9286-75a6046aa239', 'Khoa Đào tạo quốc tế', NULL);

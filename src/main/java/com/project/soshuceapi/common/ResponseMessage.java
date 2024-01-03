@@ -1,0 +1,20 @@
+package com.project.soshuceapi.common;
+
+public class ResponseMessage {
+
+    public static class Common {
+        public static final String SUCCESS = "%.success";
+        public static final String FAIL = "%.fail";
+        public static final String ERROR = "%.error";
+        public static final String NOT_FOUND = "%.not-found";
+        public static final String EXISTS = "%.exists";
+    }
+
+    public static class Authentication {
+        public static final String INVALID_CREDENTIALS = "%.invalid-credentials";
+        public static final String AUTHENTICATION_ERROR = "%.authentication-error";
+        public static final String VERIFY_CODE_EXPIRED = "%.verify-code-expired";
+        public static final String VERIFY_CODE_INCORRECT = "%.verify-code-incorrect";
+    }
+
+}
