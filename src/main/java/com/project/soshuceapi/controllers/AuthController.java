@@ -100,7 +100,7 @@ public class AuthController {
 
     @GetMapping("/refresh-token")
     @PreAuthorize("permitAll()")
-    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
         authService.refreshToken(request, response);
     }
 
