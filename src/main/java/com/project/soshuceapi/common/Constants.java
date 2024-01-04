@@ -14,7 +14,7 @@ public class Constants {
 
     //regex register
     public static class Regex {
-        public final static String EMAIL = "^[a-zA-Z]+\\d+@huce\\.edu\\.vn$";
+        public final static String EMAIL = "^[a-zA-Z]+\\d+@(h|H)(u|U)(c|C)(e|E)\\.(e|E)(d|D)(u|U)\\.(v|V)(n|N)$";
         public final static String PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_])[A-Za-z\\d\\W_]{8,}$";
         public final static String NAME = "^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưỂỄỆẾỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệếỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ ]{2,}$";
         public final static String STUDENT_CODE = "^\\d+$";

@@ -14,6 +14,8 @@ import com.project.soshuceapi.services.AuthService;
 import com.project.soshuceapi.services.RedisService;
 import com.project.soshuceapi.services.StudentService;
 import com.project.soshuceapi.utils.DataUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -93,6 +96,12 @@ public class AuthController {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @GetMapping("/refresh-token")
+    @PreAuthorize("permitAll()")
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        authService.refreshToken(request, response);
     }
 
 }

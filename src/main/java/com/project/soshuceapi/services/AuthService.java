@@ -15,15 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class AuthService implements IAuthService, LogoutHandler {
+public class AuthService implements IAuthService {
 
     @Autowired
     private IStudentService studentService;
@@ -59,18 +57,23 @@ public class AuthService implements IAuthService, LogoutHandler {
     }
 
     @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
         try {
             final String authHeader = request.getHeader(Constants.Secutiry.REQUEST_HEADER_AUTH);
             if (authHeader == null || !authHeader.startsWith(Constants.Secutiry.TOKEN_PREFIX)) {
                 return;
             }
-            String jwt = authHeader.substring(Constants.Secutiry.TOKEN_PREFIX.length());
-            String key = Constants.Secutiry.TOKEN_HEADER_KEY + jwtProvider.extractStudentCode(jwt);
-            String storedToken = (String) redisService.getDataFromRedis(key);
-            if (storedToken != null) {
-                redisService.deleteDataFromRedis(key);
-                SecurityContextHolder.clearContext();
+            String jwtRefresh = authHeader.substring(Constants.Secutiry.TOKEN_PREFIX.length());
+            String studentCode = jwtProvider.extractStudentCode(jwtRefresh);
+            if (studentCode != null) {
+                Student student = studentMapper.mapFrom(studentService.getByStudentCode(studentCode));
+                String key = Constants.Secutiry.TOKEN_HEADER_KEY + studentCode;
+                String storedToken = (String) redisService.getDataFromRedis(key);
+                if (storedToken == null && jwtProvider.isTokenValid(jwtRefresh, student)) {
+                    String token = jwtProvider.generateToken(null, student);
+                    saveUserToken(student, token);
+                    response.setHeader(Constants.Secutiry.REQUEST_HEADER_AUTH, Constants.Secutiry.TOKEN_PREFIX + token);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

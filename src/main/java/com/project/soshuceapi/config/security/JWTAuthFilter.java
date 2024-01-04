@@ -48,7 +48,8 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             String studentCode = jwtProvider.extractStudentCode(jwt);
             if (studentCode != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(studentCode);
-                boolean isTokenValid = redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + studentCode) != null;
+                boolean isTokenValid = redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + studentCode) != null &&
+                        redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + studentCode).equals(jwt);
                 if (isTokenValid && jwtProvider.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
