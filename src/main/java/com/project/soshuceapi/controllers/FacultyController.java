@@ -6,6 +6,7 @@ import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.FacultyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,8 +34,9 @@ public class FacultyController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+
     }
 
 }

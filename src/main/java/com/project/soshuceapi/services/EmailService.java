@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService implements IEmailService {
 
+    private final static String TAG = "EMAIL";
+
     @Autowired
     private JavaMailSender emailSender;
     @Value("${spring.mail.username}")
@@ -28,7 +30,7 @@ public class EmailService implements IEmailService {
             helper.setFrom(from);
             emailSender.send(message);
         } catch (Exception e) {
-            throw new MessagingException("Error when sending email");
+            throw new MessagingException("error.send.mail");
         }
     }
 

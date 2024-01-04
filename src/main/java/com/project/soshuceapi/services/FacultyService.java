@@ -11,6 +11,8 @@ import java.util.List;
 @Service
 public class FacultyService implements IFacultyService {
 
+    private final static String TAG = "FACULTY";
+
     @Autowired
     private FacultyRepository facultyRepository;
 

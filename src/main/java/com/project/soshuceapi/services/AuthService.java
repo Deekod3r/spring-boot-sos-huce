@@ -23,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AuthService implements IAuthService {
 
+    private final static String TAG = "AUTH";
+
     @Autowired
     private IStudentService studentService;
     @Autowired

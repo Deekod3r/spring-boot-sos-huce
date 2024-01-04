@@ -20,6 +20,8 @@ import java.time.LocalDateTime;
 @Service
 public class StudentService implements IStudentService {
 
+    private final static String TAG = "STUDENT";
+
     @Autowired
     private StudentRepository studentRepository;
     @Autowired
@@ -50,8 +52,23 @@ public class StudentService implements IStudentService {
     }
 
     @Override
-    public StudentDTO update(StudentUpdateRequest request) {
-        return null;
+    public StudentDTO update(StudentUpdateRequest request, String id) {
+        try {
+            validStudentRequest(request, false);
+            Student student = studentMapper.mapFrom(request);
+            student.setDeleted(false);
+            student.setActivated(true);
+//            student.setPassword(passwordEncoder.encode(request.getPassword()));
+//            student.setCreatedAt(LocalDateTime.now());
+//            student.setRole(request.getRole());
+//            student.setFaculty(facultyService.getById(request.getFaculty()));
+//            student = studentRepository.save(student);
+            return studentMapper.mapTo(student, StudentDTO.class);
+        } catch (StudentNotFoundException e) {
+            throw new StudentNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
@@ -80,9 +97,6 @@ public class StudentService implements IStudentService {
 
     private void validStudentRequest(@NotNull Object obj, boolean type) {
         try {
-            if (obj == null) {
-                throw new RuntimeException("null.student");
-            }
             String facultyId;
             if (type) {
                 StudentCreateRequest createRequest = (StudentCreateRequest) obj;

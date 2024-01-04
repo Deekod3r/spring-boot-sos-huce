@@ -8,7 +8,7 @@ public interface IStudentService {
 
     StudentDTO create (StudentCreateRequest request);
 
-    StudentDTO update (StudentUpdateRequest request);
+    StudentDTO update (StudentUpdateRequest request, String id);
 
     StudentDTO getById(String id);
 

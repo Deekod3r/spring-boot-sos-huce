@@ -10,6 +10,7 @@ public class Constants {
         public final static String TOKEN_PREFIX = "Bearer ";
         public final static String REQUEST_HEADER_AUTH = "Authorization";
         public final static String TOKEN_HEADER_KEY = "TOKEN_AUTH_";
+        public final static int VERIFY_CODE_LENGTH = 6;
     }
 
     //regex register

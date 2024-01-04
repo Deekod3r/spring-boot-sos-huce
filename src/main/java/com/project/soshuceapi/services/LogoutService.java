@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class LogoutService implements LogoutHandler {
 
+    private final static String TAG = "LOGOUT";
+
     @Autowired
     private RedisService redisService;
     @Autowired

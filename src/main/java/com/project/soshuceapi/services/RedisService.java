@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RedisService implements IRedisService {
 
+    private final static String TAG = "REDIS";
+
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 

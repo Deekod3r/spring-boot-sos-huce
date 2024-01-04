@@ -2,7 +2,6 @@ package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
-import com.project.soshuceapi.common.enums.security.ERole;
 import com.project.soshuceapi.exceptions.AuthenticationException;
 import com.project.soshuceapi.exceptions.StudentExistedException;
 import com.project.soshuceapi.models.DTOs.StudentDTO;
@@ -24,7 +23,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -60,7 +58,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
@@ -82,8 +80,6 @@ public class AuthController {
             }
             String data = (String) redisService.getDataFromRedis(id + "-REGISTER-INFO");
             StudentCreateRequest request = DataUtil.fromJSON(data, StudentCreateRequest.class);
-            request.setCreatedBy("SEFT");
-            request.setRole(ERole.STUDENT);
             response.setData(studentService.create(request));
             response.setSuccess(true);
             redisService.deleteDataFromRedis(id + "-REGISTER-CODE");
@@ -94,7 +90,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         } catch (Exception e) {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
