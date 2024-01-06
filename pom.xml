@@ -154,7 +154,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>SOS HUCE API</finalName>
+        <finalName>SOS-HUCE-API</finalName>
     </build>
 
 </project>
