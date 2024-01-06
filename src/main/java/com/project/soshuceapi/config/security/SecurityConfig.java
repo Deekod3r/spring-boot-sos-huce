@@ -60,10 +60,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:4200/",
-                "https://spring-boot-sos-huce-production.up.railway.app/",
-                "https://sos-huce-api.onrender.com/",
-                "http://13.228.225.19/", "http://18.142.128.26/", "http://54.254.162.138/",
-                "https://13.228.225.19/", "https://18.142.128.26/", "https://54.254.162.138/"));
+                "https://sos-huce-1703816060758.web.app/"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);
