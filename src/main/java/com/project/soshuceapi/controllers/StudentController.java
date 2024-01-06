@@ -2,7 +2,6 @@ package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseCode;
-import com.project.soshuceapi.common.enums.security.ERole;
 import com.project.soshuceapi.models.requests.StudentCreateRequest;
 import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
@@ -25,7 +24,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/api/students")
+@RequestMapping("/students")
 @CrossOrigin(origins = "http://localhost:4200")
 public class StudentController {
 
