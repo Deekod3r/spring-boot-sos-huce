@@ -51,8 +51,6 @@ public class StudentController {
             }
             String verifyCode = StringUtil.generateRandomString(Constants.Secutiry.VERIFY_CODE_LENGTH);
             String key = String.valueOf(System.currentTimeMillis());
-            request.setRole(ERole.STUDENT);
-            request.setCreatedBy("SELF");
             emailService.sendMail(request.getEmail(), String.format(Constants.Mail.SUBJECT, "Email Verification"), String.format(Constants.Mail.VERIFY_BODY, request.getEmail(), "đăng ký tài khoản", verifyCode));
             redisService.saveDataToRedis(request.getStudentCode() + key + "-REGISTER-INFO", DataUtil.toJSON(request), Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
             redisService.saveDataToRedis(request.getStudentCode() + key + "-REGISTER-CODE", verifyCode, Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);

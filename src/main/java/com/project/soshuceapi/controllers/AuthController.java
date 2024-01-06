@@ -2,6 +2,7 @@ package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
+import com.project.soshuceapi.common.enums.security.ERole;
 import com.project.soshuceapi.exceptions.AuthenticationException;
 import com.project.soshuceapi.exceptions.StudentExistedException;
 import com.project.soshuceapi.models.DTOs.StudentDTO;
@@ -80,6 +81,8 @@ public class AuthController {
             }
             String data = (String) redisService.getDataFromRedis(id + "-REGISTER-INFO");
             StudentCreateRequest request = DataUtil.fromJSON(data, StudentCreateRequest.class);
+            request.setRole(ERole.STUDENT);
+            request.setCreatedBy("SELF");
             response.setData(studentService.create(request));
             response.setSuccess(true);
             redisService.deleteDataFromRedis(id + "-REGISTER-CODE");
