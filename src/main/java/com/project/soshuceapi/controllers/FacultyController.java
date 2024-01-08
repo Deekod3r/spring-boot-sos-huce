@@ -24,7 +24,6 @@ public class FacultyController {
     private FacultyService facultyService;
 
     @GetMapping()
-    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getAllFaculties() {
         Response<List<Faculty>> response = new Response<>();
         try {

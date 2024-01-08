@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
@@ -39,7 +38,6 @@ public class AuthController {
     private StudentService studentService;
 
     @PostMapping(value = "/login")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
         Response<Map<String, Object>> response = new Response<>();
         try {
@@ -63,7 +61,6 @@ public class AuthController {
     }
 
     @GetMapping("/verify/{id}")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<?> verify(@PathVariable("id") String id, @RequestParam("code") String code) {
         Response<StudentDTO> response = new Response<>();
         try {
@@ -97,7 +94,6 @@ public class AuthController {
     }
 
     @GetMapping("/refresh-token")
-    @PreAuthorize("permitAll()")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
         authService.refreshToken(request, response);
     }

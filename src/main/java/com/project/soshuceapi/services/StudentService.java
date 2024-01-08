@@ -10,6 +10,7 @@ import com.project.soshuceapi.models.requests.StudentUpdateRequest;
 import com.project.soshuceapi.repositories.StudentRepository;
 import com.project.soshuceapi.services.iservice.IFacultyService;
 import com.project.soshuceapi.services.iservice.IStudentService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
+@Transactional
 public class StudentService implements IStudentService {
 
     private final static String TAG = "STUDENT";
