@@ -38,7 +38,7 @@ public class SecurityConfig {
             "/logout",
             "/students/register",
             "/faculties",
-            "/location/**",
+            "/location/**"
     };
 
     @Bean

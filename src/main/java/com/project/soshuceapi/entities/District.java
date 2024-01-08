@@ -1,5 +1,6 @@
 package com.project.soshuceapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,5 +23,6 @@ public class District {
     private String code;
 
     @OneToMany(mappedBy = "district")
+    @JsonIgnore
     private Set<Ward> wards = new HashSet<>();
 }
