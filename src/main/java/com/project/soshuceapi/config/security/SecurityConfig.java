@@ -36,7 +36,7 @@ public class SecurityConfig {
             "/login",
             "/verify/**",
             "/logout",
-            "/student/register",
+            "/students/register",
             "/faculties",
             "/location/**",
     };
