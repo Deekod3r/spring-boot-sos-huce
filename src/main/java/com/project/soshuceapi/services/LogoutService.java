@@ -28,7 +28,7 @@ public class LogoutService implements LogoutHandler {
                 return;
             }
             String jwt = authHeader.substring(Constants.Secutiry.TOKEN_PREFIX.length());
-            String key = Constants.Secutiry.TOKEN_HEADER_KEY + jwtProvider.extractStudentCode(jwt);
+            String key = Constants.Secutiry.TOKEN_HEADER_KEY + jwtProvider.extractEmail(jwt);
             String storedToken = (String) redisService.getDataFromRedis(key);
             if (storedToken != null) {
                 redisService.deleteDataFromRedis(key);

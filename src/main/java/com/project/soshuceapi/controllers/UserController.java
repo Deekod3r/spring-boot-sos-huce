@@ -2,12 +2,12 @@ package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseCode;
-import com.project.soshuceapi.models.requests.StudentCreateRequest;
+import com.project.soshuceapi.models.requests.UserCreateRequest;
 import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
-import com.project.soshuceapi.services.EmailService;
-import com.project.soshuceapi.services.RedisService;
-import com.project.soshuceapi.services.StudentService;
+import com.project.soshuceapi.services.iservice.IEmailService;
+import com.project.soshuceapi.services.iservice.IRedisService;
+import com.project.soshuceapi.services.iservice.IUserService;
 import com.project.soshuceapi.utils.DataUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.mail.MessagingException;
@@ -23,34 +23,34 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/students")
-public class StudentController {
+@RequestMapping("/users")
+public class UserController {
 
     @Autowired
-    private StudentService studentService;
+    private IUserService userService;
     @Autowired
-    private RedisService redisService;
+    private IRedisService redisService;
     @Autowired
-    private EmailService emailService;
+    private IEmailService emailService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody StudentCreateRequest request, BindingResult bindingResult) throws MessagingException {
+    public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request, BindingResult bindingResult) throws MessagingException {
         Response<Map<String, String>> response = new Response<>();
         try {
             if (bindingResult.hasErrors()) {
                 response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(), ResponseCode.Common.FAIL));
                 return ResponseEntity.badRequest().body(response);
             }
-            if (studentService.isExistByStudentCodeOrEmail(request.getStudentCode(), request.getEmail())) {
-                response.setError(Error.of("existed.student.by.code/email", ResponseCode.Common.EXISTED));
+            if (userService.isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())) {
+                response.setError(Error.of("existed.user.by.code/email", ResponseCode.Common.EXISTED));
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
             String verifyCode = StringUtil.generateRandomString(Constants.Secutiry.VERIFY_CODE_LENGTH);
             String key = String.valueOf(System.currentTimeMillis());
             emailService.sendMail(request.getEmail(), String.format(Constants.Mail.SUBJECT, "Email Verification"), String.format(Constants.Mail.VERIFY_BODY, request.getEmail(), "đăng ký tài khoản", verifyCode));
-            redisService.saveDataToRedis(request.getStudentCode() + key + "-REGISTER-INFO", DataUtil.toJSON(request), Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
-            redisService.saveDataToRedis(request.getStudentCode() + key + "-REGISTER-CODE", verifyCode, Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
-            response.setData(Map.of("id", request.getStudentCode() + key));
+            redisService.saveDataToRedis(request.getPhoneNumber() + key + "-REGISTER-INFO", DataUtil.toJSON(request), Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
+            redisService.saveDataToRedis(request.getPhoneNumber() + key + "-REGISTER-CODE", verifyCode, Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
+            response.setData(Map.of("id", request.getPhoneNumber() + key));
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {

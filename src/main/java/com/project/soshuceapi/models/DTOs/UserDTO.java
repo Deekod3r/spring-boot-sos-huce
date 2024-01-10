@@ -1,6 +1,5 @@
 package com.project.soshuceapi.models.DTOs;
 
-import com.project.soshuceapi.entities.Faculty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,10 +10,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class StudentDTO {
+public class UserDTO {
     String id;
-    String studentCode;
+    String phoneNumber;
     String name;
     String email;
-    Faculty faculty;
 }

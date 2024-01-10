@@ -1,6 +1,6 @@
 package com.project.soshuceapi.security;
 
-import com.project.soshuceapi.entities.Student;
+import com.project.soshuceapi.entities.User;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -23,7 +23,7 @@ public class ApplicationAuditAware implements AuditorAware<String> {
             return Optional.empty();
         }
 
-        Student principal = (Student) authentication.getPrincipal();
+        User principal = (User) authentication.getPrincipal();
         return Optional.ofNullable(principal.getId());
     }
 }

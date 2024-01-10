@@ -1,14 +1,14 @@
 package com.project.soshuceapi.services;
 
 import com.project.soshuceapi.common.Constants;
-import com.project.soshuceapi.entities.Student;
+import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.exceptions.AuthenticationException;
-import com.project.soshuceapi.models.DTOs.StudentDTO;
-import com.project.soshuceapi.models.mappers.StudentMapper;
+import com.project.soshuceapi.models.DTOs.UserDTO;
+import com.project.soshuceapi.models.mappers.UserMapper;
 import com.project.soshuceapi.models.requests.LoginRequest;
 import com.project.soshuceapi.security.JWTProvider;
 import com.project.soshuceapi.services.iservice.IAuthService;
-import com.project.soshuceapi.services.iservice.IStudentService;
+import com.project.soshuceapi.services.iservice.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class AuthService implements IAuthService {
     private final static String TAG = "AUTH";
 
     @Autowired
-    private IStudentService studentService;
+    private IUserService userService;
     @Autowired
     private RedisService redisService;
     @Autowired
@@ -34,21 +34,21 @@ public class AuthService implements IAuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
-    private StudentMapper studentMapper;
+    private UserMapper userMapper;
 
     @Override
     public Map<String, Object> authenticate(LoginRequest loginRequest) {
         try {
             Authentication authenticate = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getStudentCode(), loginRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
             if (authenticate.isAuthenticated()) {
-                Student student = studentMapper.mapFrom(studentService.getByStudentCode(loginRequest.getStudentCode()));
-                String token = jwtProvider.generateToken(null, student);
-                String refreshToken = jwtProvider.generateRefreshToken(null, student);
-                revokeAllStudentTokens(student);
-                saveUserToken(student, token);
-                return Map.of("token",token,"refreshToken",refreshToken,"student",studentMapper.mapTo(student, StudentDTO.class));
+                User user = userMapper.mapFrom(userService.getByEmail(loginRequest.getEmail()));
+                String token = jwtProvider.generateToken(null, user);
+                String refreshToken = jwtProvider.generateRefreshToken(null, user);
+                revokeAllUserTokens(user);
+                saveUserToken(user, token);
+                return Map.of("token",token,"refreshToken",refreshToken,"user", userMapper.mapTo(user, UserDTO.class));
             }
             return null;
         } catch (org.springframework.security.core.AuthenticationException authenticationException){
@@ -66,14 +66,14 @@ public class AuthService implements IAuthService {
                 return;
             }
             String jwtRefresh = authHeader.substring(Constants.Secutiry.TOKEN_PREFIX.length());
-            String studentCode = jwtProvider.extractStudentCode(jwtRefresh);
-            if (studentCode != null) {
-                Student student = studentMapper.mapFrom(studentService.getByStudentCode(studentCode));
-                String key = Constants.Secutiry.TOKEN_HEADER_KEY + studentCode;
+            String email = jwtProvider.extractEmail(jwtRefresh);
+            if (email != null) {
+                User user = userMapper.mapFrom(userService.getByEmail(email));
+                String key = Constants.Secutiry.TOKEN_HEADER_KEY + email;
                 String storedToken = (String) redisService.getDataFromRedis(key);
-                if (storedToken == null && jwtProvider.isTokenValid(jwtRefresh, student)) {
-                    String token = jwtProvider.generateToken(null, student);
-                    saveUserToken(student, token);
+                if (storedToken == null && jwtProvider.isTokenValid(jwtRefresh, user)) {
+                    String token = jwtProvider.generateToken(null, user);
+                    saveUserToken(user, token);
                     response.setHeader(Constants.Secutiry.REQUEST_HEADER_AUTH, Constants.Secutiry.TOKEN_PREFIX + token);
                 }
             }
@@ -82,12 +82,12 @@ public class AuthService implements IAuthService {
         }
     }
 
-    private void saveUserToken(Student student, String jwtToken) {
-        redisService.saveDataToRedis(Constants.Secutiry.TOKEN_HEADER_KEY + student.getStudentCode(), jwtToken, Constants.Secutiry.TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
+    private void saveUserToken(User user, String jwtToken) {
+        redisService.saveDataToRedis(Constants.Secutiry.TOKEN_HEADER_KEY + user.getEmail(), jwtToken, Constants.Secutiry.TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
     }
 
-    private void revokeAllStudentTokens(Student student) {
-        redisService.deleteDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + student.getEmail());
+    private void revokeAllUserTokens(User user) {
+        redisService.deleteDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + user.getEmail());
     }
 
 }

@@ -37,7 +37,7 @@ public class JWTProvider {
                 .compact();
     }
 
-    public String extractStudentCode(String token) {
+    public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -57,7 +57,7 @@ public class JWTProvider {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractStudentCode(token);
+        final String username = extractEmail(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 

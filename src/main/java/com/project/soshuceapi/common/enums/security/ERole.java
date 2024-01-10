@@ -14,11 +14,11 @@ import static com.project.soshuceapi.common.enums.security.EPermission.*;
 @RequiredArgsConstructor
 public enum ERole {
 
-    STUDENT(Set.of(
-            STUDENT_READ,
-            STUDENT_UPDATE,
-            STUDENT_DELETE,
-            STUDENT_CREATE
+    USER(Set.of(
+            USER_READ,
+            USER_UPDATE,
+            USER_DELETE,
+            USER_CREATE
     )),
     MANAGER(Set.of(
             MANAGER_READ,

@@ -12,8 +12,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginRequest {
-    @NotBlank(message = "missing.student.code")
-    String studentCode;
-    @NotBlank(message = "missing.student.password")
+    @NotBlank(message = "missing.user.email")
+    String email;
+    @NotBlank(message = "missing.user.password")
     String password;
 }

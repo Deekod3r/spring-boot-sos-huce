@@ -15,21 +15,18 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class StudentUpdateRequest {
-    @NotBlank(message = "Id is required.")
+public class UserUpdateRequest {
+    @NotBlank(message = "missing.user.id")
     String id;
-    @NotBlank(message = "Student code is required.")
-    @Pattern(regexp = Constants.Regex.STUDENT_CODE, message = "Student code is invalid.")
-    String studentCode;
-    @NotBlank(message = "Name is required.")
-    @Pattern(regexp = Constants.Regex.NAME, message = "Name is invalid.")
+    @NotBlank(message = "missing.user.phone.number")
+    @Pattern(regexp = Constants.Regex.PHONE_NUMBER, message = "invalid.user.phone.number")
+    String phoneNumber;
+    @NotBlank(message = "missing.user.name")
+    @Pattern(regexp = Constants.Regex.NAME, message = "invalid.user.name")
     String name;
-    @NotBlank(message = "Email is required.")
-    @Email(message = "Email is invalid.")
-    @Pattern(regexp = Constants.Regex.EMAIL, message = "Email is invalid.")
+    @NotBlank(message = "missing.user.email")
+    @Email(message = "invalid.user.email")
     String email;
-    @NotBlank(message = "Faculty is required.")
-    String faculty;
     boolean isActivated;
     @JsonIgnore
     String role;

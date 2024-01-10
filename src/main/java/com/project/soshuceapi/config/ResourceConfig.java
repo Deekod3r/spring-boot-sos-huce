@@ -15,5 +15,7 @@ public class ResourceConfig {
     private String applicationName;
     @Value("${application.version}")
     private String applicationVersion;
+    @Value("${firebase.bucket.name}")
+    private String firebaseBucketName;
 
 }

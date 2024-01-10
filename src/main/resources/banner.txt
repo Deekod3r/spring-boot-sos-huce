@@ -1,17 +1,15 @@
 
-
 ${AnsiColor.RED}******************************************************************************************
-*${AnsiColor.BRIGHT_GREEN}:'######:::'#######:::'######:::::'##::::'##:'##::::'##::'######::'########:${AnsiColor.RED}*
-*${AnsiColor.BRIGHT_GREEN}'##... ##:'##.... ##:'##... ##:::: ##:::: ##: ##:::: ##:'##... ##: ##.....::${AnsiColor.RED}*
-*${AnsiColor.BRIGHT_GREEN} ##:::..:: ##:::: ##: ##:::..::::: ##:::: ##: ##:::: ##: ##:::..:: ##:::::::${AnsiColor.RED}*
-*${AnsiColor.BRIGHT_GREEN}. ######:: ##:::: ##:. ######::::: #########: ##:::: ##: ##::::::: ######:::${AnsiColor.RED}*
-*${AnsiColor.BRIGHT_GREEN}:..... ##: ##:::: ##::..... ##:::: ##.... ##: ##:::: ##: ##::::::: ##...::::${AnsiColor.RED}*
-*${AnsiColor.BRIGHT_GREEN}'##::: ##: ##:::: ##:'##::: ##:::: ##:::: ##: ##:::: ##: ##::: ##: ##:::::::${AnsiColor.RED}*
-*${AnsiColor.BRIGHT_GREEN}. ######::. #######::. ######::::: ##:::: ##:. #######::. ######:: ########:${AnsiColor.RED}*
-*${AnsiColor.BRIGHT_GREEN}:......::::.......::::......::::::..:::::..:::.......::::......:::........::${AnsiColor.RED}*
+*${AnsiColor.BRIGHT_CYAN}:'######:::'#######:::'######:::::'##::::'##:'##::::'##::'######::'########:${AnsiColor.RED}*
+*${AnsiColor.BRIGHT_CYAN}'##... ##:'##.... ##:'##... ##:::: ##:::: ##: ##:::: ##:'##... ##: ##.....::${AnsiColor.RED}*
+*${AnsiColor.BRIGHT_CYAN} ##:::..:: ##:::: ##: ##:::..::::: ##:::: ##: ##:::: ##: ##:::..:: ##:::::::${AnsiColor.RED}*
+*${AnsiColor.BRIGHT_CYAN}. ######:: ##:::: ##:. ######::::: #########: ##:::: ##: ##::::::: ######:::${AnsiColor.RED}*
+*${AnsiColor.BRIGHT_CYAN}:..... ##: ##:::: ##::..... ##:::: ##.... ##: ##:::: ##: ##::::::: ##...::::${AnsiColor.RED}*
+*${AnsiColor.BRIGHT_CYAN}'##::: ##: ##:::: ##:'##::: ##:::: ##:::: ##: ##:::: ##: ##::: ##: ##:::::::${AnsiColor.RED}*
+*${AnsiColor.BRIGHT_CYAN}. ######::. #######::. ######::::: ##:::: ##:. #######::. ######:: ########:${AnsiColor.RED}*
+*${AnsiColor.BRIGHT_CYAN}:......::::.......::::......::::::..:::::..:::.......::::......:::........::${AnsiColor.RED}*
 ${AnsiColor.RED}******************************************************************************************
-${AnsiColor.BRIGHT_GREEN}Service: ${application.name}${AnsiColor.WHITE}
-${AnsiColor.BRIGHT_GREEN}Version: ${application.version}${AnsiColor.WHITE}
-${AnsiColor.BRIGHT_GREEN}Powered by HUCE Tech <Spring Boot ${spring-boot.version}>${AnsiColor.WHITE}
+${AnsiColor.BRIGHT_CYAN}Service: ${AnsiColor.RED}${application.name}${AnsiColor.WHITE}
+${AnsiColor.BRIGHT_CYAN}Version: ${AnsiColor.RED}${application.version}${AnsiColor.WHITE}
+${AnsiColor.BRIGHT_CYAN}Powered by ${AnsiColor.RED}HUCE Tech ${AnsiColor.WHITE}<${AnsiColor.BRIGHT_CYAN}Spring Boot ${AnsiColor.RED}${spring-boot.version}${AnsiColor.WHITE}>
 ${AnsiColor.RED}******************************************************************************************
-

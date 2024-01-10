@@ -4,15 +4,15 @@ import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.common.enums.security.ERole;
 import com.project.soshuceapi.exceptions.AuthenticationException;
-import com.project.soshuceapi.exceptions.StudentExistedException;
-import com.project.soshuceapi.models.DTOs.StudentDTO;
+import com.project.soshuceapi.exceptions.UserExistedException;
+import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.requests.LoginRequest;
-import com.project.soshuceapi.models.requests.StudentCreateRequest;
+import com.project.soshuceapi.models.requests.UserCreateRequest;
 import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
-import com.project.soshuceapi.services.AuthService;
-import com.project.soshuceapi.services.RedisService;
-import com.project.soshuceapi.services.StudentService;
+import com.project.soshuceapi.services.iservice.IAuthService;
+import com.project.soshuceapi.services.iservice.IRedisService;
+import com.project.soshuceapi.services.iservice.IUserService;
 import com.project.soshuceapi.utils.DataUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +20,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,11 +30,11 @@ import java.util.Objects;
 public class AuthController {
 
     @Autowired
-    private AuthService authService;
+    private IAuthService authService;
     @Autowired
-    private RedisService redisService;
+    private IRedisService redisService;
     @Autowired
-    private StudentService studentService;
+    private IUserService userService;
 
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
@@ -62,7 +61,7 @@ public class AuthController {
 
     @GetMapping("/verify/{id}")
     public ResponseEntity<?> verify(@PathVariable("id") String id, @RequestParam("code") String code) {
-        Response<StudentDTO> response = new Response<>();
+        Response<UserDTO> response = new Response<>();
         try {
             String verifyCode = (String) redisService.getDataFromRedis(id + "-REGISTER-CODE");
             if (verifyCode == null) {
@@ -76,15 +75,15 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             String data = (String) redisService.getDataFromRedis(id + "-REGISTER-INFO");
-            StudentCreateRequest request = DataUtil.fromJSON(data, StudentCreateRequest.class);
-            request.setRole(ERole.STUDENT);
+            UserCreateRequest request = DataUtil.fromJSON(data, UserCreateRequest.class);
+            request.setRole(ERole.USER);
             request.setCreatedBy("SELF");
-            response.setData(studentService.create(request));
+            response.setData(userService.create(request));
             response.setSuccess(true);
             redisService.deleteDataFromRedis(id + "-REGISTER-CODE");
             redisService.deleteDataFromRedis(id + "-REGISTER-INFO");
             return ResponseEntity.ok(response);
-        } catch (StudentExistedException e) {
+        } catch (UserExistedException e) {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.EXISTED));
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         } catch (Exception e) {

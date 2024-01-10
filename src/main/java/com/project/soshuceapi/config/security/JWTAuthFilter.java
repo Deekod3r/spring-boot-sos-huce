@@ -45,11 +45,11 @@ public class JWTAuthFilter extends OncePerRequestFilter {
                 return;
             }
             String jwt = authHeader.substring(Constants.Secutiry.TOKEN_PREFIX.length());
-            String studentCode = jwtProvider.extractStudentCode(jwt);
-            if (studentCode != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(studentCode);
-                boolean isTokenValid = redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + studentCode) != null &&
-                        redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + studentCode).equals(jwt);
+            String email = jwtProvider.extractEmail(jwt);
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
+                boolean isTokenValid = redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + email) != null &&
+                        redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + email).equals(jwt);
                 if (isTokenValid && jwtProvider.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
