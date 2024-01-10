@@ -57,8 +57,8 @@ public class JWTProvider {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractEmail(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        final String email = extractEmail(token);
+        return (email.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
