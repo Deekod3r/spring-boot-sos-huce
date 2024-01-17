@@ -17,6 +17,7 @@ public class Ward {
     private int id;
     private String name;
     private String code;
+    private int provinceId;
 
     @ManyToOne
     @JoinColumn(name = "district_id", nullable = false)

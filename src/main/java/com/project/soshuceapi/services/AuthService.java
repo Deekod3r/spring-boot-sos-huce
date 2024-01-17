@@ -8,6 +8,7 @@ import com.project.soshuceapi.models.mappers.UserMapper;
 import com.project.soshuceapi.models.requests.LoginRequest;
 import com.project.soshuceapi.security.JWTProvider;
 import com.project.soshuceapi.services.iservice.IAuthService;
+import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,7 +29,7 @@ public class AuthService implements IAuthService {
     @Autowired
     private IUserService userService;
     @Autowired
-    private RedisService redisService;
+    private IRedisService redisService;
     @Autowired
     private JWTProvider jwtProvider;
     @Autowired

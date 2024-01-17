@@ -1,14 +1,14 @@
 package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseCode;
-import com.project.soshuceapi.entities.Image;
+import com.project.soshuceapi.models.DTOs.FileDTO;
 import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.IFileService;
-import com.project.soshuceapi.services.iservice.IImageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,21 +26,20 @@ public class FileController {
 
     @Autowired
     private IFileService fileService;
-    @Autowired
-    private IImageService imageService;
 
     @PostMapping("/upload")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile multipartFile) {
         log.info("HIT -/upload | File Name : {}", multipartFile.getOriginalFilename());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Response<Image> response = new Response<>();
+        Response<FileDTO> response = new Response<>();
         try {
             Map<String, String> data = fileService.upload(multipartFile);
-            Image image = Image.builder()
+            FileDTO fileDTO = FileDTO.builder()
                             .name(data.get("fileName"))
                             .url(data.get("url"))
                             .build();
-            response.setData(image);
+            response.setData(fileDTO);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -51,18 +50,21 @@ public class FileController {
     }
 
     @PostMapping("/upload-multiple")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String uploadMultipleFiles() {
-        return "upload multiple files";
+        return "upload.multiple.files";
     }
 
     @PostMapping("/download")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String downloadFile() {
-        return "download file";
+        return "download.file";
     }
 
     @PostMapping("/download-multiple")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String downloadMultipleFiles() {
-        return "download multiple files";
+        return "download.multiple.files";
     }
 
 }

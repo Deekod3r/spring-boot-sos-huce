@@ -1,11 +1,14 @@
 package com.project.soshuceapi.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,20 +16,16 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "districts")
+@Table(name = "provinces")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
-public class District {
+public class Province {
     @Id
     private int id;
     private String name;
     private String code;
 
-    @OneToMany(mappedBy = "district")
+    @OneToMany(mappedBy = "province")
     @JsonIgnore
-    private Set<Ward> wards = new HashSet<>();
-
-    @ManyToOne
-    @JoinColumn(name = "province_id", nullable = false)
-    private Province province;
+    private Set<District> districts = new HashSet<>();
 }

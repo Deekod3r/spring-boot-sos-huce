@@ -1,5 +1,6 @@
 package com.project.soshuceapi.models.DTOs;
 
+import com.project.soshuceapi.common.enums.security.ERole;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,4 +16,5 @@ public class UserDTO {
     String phoneNumber;
     String name;
     String email;
+    ERole role;
 }

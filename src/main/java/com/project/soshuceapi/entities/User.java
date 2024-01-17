@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -40,12 +42,19 @@ public class User implements UserDetails {
     private LocalDateTime createdAt;
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
+    @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime deletedAt;
     @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
     private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
+    @Column(name = "deleted_by", columnDefinition = "VARCHAR(36)")
+    private String deletedBy;
     @Enumerated(EnumType.STRING)
     private ERole role;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Adopt> adopts = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

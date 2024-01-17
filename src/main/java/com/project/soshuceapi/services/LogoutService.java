@@ -2,6 +2,7 @@ package com.project.soshuceapi.services;
 
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.security.JWTProvider;
+import com.project.soshuceapi.services.iservice.IRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ public class LogoutService implements LogoutHandler {
     private final static String TAG = "LOGOUT";
 
     @Autowired
-    private RedisService redisService;
+    private IRedisService redisService;
     @Autowired
     private JWTProvider jwtProvider;
 

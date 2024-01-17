@@ -16,10 +16,20 @@ public class LocationController {
     @Autowired
     private ILocationService locationService;
 
-    @GetMapping("/districts")
-    public ResponseEntity<?> getAllDistricts() {
+    @GetMapping("/provinces")
+    public ResponseEntity<?> getAllProvinces() {
         try {
-            return ResponseEntity.ok(locationService.getAllDistrics());
+            return ResponseEntity.ok(locationService.getAllProvinces());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/districts")
+    public ResponseEntity<?> getAllDistricts(@RequestParam(value = "provinceId", required = false, defaultValue = "0")
+                                                 int provinceId) {
+        try {
+            return ResponseEntity.ok(locationService.getAllDistrics(provinceId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -30,6 +40,15 @@ public class LocationController {
                                              int districtId) {
         try {
             return ResponseEntity.ok(locationService.getAllWards(districtId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/province")
+    public ResponseEntity<?> getProvinceById(@RequestParam(value = "id") int id) {
+        try {
+            return ResponseEntity.ok(locationService.getProvinceById(id));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
