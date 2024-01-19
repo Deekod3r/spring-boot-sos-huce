@@ -28,7 +28,6 @@ public class FileController {
     private IFileService fileService;
 
     @PostMapping("/upload")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile multipartFile) {
         log.info("HIT -/upload | File Name : {}", multipartFile.getOriginalFilename());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

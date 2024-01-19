@@ -38,7 +38,7 @@ public class SecurityConfig {
             "/logout",
             "/users/register",
             "/location/**",
-            "/files/**",
+            "/pets"
     };
 
     @Bean

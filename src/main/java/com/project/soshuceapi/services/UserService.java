@@ -56,11 +56,6 @@ public class UserService implements IUserService {
             User user = userMapper.mapFrom(request);
             user.setDeleted(false);
             user.setActivated(true);
-//            user.setPassword(passwordEncoder.encode(request.getPassword()));
-//            user.setCreatedAt(LocalDateTime.now());
-//            user.setRole(request.getRole());
-//            user.setFaculty(facultyService.getById(request.getFaculty()));
-//            user = userRepository.save(user);
             return userMapper.mapTo(user, UserDTO.class);
         } catch (UserNotFoundException e) {
             throw new UserNotFoundException(e.getMessage());

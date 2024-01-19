@@ -29,7 +29,7 @@ public class Adopt {
     @Column(name = "address", columnDefinition = "VARCHAR(100)", nullable = false)
     private String address;
     @Column(name = "status", columnDefinition = "INTEGER", nullable = false)
-    private int status;
+    private int status; // '0-wait for progressing; 1-in progress; 2-reject; 3-cancel; 4-complete'
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
     private boolean isDeleted;
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
@@ -45,10 +45,10 @@ public class Adopt {
     @Column(name = "deleted_by", columnDefinition = "VARCHAR(36)")
     private String deletedBy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pet_id")
     private Pet pet;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 }

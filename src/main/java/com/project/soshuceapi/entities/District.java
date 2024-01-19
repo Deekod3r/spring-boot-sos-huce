@@ -22,11 +22,11 @@ public class District {
     private String name;
     private String code;
 
-    @OneToMany(mappedBy = "district")
+    @OneToMany(mappedBy = "district", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Ward> wards = new HashSet<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "province_id", nullable = false)
     private Province province;
 }

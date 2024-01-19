@@ -43,6 +43,6 @@ public class Event {
     private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
-    @Column(name = "status", columnDefinition = "BOOLEAN default true", nullable = false)
+    @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
     private boolean status;
 }

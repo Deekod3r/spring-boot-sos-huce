@@ -1,9 +1,6 @@
 package com.project.soshuceapi.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +34,10 @@ public class News {
     private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
-    @Column(name = "status", columnDefinition = "BOOLEAN default true", nullable = false)
+    @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
     private boolean status;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "news_category_id", nullable = false)
+    private NewsCategory newsCategory;
 }

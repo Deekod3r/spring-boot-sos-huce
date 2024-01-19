@@ -1,10 +1,7 @@
 package com.project.soshuceapi.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +22,7 @@ public class Province {
     private String name;
     private String code;
 
-    @OneToMany(mappedBy = "province")
+    @OneToMany(mappedBy = "province", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<District> districts = new HashSet<>();
 }
