@@ -48,8 +48,8 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             String email = jwtProvider.extractEmail(jwt);
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
-                boolean isTokenValid = redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + email) != null &&
-                        redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + email).equals(jwt);
+                var token = redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + email);
+                boolean isTokenValid = token != null && token.equals(jwt);
                 if (isTokenValid && jwtProvider.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,

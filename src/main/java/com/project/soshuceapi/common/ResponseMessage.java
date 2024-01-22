@@ -15,6 +15,7 @@ public class ResponseMessage {
         public static final String AUTHENTICATION_ERROR = "%.authentication-error";
         public static final String VERIFY_CODE_EXPIRED = "%.verify-code-expired";
         public static final String VERIFY_CODE_INCORRECT = "%.verify-code-incorrect";
+        public static final String PERMISSION_DENIED = "%.permission-denied";
     }
 
 }

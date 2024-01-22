@@ -34,7 +34,7 @@ public class UserController {
     private IEmailService emailService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request, BindingResult bindingResult) throws MessagingException {
+    public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request, BindingResult bindingResult) {
         Response<Map<String, String>> response = new Response<>();
         try {
             if (bindingResult.hasErrors()) {

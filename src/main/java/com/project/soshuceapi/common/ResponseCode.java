@@ -15,6 +15,7 @@ public class ResponseCode {
         public static final String AUTHENTICATION_ERROR = "06";
         public static final String VERIFY_CODE_EXPIRED = "07";
         public static final String VERIFY_CODE_INCORRECT = "08";
+        public static final String PERMISSION_DENIED = "09";
     }
     
 }

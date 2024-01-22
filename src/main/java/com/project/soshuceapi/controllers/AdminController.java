@@ -19,7 +19,7 @@ public class AdminController {
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
     public String getAdmins() {
-        if ( auditorAware.getCurrentAuditor().isPresent()) {
+        if (auditorAware.getCurrentAuditor().isPresent()) {
             log.info("User: {}", auditorAware.getCurrentAuditor().get());
             return auditorAware.getCurrentAuditor().get();
         }
