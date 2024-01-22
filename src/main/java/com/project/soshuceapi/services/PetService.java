@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PetService implements IPetService {
@@ -26,7 +27,8 @@ public class PetService implements IPetService {
 
     @Override
     public List<PetDTO> getPets() {
-        return null;
+        List<Pet> pets = petRepository.findAll();
+        return pets.stream().map(pet -> petMapper.mapTo(pet, PetDTO.class)).collect(Collectors.toList());
     }
 
     @Override

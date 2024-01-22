@@ -1,9 +1,12 @@
 package com.project.soshuceapi.models.mappers;
 
 import com.project.soshuceapi.entities.Pet;
+import com.project.soshuceapi.models.DTOs.PetDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class PetMapper {

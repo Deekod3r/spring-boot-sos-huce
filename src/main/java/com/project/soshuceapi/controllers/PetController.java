@@ -2,6 +2,8 @@ package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
+import com.project.soshuceapi.entities.Pet;
+import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.requests.PetCreateRequest;
 import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
@@ -15,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -29,8 +32,11 @@ public class PetController {
 
     @GetMapping
     public ResponseEntity<?> getPets() {
+        Response<List<PetDTO>> response = new Response<>();
         try {
-            return ResponseEntity.ok(petService.getPets());
+            response.setSuccess(true);
+            response.setData(petService.getPets());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

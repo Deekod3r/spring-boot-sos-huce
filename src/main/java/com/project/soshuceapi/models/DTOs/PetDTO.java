@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class PetDTO {
     String id;
+    String code;
     String name;
     int type;
     String breed;
