@@ -39,7 +39,7 @@ public class PetController {
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> create(@Valid @ModelAttribute PetCreateRequest request, BindingResult bindingResult) {
-        Response<Map<String, Object>> response = new Response<>();
+        Response<String> response = new Response<>();
         try {
             if (bindingResult.hasErrors()) {
                 response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(), ResponseCode.Common.FAIL));
@@ -50,7 +50,9 @@ public class PetController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             request.setCreatedBy(auditorAware.getCurrentAuditor().get());
-            return ResponseEntity.ok(petService.create(request));
+            response.setSuccess(true);
+            response.setData(petService.create(request).getId());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
