@@ -15,6 +15,7 @@ public interface PetRepository extends JpaRepository<Pet, String> {
     Long getSEQ();
 
     @NonNull
-    @Query(value = "SELECT * FROM pets WHERE is_deleted = false", nativeQuery = true)
+    @Query(value = "SELECT * FROM pets WHERE is_deleted = false ORDER BY status DESC", nativeQuery = true)
     List<Pet> findAll();
+
 }
