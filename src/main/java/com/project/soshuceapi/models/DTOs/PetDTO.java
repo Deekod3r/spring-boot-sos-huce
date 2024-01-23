@@ -1,17 +1,12 @@
 package com.project.soshuceapi.models.DTOs;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
-@Builder
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PetDTO {
     String id;
     String code;
