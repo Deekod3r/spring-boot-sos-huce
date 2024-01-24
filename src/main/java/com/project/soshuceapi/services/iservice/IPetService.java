@@ -9,7 +9,8 @@ import java.util.Map;
 
 public interface IPetService {
 
-    Map<String, Object> getPets(int page, int limit, String name, String breed, String color, String code, Integer type, Integer age, Integer status);
+    Map<String, Object> getPets(int page, int limit, String name, String breed, String color, String code, Integer type,
+                                Integer age, Integer gender,  Integer status);
 
     PetDTO create(PetCreateRequest petCreateRequest);
 

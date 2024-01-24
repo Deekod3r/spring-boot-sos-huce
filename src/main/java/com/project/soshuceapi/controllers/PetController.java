@@ -40,12 +40,13 @@ public class PetController {
             @RequestParam(value = "code", defaultValue = "", required = false) String code,
             @RequestParam(value = "type", defaultValue = "", required = false) Integer type,
             @RequestParam(value = "age", defaultValue = "", required = false) Integer age,
+            @RequestParam(value = "gender", defaultValue = "", required = false) Integer gender,
             @RequestParam(value = "status", defaultValue = "", required = false) Integer status
     ) {
         Response<Map<String, Object>> response = new Response<>();
         try {
             response.setSuccess(true);
-            response.setData(petService.getPets(page, limit, name, breed, color, code, type, age, status));
+            response.setData(petService.getPets(page, limit, name, breed, color, code, type, age, gender, status));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

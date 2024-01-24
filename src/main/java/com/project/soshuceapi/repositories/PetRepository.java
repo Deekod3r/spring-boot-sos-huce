@@ -26,6 +26,7 @@ public interface PetRepository extends JpaRepository<Pet, String>, PagingAndSort
             "AND (:color = '' OR color LIKE %:color%) " +
             "AND (:code = '' OR code LIKE %:code%) " +
             "AND (:type IS NULL OR type = :type) " +
+            "AND (:gender IS NULL OR gender = :gender) " +
             "AND (:age IS NULL OR age = :age) " +
             "AND (:status IS NULL OR status = :status) "
 //            "ORDER BY status DESC " +
@@ -37,6 +38,7 @@ public interface PetRepository extends JpaRepository<Pet, String>, PagingAndSort
             @Param("code") String code,
             @Param("type") Integer type,
             @Param("age") Integer age,
+            @Param("gender") Integer gender,
             @Param("status") Integer status,
             Pageable pageable
     );
