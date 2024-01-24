@@ -34,7 +34,7 @@ public class PetService implements IPetService {
     public Map<String, Object> getPets(int page, int limit, String name, String breed, String color, String code, Integer type, Integer age, Integer status) {
         Page<Pet> pets = petRepository.findAll(name, breed, color, code, type, age, status, Pageable.ofSize(limit).withPage(page - 1));
         return Map.of(
-                "data", pets.getContent().stream().map(pet -> petMapper.mapTo(pet, PetDTO.class)).collect(Collectors.toList()),
+                "pets", pets.getContent().stream().map(pet -> petMapper.mapTo(pet, PetDTO.class)).collect(Collectors.toList()),
                 "total", pets.getTotalElements(),
                 "page", pets.getNumber() + 1,
                 "limit", pets.getSize(),
