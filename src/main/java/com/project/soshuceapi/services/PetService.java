@@ -8,12 +8,17 @@ import com.project.soshuceapi.models.requests.PetUpdateRequest;
 import com.project.soshuceapi.repositories.PetRepository;
 import com.project.soshuceapi.services.iservice.IPetService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.project.soshuceapi.utils.StringUtil.upcaseAllFirstLetters;
+import static com.project.soshuceapi.utils.StringUtil.upcaseFirstLetter;
 
 @Service
 public class PetService implements IPetService {
@@ -26,9 +31,15 @@ public class PetService implements IPetService {
     private PetMapper petMapper;
 
     @Override
-    public List<PetDTO> getPets() {
-        List<Pet> pets = petRepository.findAll();
-        return pets.stream().map(pet -> petMapper.mapTo(pet, PetDTO.class)).collect(Collectors.toList());
+    public Map<String, Object> getPets(int page, int limit, String name, String breed, String color, String code, Integer type, Integer age, Integer status) {
+        Page<Pet> pets = petRepository.findAll(name, breed, color, code, type, age, status, Pageable.ofSize(limit).withPage(page - 1));
+        return Map.of(
+                "data", pets.getContent().stream().map(pet -> petMapper.mapTo(pet, PetDTO.class)).collect(Collectors.toList()),
+                "total", pets.getTotalElements(),
+                "page", pets.getNumber() + 1,
+                "limit", pets.getSize(),
+                "totalPages", pets.getTotalPages()
+        );
     }
 
     @Override
@@ -36,6 +47,9 @@ public class PetService implements IPetService {
         try {
             Map<String, String> data = fileService.upload(request.getImage());
             String url = data.get("url");
+            request.setBreed(upcaseFirstLetter(request.getBreed()));
+            request.setColor(upcaseFirstLetter(request.getColor()));
+            request.setName(upcaseAllFirstLetters(request.getName()));
             Pet pet = petMapper.mapFrom(request);
             pet.setImage(url);
             pet.setCode(generateCode(pet.getName()));

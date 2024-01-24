@@ -24,4 +24,28 @@ public class StringUtil {
         return str == null || str.isBlank();
     }
 
+    public static String upcaseFirstLetter(String input) {
+        if (isNullOrEmpty(input)) {
+            return input;
+        }
+
+        char firstChar = Character.toUpperCase(input.charAt(0));
+        return firstChar + input.substring(1);
+    }
+
+    public static String upcaseAllFirstLetters(String input) {
+        if (isNullOrEmpty(input)) {
+            return input;
+        }
+        String[] words = input.split("\\s");
+        StringBuilder result = new StringBuilder();
+
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                result.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1)).append(" ");
+            }
+        }
+
+        return result.toString().trim();
+    }
 }

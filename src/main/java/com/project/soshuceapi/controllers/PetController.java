@@ -31,11 +31,21 @@ public class PetController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getPets() {
-        Response<List<PetDTO>> response = new Response<>();
+    public ResponseEntity<?> getPets(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "limit", defaultValue = "5") int limit,
+            @RequestParam(value = "name", defaultValue = "", required = false) String name,
+            @RequestParam(value = "breed", defaultValue = "", required = false) String breed,
+            @RequestParam(value = "color", defaultValue = "", required = false) String color,
+            @RequestParam(value = "code", defaultValue = "", required = false) String code,
+            @RequestParam(value = "type", defaultValue = "", required = false) Integer type,
+            @RequestParam(value = "age", defaultValue = "", required = false) Integer age,
+            @RequestParam(value = "status", defaultValue = "", required = false) Integer status
+    ) {
+        Response<Map<String, Object>> response = new Response<>();
         try {
             response.setSuccess(true);
-            response.setData(petService.getPets());
+            response.setData(petService.getPets(page, limit, name, breed, color, code, type, age, status));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
