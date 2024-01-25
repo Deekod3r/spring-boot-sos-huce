@@ -23,12 +23,19 @@ public class Treatment {
     private String id;
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
-    @Column(name = "date", columnDefinition = "DATE", nullable = false)
-    private LocalDate date;
+    @Column(name = "start_date", columnDefinition = "DATE", nullable = false)
+    private LocalDate startDate;
+    @Column(name = "end_date", columnDefinition = "DATE", nullable = false)
+    private LocalDate endDate;
+    @Column(name = "location", columnDefinition = "VARCHAR(255)", nullable = false)
+    private String location;
     @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     private String description;
     @Column(name = "price", columnDefinition = "BIGINT", nullable = false)
     private long price;
+    @Column(name = "bill", columnDefinition = "VARCHAR(1000)")
+    private String bill;
+
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
     private boolean isDeleted;
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
@@ -37,8 +44,6 @@ public class Treatment {
     private LocalDateTime updatedAt;
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime deletedAt;
-    @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
-    private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
     @Column(name = "deleted_by", columnDefinition = "VARCHAR(36)")
@@ -47,4 +52,7 @@ public class Treatment {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 }

@@ -35,7 +35,6 @@ public class UserService implements IUserService {
         try {
             validUserRequest(request, true);
             User user = userMapper.mapFrom(request);
-            user.setDeleted(false);
             user.setActivated(true);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setCreatedAt(LocalDateTime.now());
@@ -54,7 +53,6 @@ public class UserService implements IUserService {
         try {
             validUserRequest(request, false);
             User user = userMapper.mapFrom(request);
-            user.setDeleted(false);
             user.setActivated(true);
             return userMapper.mapTo(user, UserDTO.class);
         } catch (UserNotFoundException e) {

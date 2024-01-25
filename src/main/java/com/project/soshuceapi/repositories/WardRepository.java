@@ -1,6 +1,6 @@
 package com.project.soshuceapi.repositories;
 
-import com.project.soshuceapi.entities.Ward;
+import com.project.soshuceapi.entities.locations.Ward;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

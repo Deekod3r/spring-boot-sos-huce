@@ -1,5 +1,6 @@
 package com.project.soshuceapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.soshuceapi.common.enums.security.ERole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,7 @@ public class User implements UserDetails {
     @UuidGenerator
     @Column(name = "id", columnDefinition = "VARCHAR(36)")
     private String id;
-    @Column(name = "phoneNumber", columnDefinition = "VARCHAR(15)", unique = true, nullable = false)
+    @Column(name = "phone_number", columnDefinition = "VARCHAR(15)", unique = true, nullable = false)
     private String phoneNumber;
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
@@ -36,25 +37,37 @@ public class User implements UserDetails {
     private String password;
     @Column(name = "is_activated", columnDefinition = "BOOLEAN default true", nullable = false)
     private boolean isActivated;
-    @Column(name = "is_deleted", columnDefinition = "BOOLEAN default false", nullable = false)
-    private boolean isDeleted;
+    @Column(name = "role", columnDefinition = "VARCHAR(20)", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ERole role;
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
-    @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime deletedAt;
     @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
     private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
-    @Column(name = "deleted_by", columnDefinition = "VARCHAR(36)")
-    private String deletedBy;
-    @Enumerated(EnumType.STRING)
-    private ERole role;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Adopt> adopts = new HashSet<>();
+    @OneToMany(mappedBy = "adoptedBy", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Pet> pets = new HashSet<>();
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Treatment> treatments = new HashSet<>();
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<News> news = new HashSet<>();
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Event> events = new HashSet<>();
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Donate> donates = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -78,7 +91,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !isDeleted;
+        return true;
     }
 
     @Override

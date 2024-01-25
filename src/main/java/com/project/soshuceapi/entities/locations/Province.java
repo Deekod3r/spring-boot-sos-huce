@@ -1,6 +1,7 @@
-package com.project.soshuceapi.entities;
+package com.project.soshuceapi.entities.locations;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.soshuceapi.entities.locations.District;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

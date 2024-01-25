@@ -15,10 +15,10 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "news_categories")
+@Table(name = "event_categories")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
-public class NewsCategory {
+public class EventCategory {
     @Id
     @UuidGenerator
     @Column(name = "id", columnDefinition = "VARCHAR(36)")
@@ -37,7 +37,7 @@ public class NewsCategory {
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
 
-    @OneToMany(mappedBy = "newsCategory", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "eventCategory", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<News> news = new HashSet<>();
+    private Set<Event> events = new HashSet<>();
 }

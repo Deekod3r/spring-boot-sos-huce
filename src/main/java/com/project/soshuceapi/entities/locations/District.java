@@ -1,4 +1,4 @@
-package com.project.soshuceapi.entities;
+package com.project.soshuceapi.entities.locations;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

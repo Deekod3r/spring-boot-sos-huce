@@ -26,18 +26,20 @@ public class News {
     private String content;
     @Column(name = "image", columnDefinition = "VARCHAR(100)", nullable = false)
     private String image;
+    @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
+    private boolean status;
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
-    @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
-    private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
-    @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
-    private boolean status;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "news_category_id", nullable = false)
     private NewsCategory newsCategory;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 }

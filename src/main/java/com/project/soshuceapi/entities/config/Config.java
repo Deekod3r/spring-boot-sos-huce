@@ -1,4 +1,4 @@
-package com.project.soshuceapi.entities;
+package com.project.soshuceapi.entities.config;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +24,7 @@ public class Config {
     private String value;
     @Column(name = "description", columnDefinition = "VARCHAR(255)")
     private String description;
+
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")

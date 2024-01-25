@@ -1,8 +1,8 @@
 package com.project.soshuceapi.services;
 
-import com.project.soshuceapi.entities.District;
-import com.project.soshuceapi.entities.Province;
-import com.project.soshuceapi.entities.Ward;
+import com.project.soshuceapi.entities.locations.District;
+import com.project.soshuceapi.entities.locations.Province;
+import com.project.soshuceapi.entities.locations.Ward;
 import com.project.soshuceapi.repositories.DistrictRepository;
 import com.project.soshuceapi.repositories.ProvinceRepository;
 import com.project.soshuceapi.repositories.WardRepository;

@@ -1,8 +1,8 @@
 package com.project.soshuceapi.services.iservice;
 
-import com.project.soshuceapi.entities.District;
-import com.project.soshuceapi.entities.Province;
-import com.project.soshuceapi.entities.Ward;
+import com.project.soshuceapi.entities.locations.District;
+import com.project.soshuceapi.entities.locations.Province;
+import com.project.soshuceapi.entities.locations.Ward;
 
 import java.util.List;
 

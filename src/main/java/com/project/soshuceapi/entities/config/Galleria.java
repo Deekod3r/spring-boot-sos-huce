@@ -1,4 +1,4 @@
-package com.project.soshuceapi.entities;
+package com.project.soshuceapi.entities.config;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,18 +29,13 @@ public class Galleria {
     private String image;
     @Column(name = "description", columnDefinition = "VARCHAR(255)", nullable = false)
     private String description;
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
-    @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime deletedAt;
     @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
     private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
-    @Column(name = "deleted_by", columnDefinition = "VARCHAR(36)")
-    private String deletedBy;
-    @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
-    private boolean isDeleted;
 }

@@ -10,8 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface PetRepository extends JpaRepository<Pet, String>, PagingAndSortingRepository<Pet, String> {
 

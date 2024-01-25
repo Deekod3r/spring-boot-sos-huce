@@ -1,9 +1,6 @@
 package com.project.soshuceapi.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,12 +23,13 @@ public class Donate {
     private String id;
     @Column(name = "remitter", columnDefinition = "VARCHAR(100)", nullable = false)
     private String remitter;
-    @Column(name = "detail", columnDefinition = "VARCHAR(255)", nullable = false)
+    @Column(name = "detail", columnDefinition = "VARCHAR(255)")
     private String detail;
     @Column(name = "amount", columnDefinition = "BIGINT", nullable = false)
     private long amount;
     @Column(name = "date", columnDefinition = "DATE", nullable = false)
     private LocalDate date;
+
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
     private boolean isDeleted;
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
@@ -40,10 +38,12 @@ public class Donate {
     private LocalDateTime updatedAt;
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime deletedAt;
-    @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
-    private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
     @Column(name = "deleted_by", columnDefinition = "VARCHAR(36)")
     private String deletedBy;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 }

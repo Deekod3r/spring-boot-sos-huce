@@ -1,5 +1,6 @@
 package com.project.soshuceapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -60,6 +61,7 @@ public class Pet {
     private int friendlyToCats; // '0-no; 1-yes; 2-unknown'
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
     private boolean isDeleted;
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
@@ -68,15 +70,21 @@ public class Pet {
     private LocalDateTime updatedAt;
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime deletedAt;
-    @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
-    private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
     @Column(name = "deleted_by", columnDefinition = "VARCHAR(36)")
     private String deletedBy;
 
     @OneToMany(mappedBy = "pet", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Adopt> adopts = new HashSet<>();
     @OneToMany(mappedBy = "pet", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Treatment> treatments = new HashSet<>();
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "adopted_by")
+    private User adoptedBy;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 }

@@ -1,9 +1,6 @@
 package com.project.soshuceapi.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,14 +32,20 @@ public class Event {
     private LocalDateTime endDate;
     @Column(name = "location", columnDefinition = "VARCHAR(100)", nullable = false)
     private String location;
+    @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
+    private boolean status;
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
-    @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
-    private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
-    @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
-    private boolean status;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "event_category_id", nullable = false)
+    private EventCategory eventCategory;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 }
