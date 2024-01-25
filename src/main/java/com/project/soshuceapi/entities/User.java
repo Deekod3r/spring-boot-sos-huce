@@ -103,4 +103,8 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return isActivated;
     }
+
+    public User (String id) {
+        this.id = id;
+    }
 }

@@ -1,12 +1,15 @@
 package com.project.soshuceapi.services;
 
 import com.project.soshuceapi.entities.Pet;
+import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.mappers.PetMapper;
 import com.project.soshuceapi.models.requests.PetCreateRequest;
 import com.project.soshuceapi.models.requests.PetUpdateRequest;
 import com.project.soshuceapi.repositories.PetRepository;
+import com.project.soshuceapi.services.iservice.IFileService;
 import com.project.soshuceapi.services.iservice.IPetService;
+import com.project.soshuceapi.services.iservice.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +28,9 @@ public class PetService implements IPetService {
     @Autowired
     private PetRepository petRepository;
     @Autowired
-    private FileService fileService;
+    private IFileService fileService;
+    @Autowired
+    private IUserService userService;
     @Autowired
     private PetMapper petMapper;
 
@@ -53,6 +58,7 @@ public class PetService implements IPetService {
             pet.setImage(url);
             pet.setCode(generateCode(pet.getName()));
             pet.setCreatedAt(LocalDateTime.now());
+            pet.setCreatedBy(new User(request.getCreatedBy()));
             pet = petRepository.save(pet);
             return petMapper.mapTo(pet, PetDTO.class);
         } catch (Exception e) {

@@ -29,7 +29,7 @@ public class Adopt {
     @Column(name = "address", columnDefinition = "VARCHAR(100)", nullable = false)
     private String address;
     @Column(name = "status", columnDefinition = "INTEGER", nullable = false)
-    private int status; // '1-wait for progressing; 2-in progress; 3-reject; 4-cancel; 5-complete; 6-return'
+    private int status; // '0-wait for progressing; 1-in progress; 2-reject; 3-cancel; 4-complete; 5-return'
     @Column(name = "reason", columnDefinition = "VARCHAR(255)")
     private String reason;
     @Column(name = "confirmed_at", columnDefinition = "TIMESTAMP")
