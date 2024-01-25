@@ -21,15 +21,15 @@ public interface PetRepository extends JpaRepository<Pet, String>, PagingAndSort
     @NonNull
     @Query(value = "SELECT * FROM pets " +
             "WHERE is_deleted = false " +
-            "AND (:name = '' OR name LIKE %:name%) " +
-            "AND (:breed = '' OR breed LIKE %:breed%) " +
-            "AND (:color = '' OR color LIKE %:color%) " +
-            "AND (:code = '' OR code LIKE %:code%) " +
+            "AND (:name = '' OR name ILIKE %:name%) " +
+            "AND (:breed = '' OR breed ILIKE %:breed%) " +
+            "AND (:color = '' OR color ILIKE %:color%) " +
+            "AND (:code = '' OR code ILIKE %:code%) " +
             "AND (:type IS NULL OR type = :type) " +
             "AND (:gender IS NULL OR gender = :gender) " +
             "AND (:age IS NULL OR age = :age) " +
-            "AND (:status IS NULL OR status = :status) "
-//            "ORDER BY status DESC " +
+            "AND (:status IS NULL OR status = :status) " +
+            "ORDER BY created_at DESC "
             , nativeQuery = true)
     Page<Pet> findAll(
             @Param("name") String name,
