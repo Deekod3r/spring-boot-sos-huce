@@ -4,8 +4,8 @@ public class Constants {
 
     //authentications
     public static class Secutiry {
-        public final static Long TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000L;  // (đơn vị mls) 1 ngày
-        public final static Long TOKEN_REFRESH_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000L;  // (đơn vị mls) 7 ngày
+        public final static Long TOKEN_EXPIRATION_TIME = 60 * 60 * 1000L;  // (đơn vị mls) 1 giờ
+        public final static Long TOKEN_REFRESH_EXPIRATION_TIME = 3 * 24 * 60 * 60 * 1000L;  // (đơn vị mls) 3 ngày
         public final static Long VERIFICATION_EXPIRATION_TIME = 5 * 60L;  // (đơn vị s) 5 phút
         public final static String TOKEN_PREFIX = "Bearer ";
         public final static String REQUEST_HEADER_AUTH = "Authorization";
