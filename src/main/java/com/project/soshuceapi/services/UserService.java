@@ -9,16 +9,15 @@ import com.project.soshuceapi.models.requests.UserCreateRequest;
 import com.project.soshuceapi.models.requests.UserUpdateRequest;
 import com.project.soshuceapi.repositories.UserRepository;
 import com.project.soshuceapi.services.iservice.IUserService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @Service
-@Transactional
 public class UserService implements IUserService {
 
     private final static String TAG = "USER";
@@ -31,6 +30,7 @@ public class UserService implements IUserService {
     private UserMapper userMapper;
 
     @Override
+    @Transactional
     public UserDTO create(UserCreateRequest request) {
         try {
             validUserRequest(request, true);
@@ -49,6 +49,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public UserDTO update(UserUpdateRequest request, String id) {
         try {
             validUserRequest(request, false);

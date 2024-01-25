@@ -9,7 +9,7 @@ import com.project.soshuceapi.models.requests.PetUpdateRequest;
 import com.project.soshuceapi.repositories.PetRepository;
 import com.project.soshuceapi.services.iservice.IFileService;
 import com.project.soshuceapi.services.iservice.IPetService;
-import com.project.soshuceapi.services.iservice.IUserService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +30,6 @@ public class PetService implements IPetService {
     @Autowired
     private IFileService fileService;
     @Autowired
-    private IUserService userService;
-    @Autowired
     private PetMapper petMapper;
 
     @Override
@@ -47,6 +45,7 @@ public class PetService implements IPetService {
     }
 
     @Override
+    @Transactional
     public PetDTO create(PetCreateRequest request) {
         try {
             Map<String, String> data = fileService.upload(request.getImage());
@@ -56,9 +55,9 @@ public class PetService implements IPetService {
             request.setName(upcaseAllFirstLetters(request.getName()));
             Pet pet = petMapper.mapFrom(request);
             pet.setImage(url);
-            pet.setCode(generateCode(pet.getName()));
             pet.setCreatedAt(LocalDateTime.now());
             pet.setCreatedBy(new User(request.getCreatedBy()));
+            pet.setCode(generateCode(pet.getName()));
             pet = petRepository.save(pet);
             return petMapper.mapTo(pet, PetDTO.class);
         } catch (Exception e) {
@@ -67,6 +66,7 @@ public class PetService implements IPetService {
     }
 
     @Override
+    @Transactional
     public PetDTO update(PetUpdateRequest request) {
         return null;
     }
