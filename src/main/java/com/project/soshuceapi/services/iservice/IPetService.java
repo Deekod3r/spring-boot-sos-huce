@@ -12,6 +12,8 @@ public interface IPetService {
     Map<String, Object> getPets(int page, int limit, String name, String breed, String color, String code, Integer type,
                                 Integer age, Integer gender,  Integer status);
 
+    Map<String, Long> getStatisticCases();
+
     PetDTO create(PetCreateRequest petCreateRequest);
 
     PetDTO update(PetUpdateRequest petUpdateRequest);

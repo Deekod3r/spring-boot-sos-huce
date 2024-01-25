@@ -43,10 +43,22 @@ public class PetController {
             @RequestParam(value = "gender", defaultValue = "", required = false) Integer gender,
             @RequestParam(value = "status", defaultValue = "", required = false) Integer status
     ) {
-        Response<Map<String, Object>> response = new Response<>();
         try {
+            Response<Map<String, Object>> response = new Response<>();
             response.setSuccess(true);
             response.setData(petService.getPets(page, limit, name, breed, color, code, type, age, gender, status));
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/statistic-cases")
+    public ResponseEntity<?> getStatisticStatus() {
+        try {
+            Response<Map<String, Long>> response = new Response<>();
+            response.setSuccess(true);
+            response.setData(petService.getStatisticCases());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -56,8 +68,8 @@ public class PetController {
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> create(@Valid @ModelAttribute PetCreateRequest request, BindingResult bindingResult) {
-        Response<String> response = new Response<>();
         try {
+            Response<String> response = new Response<>();
             if (bindingResult.hasErrors()) {
                 response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(), ResponseCode.Common.FAIL));
                 return ResponseEntity.badRequest().body(response);

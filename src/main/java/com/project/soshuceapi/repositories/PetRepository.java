@@ -41,6 +41,6 @@ public interface PetRepository extends JpaRepository<Pet, String>, PagingAndSort
             Pageable pageable
     );
 
-
+    Long countByStatus(int status);
 
 }

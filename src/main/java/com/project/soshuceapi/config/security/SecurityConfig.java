@@ -38,7 +38,8 @@ public class SecurityConfig {
             "/logout",
             "/users/register",
             "/location/**",
-            "/pets"
+            "/pets",
+            "/pets/statistic-cases",
     };
 
     @Bean

@@ -70,6 +70,16 @@ public class PetService implements IPetService {
         return null;
     }
 
+    @Override
+    public Map<String, Long> getStatisticCases() {
+        return Map.of(
+                "total", petRepository.count(),
+                "adopted", petRepository.countByStatus(1),
+                "wait", petRepository.countByStatus(3),
+                "healing", petRepository.countByStatus(2)
+        );
+    }
+
     private String generateCode(String name) {
         try {
             Long seq = petRepository.getSEQ();
