@@ -46,8 +46,8 @@ public class AuthController {
                 return ResponseEntity.badRequest().body(response);
             }
             Map<String, Object> data = authService.authenticate(loginRequest);
-            response.setSuccess(true);
             response.setData(data);
+            response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
             response.setError(Error.of(ResponseMessage.Authentication.AUTHENTICATION_ERROR,
@@ -78,10 +78,10 @@ public class AuthController {
             UserCreateRequest request = DataUtil.fromJSON(data, UserCreateRequest.class);
             request.setRole(ERole.USER);
             request.setCreatedBy("SELF");
-            response.setData(userService.create(request));
-            response.setSuccess(true);
             redisService.deleteDataFromRedis(id + "-REGISTER-CODE");
             redisService.deleteDataFromRedis(id + "-REGISTER-INFO");
+            response.setData(userService.create(request));
+            response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (UserExistedException e) {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.EXISTED));

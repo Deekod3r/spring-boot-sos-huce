@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import java.util.Set;
 @Table(name = "pets")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
+@SQLRestriction("is_deleted = false")
 public class Pet {
     @Id
     @UuidGenerator

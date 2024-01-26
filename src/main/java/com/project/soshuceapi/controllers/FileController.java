@@ -7,6 +7,7 @@ import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.IFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -43,8 +44,7 @@ public class FileController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
-            response.setSuccess(false);
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 

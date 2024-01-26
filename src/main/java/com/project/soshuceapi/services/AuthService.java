@@ -10,6 +10,7 @@ import com.project.soshuceapi.security.JWTProvider;
 import com.project.soshuceapi.services.iservice.IAuthService;
 import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
+import com.project.soshuceapi.services.iservice.IWebSocketService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,8 @@ public class AuthService implements IAuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
+    private IWebSocketService webSocketService;
+    @Autowired
     private UserMapper userMapper;
 
     @Override
@@ -49,6 +52,7 @@ public class AuthService implements IAuthService {
                 String refreshToken = jwtProvider.generateRefreshToken(null, user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, token);
+                webSocketService.sendLogoutMessage(jwtProvider.extractEmail(token));
                 return Map.of("token",token,"refreshToken",refreshToken,"user", userMapper.mapTo(user, UserDTO.class));
             }
             return null;
