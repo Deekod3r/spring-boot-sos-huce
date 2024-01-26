@@ -38,6 +38,7 @@ public class SecurityConfig {
             "/users/register",
             "/location/**",
             "/pets",
+            "/pets/{id}",
             "/pets/statistic-cases",
     };
 
