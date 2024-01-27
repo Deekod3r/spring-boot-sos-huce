@@ -2,6 +2,7 @@ package com.project.soshuceapi.models.requests;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class PetUpdateImageRequest {
     @NotBlank(message = "misssing.pet.id")
     String id;
-    @NotBlank(message = "misssing.pet.image")
+    @NotNull(message = "misssing.pet.image")
     MultipartFile image;
     @JsonIgnore
     String updatedBy;
