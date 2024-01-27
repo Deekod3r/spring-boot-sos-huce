@@ -132,7 +132,7 @@ public class PetController {
         }
     }
 
-    @PutMapping("/update-image/{id}")
+    @PutMapping("/update-image")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> updateImage(@Valid @ModelAttribute PetUpdateImageRequest request, BindingResult bindingResult) {
         Response<String> response = new Response<>();
