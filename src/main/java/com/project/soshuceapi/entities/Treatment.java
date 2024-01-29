@@ -33,6 +33,8 @@ public class Treatment {
     private String description;
     @Column(name = "price", columnDefinition = "BIGINT", nullable = false)
     private long price;
+    @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
+    private boolean status;
     @Column(name = "bill", columnDefinition = "VARCHAR(1000)")
     private String bill;
 
