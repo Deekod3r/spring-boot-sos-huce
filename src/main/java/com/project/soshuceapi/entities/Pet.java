@@ -61,6 +61,8 @@ public class Pet {
     private int friendlyToDogs; // '0-no; 1-yes; 2-unknown'
     @Column(name = "friendlyToCats", columnDefinition = "INTEGER", nullable = false)
     private int friendlyToCats; // '0-no; 1-yes; 2-unknown'
+    @Column(name = "note", columnDefinition = "TEXT")
+    private String note;
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 

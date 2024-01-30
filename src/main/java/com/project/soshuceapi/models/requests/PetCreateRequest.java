@@ -49,6 +49,7 @@ public class PetCreateRequest {
     int friendlyToDogs;
     @NotNull(message = "misssing.pet.friendlyToCats")
     int friendlyToCats;
+    String note;
     String description;
     @JsonIgnore
     String createdBy;

@@ -27,5 +27,6 @@ public class PetDTO {
     int friendlyToHuman;
     int friendlyToDogs;
     int friendlyToCats;
+    String note;
     String description;
 }

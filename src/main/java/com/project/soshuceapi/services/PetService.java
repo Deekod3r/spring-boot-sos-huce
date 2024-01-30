@@ -90,6 +90,7 @@ public class PetService implements IPetService {
             pet.setFriendlyToDogs(request.getFriendlyToDogs());
             pet.setFriendlyToCats(request.getFriendlyToCats());
             pet.setDescription(request.getDescription());
+            pet.setNote(request.getNote());
             pet.setUpdatedBy(request.getUpdatedBy());
             pet.setUpdatedAt(LocalDateTime.now());
             pet = petRepository.save(pet);
