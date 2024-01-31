@@ -50,6 +50,7 @@ public class PetCreateRequest {
     @NotNull(message = "misssing.pet.friendlyToCats")
     int friendlyToCats;
     String note;
+    @NotBlank(message = "misssing.pet.description")
     String description;
     @JsonIgnore
     String createdBy;
