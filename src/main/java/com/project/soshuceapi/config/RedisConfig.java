@@ -37,10 +37,11 @@ public class RedisConfig {
 
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
         return redisTemplate;
     }
+
 
 }
