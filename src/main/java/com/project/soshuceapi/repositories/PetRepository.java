@@ -19,14 +19,18 @@ public interface PetRepository extends JpaRepository<Pet, String> {
     @NonNull
     @Query(value = "SELECT * FROM pets " +
             "WHERE is_deleted = false " +
-            "AND (:name = '' OR name ILIKE %:name%) " +
-            "AND (:breed = '' OR breed ILIKE %:breed%) " +
-            "AND (:color = '' OR color ILIKE %:color%) " +
-            "AND (:code = '' OR code ILIKE %:code%) " +
+            "AND (:name = '' OR name ILIKE CONCAT('%', :name, '%')) " +
+            "AND (:breed = '' OR breed ILIKE CONCAT('%', :breed, '%')) " +
+            "AND (:color = '' OR color ILIKE CONCAT('%', :color, '%')) " +
+            "AND (:code = '' OR code ILIKE CONCAT('%', :code, '%')) " +
             "AND (:type IS NULL OR type = :type) " +
             "AND (:gender IS NULL OR gender = :gender) " +
             "AND (:age IS NULL OR age = :age) " +
             "AND (:status IS NULL OR status = :status) " +
+            "AND (:diet IS NULL OR diet = :diet) " +
+            "AND (:vaccin IS NULL OR vaccin = :vaccin) " +
+            "AND (:sterilization IS NULL OR sterilization = :sterilization) " +
+            "AND (:rabies IS NULL OR rabies = :rabies) " +
             "ORDER BY created_at DESC "
             , nativeQuery = true)
     Page<Pet> findAll(
@@ -38,6 +42,10 @@ public interface PetRepository extends JpaRepository<Pet, String> {
             @Param("age") Integer age,
             @Param("gender") Integer gender,
             @Param("status") Integer status,
+            @Param("diet") Integer diet,
+            @Param("vaccin") Integer vaccin,
+            @Param("sterilization") Integer sterilization,
+            @Param("rabies") Integer rabies,
             Pageable pageable
     );
 

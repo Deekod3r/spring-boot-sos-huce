@@ -37,8 +37,11 @@ public class PetService implements IPetService {
     private PetMapper petMapper;
 
     @Override
-    public Map<String, Object> getAll(int page, int limit, String name, String breed, String color, String code, Integer type, Integer age, Integer gender, Integer status) {
-        Page<Pet> pets = petRepository.findAll(name, breed, color, code, type, age, gender, status, Pageable.ofSize(limit).withPage(page - 1));
+    public Map<String, Object> getAll(int page, int limit,
+                                      String name, String breed, String color, String code,
+                                      Integer type, Integer age, Integer gender, Integer status,
+                                      Integer diet, Integer vaccin, Integer sterilization, Integer rabies) {
+        Page<Pet> pets = petRepository.findAll(name, breed, color, code, type, age, gender, status, diet, vaccin, sterilization, rabies ,Pageable.ofSize(limit).withPage(page - 1));
         return Map.of(
                 "pets", pets.getContent().stream().map(pet -> petMapper.mapTo(pet, PetDTO.class)).collect(Collectors.toList()),
                 "total", pets.getTotalElements(),

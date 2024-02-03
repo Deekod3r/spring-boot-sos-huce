@@ -45,11 +45,17 @@ public class PetController {
             @RequestParam(value = "type", defaultValue = "", required = false) Integer type,
             @RequestParam(value = "age", defaultValue = "", required = false) Integer age,
             @RequestParam(value = "gender", defaultValue = "", required = false) Integer gender,
-            @RequestParam(value = "status", defaultValue = "", required = false) Integer status
+            @RequestParam(value = "status", defaultValue = "", required = false) Integer status,
+            @RequestParam(value = "diet", defaultValue = "", required = false) Integer diet,
+            @RequestParam(value = "vaccin", defaultValue = "", required = false) Integer vaccin,
+            @RequestParam(value = "sterilization", defaultValue = "", required = false) Integer sterilization,
+            @RequestParam(value = "rabies", defaultValue = "", required = false) Integer rabies
     ) {
         try {
             Response<Map<String, Object>> response = new Response<>();
-            response.setData(petService.getAll(page, limit, name, breed, color, code, type, age, gender, status));
+            response.setData(petService.getAll(page, limit,
+                    name, breed, color, code, type, age, gender,
+                    status, diet, vaccin, sterilization, rabies));
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
