@@ -83,7 +83,8 @@ public class UserController {
                 response.setData(user.getEmail());
                 response.setSuccess(true);
             } else {
-                response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
+                response.setData("NOT_FOUND");
+                response.setSuccess(true);
             }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
