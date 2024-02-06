@@ -39,7 +39,7 @@ public class SecurityConfig {
             "/users/check-exist",
             "/users/verify-forgot-password/{id}",
             "/users/forgot-password",
-            "/users/reset-password/{id}",
+            "/users/reset-password",
             "/location/**",
             "/pets",
             "/pets/{id}",
