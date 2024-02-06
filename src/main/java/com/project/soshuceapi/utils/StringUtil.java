@@ -25,7 +25,7 @@ public class StringUtil {
     }
 
     public static String upcaseFirstLetter(String input) {
-        if (isNullOrEmpty(input)) {
+        if (isNullOrBlank(input)) {
             return input;
         }
 
@@ -34,7 +34,7 @@ public class StringUtil {
     }
 
     public static String upcaseAllFirstLetters(String input) {
-        if (isNullOrEmpty(input)) {
+        if (isNullOrBlank(input)) {
             return input;
         }
         String[] words = input.split("\\s");

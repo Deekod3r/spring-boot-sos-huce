@@ -25,7 +25,7 @@ public class Treatment {
     private String name;
     @Column(name = "start_date", columnDefinition = "DATE", nullable = false)
     private LocalDate startDate;
-    @Column(name = "end_date", columnDefinition = "DATE", nullable = false)
+    @Column(name = "end_date", columnDefinition = "DATE")
     private LocalDate endDate;
     @Column(name = "location", columnDefinition = "VARCHAR(255)", nullable = false)
     private String location;
@@ -33,6 +33,8 @@ public class Treatment {
     private String description;
     @Column(name = "price", columnDefinition = "BIGINT", nullable = false)
     private long price;
+    @Column(name="quantity", columnDefinition = "INT", nullable = false)
+    private int quantity;
     @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
     private boolean status;
     @Column(name = "bill", columnDefinition = "VARCHAR(1000)")

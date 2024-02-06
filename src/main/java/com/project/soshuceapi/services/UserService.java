@@ -33,7 +33,9 @@ public class UserService implements IUserService {
     @Transactional
     public UserDTO create(UserCreateRequest request) {
         try {
-            validUserRequest(request, true);
+            if (isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())) {
+                throw new UserExistedException("existed.user.by.code/email");
+            }
             User user = userMapper.mapFrom(request);
             user.setActivated(true);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -50,14 +52,32 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public UserDTO update(UserUpdateRequest request, String id) {
+    public UserDTO update(UserUpdateRequest request) {
         try {
-            validUserRequest(request, false);
+           if (!isExistsById(request.getId())) {
+               throw new UserNotFoundException("not.found.user");
+           }
             User user = userMapper.mapFrom(request);
             user.setActivated(true);
             return userMapper.mapTo(user, UserDTO.class);
         } catch (UserNotFoundException e) {
             throw new UserNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public UserDTO updatePassword(String email, String password, String updatedBy) {
+        try {
+            User user = userRepository.findByEmail(email).orElseThrow(() ->
+                    new UserNotFoundException("not.found.user"));
+            user.setPassword(passwordEncoder.encode(password));
+            user.setUpdatedBy(updatedBy);
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepository.save(user);
+            return userMapper.mapTo(user, UserDTO.class);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -78,6 +98,18 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public UserDTO getByPhoneNumber(String phoneNumber) {
+        return null;
+    }
+
+    @Override
+    public UserDTO getByPhoneNumberOrEmail(String phoneNumber, String email) {
+        return userRepository.findByPhoneNumberOrEmail(phoneNumber, email).map(user ->
+                userMapper.mapTo(user, UserDTO.class)).orElseThrow(() ->
+                new RuntimeException("not.found.user"));
+    }
+
+    @Override
     public boolean isExistsById(String id) {
         return userRepository.existsById(id);
     }
@@ -85,24 +117,6 @@ public class UserService implements IUserService {
     @Override
     public boolean isExistByPhoneNumberOrEmail(String phoneNumber, String email) {
         return userRepository.countByPhoneNumberOrEmail(phoneNumber, email) > 0;
-    }
-
-    private void validUserRequest(@NotNull Object obj, boolean type) {
-        try {
-            if (type) {
-                UserCreateRequest createRequest = (UserCreateRequest) obj;
-                if (isExistByPhoneNumberOrEmail(createRequest.getPhoneNumber(), createRequest.getEmail())) {
-                    throw new UserExistedException("existed.user.by.code/email");
-                }
-            } else {
-                UserUpdateRequest updateRequest = (UserUpdateRequest) obj;
-                if (!isExistsById(updateRequest.getId())) {
-                    throw new UserNotFoundException("not.found.user");
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
     }
 
 }

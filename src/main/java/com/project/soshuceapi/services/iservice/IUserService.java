@@ -8,14 +8,20 @@ public interface IUserService {
 
     UserDTO create (UserCreateRequest request);
 
-    UserDTO update (UserUpdateRequest request, String id);
+    UserDTO update (UserUpdateRequest request);
+
+    UserDTO updatePassword (String email, String password, String updatedBy);
 
     UserDTO getById(String id);
 
     UserDTO getByEmail(String email);
 
+    UserDTO getByPhoneNumber(String phoneNumber);
+
+    UserDTO getByPhoneNumberOrEmail(String phoneNumber, String email);
+
     boolean isExistsById(String id);
 
-    boolean isExistByPhoneNumberOrEmail(String studentCode, String email);
+    boolean isExistByPhoneNumberOrEmail(String phoneNumber, String email);
 
 }

@@ -113,9 +113,11 @@ public class PetController {
         }
     }
 
-    @PutMapping("/update")
+    @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> update(@Valid @ModelAttribute PetUpdateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> update(@Valid @ModelAttribute PetUpdateRequest request,
+                                    @RequestParam(name = "id") String id,
+                                    BindingResult bindingResult) {
         Response<String> response = new Response<>();
         try {
             if (bindingResult.hasErrors()) {
@@ -125,6 +127,10 @@ public class PetController {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
                 response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED, ResponseCode.Authentication.PERMISSION_DENIED));
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (!id.equals(request.getId())) {
+                response.setError(Error.of(ResponseMessage.Common.NOT_MATCH, ResponseCode.Common.FAIL));
+                return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
             response.setData(petService.update(request).getId());

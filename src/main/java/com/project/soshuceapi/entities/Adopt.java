@@ -20,6 +20,8 @@ public class Adopt {
     @UuidGenerator
     @Column(name = "id", columnDefinition = "VARCHAR(36)")
     private String id;
+    @Column(name = "code", columnDefinition = "VARCHAR(100)", nullable = false)
+    private String code;
     @Column(name = "ward_id", columnDefinition = "INTEGER", nullable = false)
     private int wardId;
     @Column(name = "district_id", columnDefinition = "INTEGER", nullable = false)

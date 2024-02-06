@@ -30,7 +30,7 @@ public class Constants {
                     <p style="color: #666;">Cảm ơn vì đã tham gia cộng đồng HUCE Pet. Dưới đây là mã xác thực <b style="color: #14B8A6;">%s</b>:</p>
                     <div class="verification-code" style="background-color: #14B8A6; color: #fff; padding: 10px; font-size: 18px; border-radius: 4px; margin: 20px 0; display: inline-block;">%s</div>
                     <p style="color: #666;">Mã xác thực sẽ có hiệu lực trong vòng 5 phút kể từ thời điểm bạn nhận được email.</p>
-                    <p style="color: #666;"> Hãy sử dụng để hoàn thành quá trình xác thực.</p>
+                    <p style="color: #666;">Hãy sử dụng để hoàn thành quá trình xác thực.</p>
                     <p style="color: #666;">Nếu không phải bạn thực hiện, vui lòng bỏ qua email này.</p>
                 </div>
             </html>

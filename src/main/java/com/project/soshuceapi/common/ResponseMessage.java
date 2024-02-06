@@ -7,7 +7,9 @@ public class ResponseMessage {
         public static final String FAIL = "%.fail";
         public static final String ERROR = "%.error";
         public static final String NOT_FOUND = "%.not-found";
-        public static final String EXISTS = "%.exists";
+        public static final String EXISTED = "%.existed";
+        public static final String EMPTY = "%.empty";
+        public static final String NOT_MATCH = "%.not-match";
     }
 
     public static class Authentication {

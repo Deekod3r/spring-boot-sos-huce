@@ -14,6 +14,7 @@ import com.project.soshuceapi.services.iservice.IAuthService;
 import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
 import com.project.soshuceapi.utils.DataUtil;
+import com.project.soshuceapi.utils.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -63,6 +64,10 @@ public class AuthController {
     public ResponseEntity<?> verify(@PathVariable("id") String id, @RequestParam("code") String code) {
         Response<UserDTO> response = new Response<>();
         try {
+            if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(code)) {
+                response.setError(Error.of("empty.id/code", ResponseCode.Common.FAIL));
+                return ResponseEntity.badRequest().body(response);
+            }
             String verifyCode = (String) redisService.getDataFromRedis(id + "-REGISTER-CODE");
             if (verifyCode == null) {
                 response.setError(Error.of(ResponseMessage.Common.NOT_FOUND,

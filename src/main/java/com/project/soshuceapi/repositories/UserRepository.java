@@ -18,4 +18,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query(value = "SELECT COUNT(id) FROM users WHERE phone_number = :phoneNumber OR lower(email) = lower(:email)", nativeQuery = true)
     Long countByPhoneNumberOrEmail(@Param("phoneNumber") String phoneNumber, @Param("email") String email);
 
+    @Query(value = "SELECT * FROM users WHERE phone_number = :phoneNumber OR lower(email) = lower(:email)", nativeQuery = true)
+    Optional<User> findByPhoneNumberOrEmail(@Param("phoneNumber") String phoneNumber, @Param("email") String email);
+
 }
