@@ -11,5 +11,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserChangePasswordRequest {
-
+    String email;
+    String password;
+    String newPassword;
+    String confirmPassword;
 }
