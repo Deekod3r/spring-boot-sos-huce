@@ -38,12 +38,14 @@ public class UserController {
     private IEmailService emailService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request,
+                                      BindingResult bindingResult) {
         Response<Map<String, String>> response = new Response<>();
+        response.setSuccess(false);
         try {
             if (bindingResult.hasErrors()) {
                 response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
-                        ResponseCode.Common.FAIL));
+                        ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
             if (userService.isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())) {
@@ -70,9 +72,10 @@ public class UserController {
     @GetMapping("/check-exist")
     public ResponseEntity<?> checkExist(@RequestParam(value = "account") String account) {
         Response<String> response = new Response<>();
+        response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(account)) {
-                response.setError(Error.of(ResponseMessage.Common.EMPTY, ResponseCode.Common.FAIL));
+                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
             UserDTO user = userService.getByPhoneNumberOrEmail(account, account);
@@ -80,7 +83,6 @@ public class UserController {
                 response.setData(user.getEmail());
                 response.setSuccess(true);
             } else {
-                response.setSuccess(false);
                 response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
             }
             return ResponseEntity.ok(response);
@@ -93,9 +95,10 @@ public class UserController {
     @GetMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestParam(value = "email") String email) {
         Response<Map<String, String>> response = new Response<>();
+        response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(email)) {
-                response.setError(Error.of(ResponseMessage.Common.EMPTY, ResponseCode.Common.FAIL));
+                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
             UserDTO user = userService.getByEmail(email);
@@ -110,7 +113,7 @@ public class UserController {
             response.setData(Map.of("id", user.getPhoneNumber() + key));
             response.setSuccess(true);
             return ResponseEntity.ok(response);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
@@ -120,20 +123,21 @@ public class UserController {
     public ResponseEntity<?> verifyForgotPassword(@PathVariable(value = "id") String id,
                                                   @RequestParam(value = "code") String code) {
         Response<Map<String, String>> response = new Response<>();
+        response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(code)) {
-                response.setError(Error.of(ResponseMessage.Common.EMPTY, ResponseCode.Common.FAIL));
+                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
             String key = id + "-FORGOT-PASSWORD-CODE";
             String verifyCode = (String) redisService.getDataFromRedis(key);
             if (StringUtil.isNullOrBlank(verifyCode)) {
-                response.setError(Error.of(ResponseMessage.Common.NOT_FOUND,
+                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED,
                         ResponseCode.Authentication.VERIFY_CODE_EXPIRED));
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
             if (!verifyCode.equals(code)) {
-                response.setError(Error.of(ResponseMessage.Common.FAIL,
+                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT,
                         ResponseCode.Authentication.VERIFY_CODE_INCORRECT));
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
@@ -146,25 +150,31 @@ public class UserController {
         }
     }
 
-    @PutMapping("/reset-password")
+    @PutMapping("/reset-password/{id}")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody UserResetPasswordRequest request,
+                                           @PathVariable(value = "id") String id,
                                            BindingResult bindingResult) {
         Response<Map<String, String>> response = new Response<>();
+        response.setSuccess(false);
         try {
             if (bindingResult.hasErrors()) {
                 response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
-                        ResponseCode.Common.FAIL));
+                        ResponseCode.Common.INVALID));
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (StringUtil.isNullOrBlank(id)) {
+                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
             String key = request.getId() + "-FORGOT-PASSWORD-CODE";
             String verifyCode = (String) redisService.getDataFromRedis(key);
             if (StringUtil.isNullOrBlank(verifyCode)) {
-                response.setError(Error.of(ResponseMessage.Common.NOT_FOUND,
+                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED,
                         ResponseCode.Authentication.VERIFY_CODE_EXPIRED));
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
             if (!verifyCode.equals(request.getCode())) {
-                response.setError(Error.of(ResponseMessage.Common.FAIL,
+                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT,
                         ResponseCode.Authentication.VERIFY_CODE_INCORRECT));
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }

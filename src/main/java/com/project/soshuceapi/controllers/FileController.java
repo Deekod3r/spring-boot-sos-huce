@@ -33,6 +33,7 @@ public class FileController {
         log.info("HIT -/upload | File Name : {}", multipartFile.getOriginalFilename());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Response<FileDTO> response = new Response<>();
+        response.setSuccess(false);
         try {
             Map<String, String> data = fileService.upload(multipartFile);
             FileDTO fileDTO = FileDTO.builder()

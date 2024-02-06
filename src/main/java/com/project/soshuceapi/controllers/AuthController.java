@@ -40,10 +40,11 @@ public class AuthController {
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
         Response<Map<String, Object>> response = new Response<>();
+        response.setSuccess(false);
         try {
             if (bindingResult.hasErrors()) {
                 response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
-                        ResponseCode.Common.FAIL));
+                        ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
             Map<String, Object> data = authService.authenticate(loginRequest);
@@ -63,19 +64,20 @@ public class AuthController {
     @GetMapping("/verify/{id}")
     public ResponseEntity<?> verify(@PathVariable("id") String id, @RequestParam("code") String code) {
         Response<UserDTO> response = new Response<>();
+        response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(code)) {
-                response.setError(Error.of("empty.id/code", ResponseCode.Common.FAIL));
+                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
             String verifyCode = (String) redisService.getDataFromRedis(id + "-REGISTER-CODE");
             if (verifyCode == null) {
-                response.setError(Error.of(ResponseMessage.Common.NOT_FOUND,
+                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED,
                         ResponseCode.Authentication.VERIFY_CODE_EXPIRED));
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
             if (!verifyCode.equals(code)) {
-                response.setError(Error.of(ResponseMessage.Common.FAIL,
+                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT,
                         ResponseCode.Authentication.VERIFY_CODE_INCORRECT));
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
@@ -89,7 +91,7 @@ public class AuthController {
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (UserExistedException e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.EXISTED));
+            response.setError(Error.of(ResponseMessage.Common.EXISTED, ResponseCode.Common.EXISTED));
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         } catch (Exception e) {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));

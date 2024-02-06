@@ -3,6 +3,7 @@ package com.project.soshuceapi.common;
 public class ResponseMessage {
 
     public static class Common {
+        public static final String SERVER_ERROR = "server.error";
         public static final String SUCCESS = "%.success";
         public static final String FAIL = "%.fail";
         public static final String ERROR = "%.error";
@@ -10,6 +11,7 @@ public class ResponseMessage {
         public static final String EXISTED = "%.existed";
         public static final String EMPTY = "%.empty";
         public static final String NOT_MATCH = "%.not-match";
+        public static final String INVALID_INPUT = "%.invalid.input";
     }
 
     public static class Authentication {
