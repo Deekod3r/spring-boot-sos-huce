@@ -151,9 +151,8 @@ public class UserController {
         }
     }
 
-    @PutMapping("/reset-password/{id}")
+    @PutMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody UserResetPasswordRequest request,
-                                           @PathVariable(value = "id") String id,
                                            BindingResult bindingResult) {
         Response<Map<String, String>> response = new Response<>();
         response.setSuccess(false);
@@ -161,10 +160,6 @@ public class UserController {
             if (bindingResult.hasErrors()) {
                 response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
                         ResponseCode.Common.INVALID));
-                return ResponseEntity.badRequest().body(response);
-            }
-            if (StringUtil.isNullOrBlank(id)) {
-                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
             String key = request.getId() + "-FORGOT-PASSWORD-CODE";
