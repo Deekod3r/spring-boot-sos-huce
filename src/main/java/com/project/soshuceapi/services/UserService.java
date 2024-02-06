@@ -1,6 +1,7 @@
 package com.project.soshuceapi.services;
 
 import com.project.soshuceapi.entities.User;
+import com.project.soshuceapi.exceptions.NotFoundException;
 import com.project.soshuceapi.exceptions.UserExistedException;
 import com.project.soshuceapi.exceptions.UserNotFoundException;
 import com.project.soshuceapi.models.DTOs.UserDTO;
@@ -106,7 +107,7 @@ public class UserService implements IUserService {
     public UserDTO getByPhoneNumberOrEmail(String phoneNumber, String email) {
         return userRepository.findByPhoneNumberOrEmail(phoneNumber, email).map(user ->
                 userMapper.mapTo(user, UserDTO.class)).orElseThrow(() ->
-                new RuntimeException("not.found.user"));
+                new NotFoundException("not.found.user"));
     }
 
     @Override

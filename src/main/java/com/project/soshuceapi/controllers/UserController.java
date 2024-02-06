@@ -3,6 +3,7 @@ package com.project.soshuceapi.controllers;
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
+import com.project.soshuceapi.exceptions.NotFoundException;
 import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.requests.UserChangePasswordRequest;
 import com.project.soshuceapi.models.requests.UserCreateRequest;
@@ -79,13 +80,12 @@ public class UserController {
                 return ResponseEntity.badRequest().body(response);
             }
             UserDTO user = userService.getByPhoneNumberOrEmail(account, account);
-            if (user != null) {
-                response.setData(user.getEmail());
-                response.setSuccess(true);
-            } else {
-                response.setData("NOT_FOUND");
-                response.setSuccess(true);
-            }
+            response.setData(user.getEmail());
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        } catch (NotFoundException e) {
+            response.setData("NOT_FOUND");
+            response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
