@@ -43,9 +43,6 @@ public class Event {
     private String updatedBy;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "event_category_id", nullable = false)
-    private EventCategory eventCategory;
-    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 }
