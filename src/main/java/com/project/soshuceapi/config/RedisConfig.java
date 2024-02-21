@@ -19,10 +19,10 @@ public class RedisConfig {
     private int redisPort;
     @Value("${spring.data.redis.password}")
     private String redisPassword;
-    @Value("${spring.data.redis.database}")
-    private int redisDatabase;
     @Value("${spring.data.redis.username}")
     private String redisUsername;
+    @Value("${spring.data.redis.database}")
+    private int redisDatabase;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
