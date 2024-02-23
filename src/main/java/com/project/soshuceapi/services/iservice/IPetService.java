@@ -4,9 +4,7 @@ import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.requests.PetCreateRequest;
 import com.project.soshuceapi.models.requests.PetUpdateImageRequest;
 import com.project.soshuceapi.models.requests.PetUpdateRequest;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Map;
 
 public interface IPetService {

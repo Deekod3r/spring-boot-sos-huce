@@ -35,9 +35,9 @@ public class User implements UserDetails {
     private String email;
     @Column(name = "password", columnDefinition = "VARCHAR(100)", nullable = false)
     private String password;
-    @Column(name = "is_activated", columnDefinition = "BOOLEAN default true", nullable = false)
-    private boolean isActivated;
-    @Column(name = "role", columnDefinition = "VARCHAR(20)", nullable = false)
+    @Column(name = "is_activated", columnDefinition = "BOOLEAN", nullable = false)
+    private Boolean isActivated;
+    @Column(name = "role", columnDefinition = "VARCHAR(50)", nullable = false)
     @Enumerated(EnumType.STRING)
     private ERole role;
 
@@ -50,24 +50,12 @@ public class User implements UserDetails {
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
 
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
     @JsonIgnore
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
     private Set<Adopt> adopts = new HashSet<>();
+    @JsonIgnore
     @OneToMany(mappedBy = "adoptedBy", fetch = FetchType.LAZY)
-    @JsonIgnore
     private Set<Pet> pets = new HashSet<>();
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Set<Treatment> treatments = new HashSet<>();
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Set<News> news = new HashSet<>();
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Set<Event> events = new HashSet<>();
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Set<Donate> donates = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

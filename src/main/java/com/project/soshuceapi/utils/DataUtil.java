@@ -2,6 +2,9 @@ package com.project.soshuceapi.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class DataUtil {
 
     public static <T> String toJSON(T t) {
@@ -22,5 +25,14 @@ public class DataUtil {
         }
     }
 
+    public static String getIP() {
+        InetAddress IP = null;
+        try {
+            IP = InetAddress.getLocalHost();
+            return IP.getHostAddress();
+        } catch (UnknownHostException e) {
+            return "UNKNOWN";
+        }
+    }
 
 }

@@ -10,7 +10,7 @@ public class Constants {
         public final static String TOKEN_PREFIX = "Bearer ";
         public final static String REQUEST_HEADER_AUTH = "Authorization";
         public final static String TOKEN_HEADER_KEY = "TOKEN_AUTH_";
-        public final static int VERIFY_CODE_LENGTH = 6;
+        public final static Integer VERIFY_CODE_LENGTH = 6;
     }
 
     //regex register
@@ -36,6 +36,28 @@ public class Constants {
             </html>
             """;
         public final static String SUBJECT = "[SOS HUCE] %s";
+    }
+
+    public static class ActionLog {
+        public final static String CREATE = "CREATE";
+        public final static String UPDATE = "UPDATE";
+        public final static String DELETE = "DELETE";
+    }
+
+    public static class AdoptStatus {
+        public final static Integer WAIT_FOR_PROGRESSING = 1;
+        public final static Integer IN_PROGRESS = 2;
+        public final static Integer REJECT = 3;
+        public final static Integer CANCEL = 4;
+        public final static Integer COMPLETE = 5;
+        public final static Integer RETURN = 6;
+    }
+
+    public static class PetStatus {
+        public final static int DIED = 1;
+        public final static int ADOPTED = 2;
+        public final static int HEALING = 3;
+        public final static int WAIT_FOR_ADOPTING = 4;
     }
 
 }

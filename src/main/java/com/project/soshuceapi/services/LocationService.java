@@ -38,9 +38,9 @@ public class LocationService implements ILocationService {
     public List<District> getAllDistrics(int provinceId) {
         try {
             if (NumberUtil.isNullOrZero(provinceId)) {
-                return districtRepository.findAllByProvince(provinceId);
+                return districtRepository.findAll();
             }
-            return districtRepository.findAll();
+            return districtRepository.findAllByProvince(provinceId);
         } catch (Exception e) {
             throw new RuntimeException("error.get.all.district");
         }

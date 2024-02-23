@@ -25,7 +25,7 @@ public class NewsCategory {
     private String id;
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "VARCHAR(255)")
     private String description;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
@@ -37,7 +37,7 @@ public class NewsCategory {
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;
 
-    @OneToMany(mappedBy = "newsCategory", fetch = FetchType.LAZY)
     @JsonIgnore
+    @OneToMany(mappedBy = "newsCategory", fetch = FetchType.LAZY)
     private Set<News> news = new HashSet<>();
 }

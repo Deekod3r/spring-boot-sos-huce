@@ -16,10 +16,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Ward {
     @Id
-    private int id;
+    private Integer id;
     private String name;
     private String code;
-    private int provinceId;
+    private Integer provinceId;
 
     @ManyToOne
     @JoinColumn(name = "district_id", nullable = false)

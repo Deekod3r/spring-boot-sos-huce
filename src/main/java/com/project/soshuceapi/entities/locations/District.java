@@ -18,12 +18,12 @@ import java.util.Set;
 @NoArgsConstructor
 public class District {
     @Id
-    private int id;
+    private Integer id;
     private String name;
     private String code;
 
-    @OneToMany(mappedBy = "district", fetch = FetchType.LAZY)
     @JsonIgnore
+    @OneToMany(mappedBy = "district", fetch = FetchType.LAZY)
     private Set<Ward> wards = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER)

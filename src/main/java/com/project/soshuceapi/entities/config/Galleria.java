@@ -25,7 +25,7 @@ public class Galleria {
     private String id;
     @Column(name = "title", columnDefinition = "VARCHAR(100)", nullable = false)
     private String title;
-    @Column(name = "image", columnDefinition = "VARCHAR(100)", nullable = false)
+    @Column(name = "image", columnDefinition = "TEXT", nullable = false)
     private String image;
     @Column(name = "description", columnDefinition = "VARCHAR(255)", nullable = false)
     private String description;

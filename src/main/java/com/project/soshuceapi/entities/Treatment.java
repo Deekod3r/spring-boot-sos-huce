@@ -32,16 +32,16 @@ public class Treatment {
     @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     private String description;
     @Column(name = "price", columnDefinition = "BIGINT", nullable = false)
-    private long price;
-    @Column(name="quantity", columnDefinition = "INT", nullable = false)
-    private int quantity;
+    private Long price;
+    @Column(name="quantity", columnDefinition = "INTEGER", nullable = false)
+    private Integer quantity;
     @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
-    private boolean status;
-    @Column(name = "bill", columnDefinition = "VARCHAR(1000)")
+    private Boolean status;
+    @Column(name = "bill", columnDefinition = "TEXT", nullable = false)
     private String bill;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
-    private boolean isDeleted;
+    private Boolean isDeleted;
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
@@ -52,11 +52,10 @@ public class Treatment {
     private String updatedBy;
     @Column(name = "deleted_by", columnDefinition = "VARCHAR(36)")
     private String deletedBy;
+    @JoinColumn(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
+    private String createdBy;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
 }

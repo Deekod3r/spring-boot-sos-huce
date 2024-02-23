@@ -24,6 +24,8 @@ import java.util.UUID;
 @Service
 public class FileService implements IFileService {
 
+    private final static String TAG = "FILE";
+
     @Autowired
     private ResourceConfig resourceConfig;
 

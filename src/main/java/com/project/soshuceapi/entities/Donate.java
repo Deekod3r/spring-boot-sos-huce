@@ -26,12 +26,12 @@ public class Donate {
     @Column(name = "detail", columnDefinition = "VARCHAR(255)")
     private String detail;
     @Column(name = "amount", columnDefinition = "BIGINT", nullable = false)
-    private long amount;
+    private Long amount;
     @Column(name = "date", columnDefinition = "DATE", nullable = false)
     private LocalDate date;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
-    private boolean isDeleted;
+    private Boolean isDeleted;
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
@@ -42,8 +42,7 @@ public class Donate {
     private String updatedBy;
     @Column(name = "deleted_by", columnDefinition = "VARCHAR(36)")
     private String deletedBy;
+    @JoinColumn(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
+    private String createdBy;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
 }

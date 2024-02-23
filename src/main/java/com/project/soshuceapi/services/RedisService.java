@@ -41,7 +41,7 @@ public class RedisService implements IRedisService {
         try {
             redisTemplate.delete(key);
         } catch (Exception e) {
-            throw new RuntimeException("error.delete.data.redis");
+            throw new RedisException("error.delete.data.redis");
         }
     }
 

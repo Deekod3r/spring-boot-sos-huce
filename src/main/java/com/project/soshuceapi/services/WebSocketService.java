@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class WebSocketService implements IWebSocketService {
 
+    private final static String TAG = "WEBSOCKET";
+
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 

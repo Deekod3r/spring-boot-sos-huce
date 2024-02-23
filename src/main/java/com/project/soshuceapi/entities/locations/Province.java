@@ -19,11 +19,11 @@ import java.util.Set;
 @NoArgsConstructor
 public class Province {
     @Id
-    private int id;
+    private Integer id;
     private String name;
     private String code;
 
-    @OneToMany(mappedBy = "province", fetch = FetchType.LAZY)
     @JsonIgnore
+    @OneToMany(mappedBy = "province", fetch = FetchType.LAZY)
     private Set<District> districts = new HashSet<>();
 }

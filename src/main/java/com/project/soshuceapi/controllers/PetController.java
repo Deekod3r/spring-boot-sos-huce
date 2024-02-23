@@ -2,7 +2,6 @@ package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
-import com.project.soshuceapi.entities.Pet;
 import com.project.soshuceapi.exceptions.NotFoundException;
 import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.requests.PetCreateRequest;
@@ -13,7 +12,6 @@ import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.PetService;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
@@ -21,9 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -38,8 +34,8 @@ public class PetController {
 
     @GetMapping
     public ResponseEntity<?> getPets(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "limit", defaultValue = "5") int limit,
+            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "limit", defaultValue = "5") Integer limit,
             @RequestParam(value = "name", defaultValue = "", required = false) String name,
             @RequestParam(value = "breed", defaultValue = "", required = false) String breed,
             @RequestParam(value = "color", defaultValue = "", required = false) String color,
@@ -56,6 +52,7 @@ public class PetController {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
+            Integer a = type;
             response.setData(petService.getAll(page, limit,
                     name, breed, color, code, type, age, gender,
                     status, diet, vaccin, sterilization, rabies));

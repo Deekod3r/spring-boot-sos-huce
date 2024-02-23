@@ -25,7 +25,7 @@ public class FeedbackBox {
     private String id;
     @Column(name = "full_name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String fullName;
-    @Column(name = "message", columnDefinition = "VARCHAR(500)", nullable = false)
+    @Column(name = "message", columnDefinition = "TEXT", nullable = false)
     private String message;
     @Column(name = "email", columnDefinition = "VARCHAR(100)", nullable = false)
     private String email;
