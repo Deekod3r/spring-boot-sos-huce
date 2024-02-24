@@ -55,6 +55,7 @@ public class AdoptService implements IAdoptService {
             adopt.setStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING);
             adopt.setIsDeleted(false);
             adopt = adoptRepository.save(adopt);
+            logCreate(adopt);
             return adoptMapper.mapTo(adopt, AdoptDTO.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
