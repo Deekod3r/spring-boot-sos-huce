@@ -43,6 +43,8 @@ public class Constants {
         public final static String UPDATE = "UPDATE";
         public final static String DELETE = "DELETE";
         public final static String DELETE_SOFT = "DELETE_SOFT";
+        public final static String LOCK = "LOCK";
+        public final static String UNLOCK = "UNLOCK";
     }
 
     public static class AdoptStatus {
