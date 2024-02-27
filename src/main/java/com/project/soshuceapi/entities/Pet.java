@@ -45,8 +45,8 @@ public class Pet {
     private Integer status; // '1-died; 2-adopted; 3-healing; 4-wait for adopting'
     @Column(name = "weight", columnDefinition = "FLOAT", nullable = false)
     private Float weight;
-    @Column(name = "vaccin", columnDefinition = "INTEGER", nullable = false)
-    private Integer vaccin; //benh tong hp '1-no; 2-yes; 3-unknown'
+    @Column(name = "vaccine", columnDefinition = "INTEGER", nullable = false)
+    private Integer vaccine; //benh tong hp '1-no; 2-yes; 3-unknown'
     @Column(name = "sterilization", columnDefinition = "INTEGER", nullable = false)
     private Integer sterilization; //triet san '1-no; 2-yes; 3-unknown'
     @Column(name = "diet", columnDefinition = "INTEGER", nullable = false)

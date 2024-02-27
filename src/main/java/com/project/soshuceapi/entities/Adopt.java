@@ -58,7 +58,10 @@ public class Adopt {
     @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "created_by")
+    @JoinColumn(name = "registered_by", nullable = false)
+    private User registeredBy;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "confirmed_by")

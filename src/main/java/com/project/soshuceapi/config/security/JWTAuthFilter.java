@@ -66,7 +66,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             response.setStatus(FORBIDDEN.value());
             response.setContentType(APPLICATION_JSON_VALUE);
-            new ObjectMapper().writeValue(response.getOutputStream(), Map.of("error", e));
+            new ObjectMapper().writeValue(response.getOutputStream(), Map.of("error", e.getMessage()));
         }
     }
 }

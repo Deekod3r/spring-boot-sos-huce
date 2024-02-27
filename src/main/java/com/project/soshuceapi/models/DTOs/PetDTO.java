@@ -19,7 +19,7 @@ public class PetDTO {
     String image;
     Integer status;
     Float weight;
-    Integer vaccin;
+    Integer vaccine;
     Integer sterilization;
     Integer diet;
     Integer rabies;
@@ -29,4 +29,5 @@ public class PetDTO {
     Integer friendlyToCats;
     String note;
     String description;
+    String adoptedBy;
 }

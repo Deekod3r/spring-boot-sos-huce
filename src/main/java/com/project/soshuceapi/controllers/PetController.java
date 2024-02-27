@@ -45,17 +45,16 @@ public class PetController {
             @RequestParam(value = "gender", defaultValue = "", required = false) Integer gender,
             @RequestParam(value = "status", defaultValue = "", required = false) Integer status,
             @RequestParam(value = "diet", defaultValue = "", required = false) Integer diet,
-            @RequestParam(value = "vaccin", defaultValue = "", required = false) Integer vaccin,
+            @RequestParam(value = "vaccine", defaultValue = "", required = false) Integer vaccine,
             @RequestParam(value = "sterilization", defaultValue = "", required = false) Integer sterilization,
             @RequestParam(value = "rabies", defaultValue = "", required = false) Integer rabies
     ) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
-            Integer a = type;
             response.setData(petService.getAll(page, limit,
                     name, breed, color, code, type, age, gender,
-                    status, diet, vaccin, sterilization, rabies));
+                    status, diet, vaccine, sterilization, rabies));
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -106,7 +105,8 @@ public class PetController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED, ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
+                        ResponseCode.Authentication.PERMISSION_DENIED));
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (bindingResult.hasErrors()) {
@@ -133,7 +133,8 @@ public class PetController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED, ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
+                        ResponseCode.Authentication.PERMISSION_DENIED));
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (bindingResult.hasErrors()) {
@@ -167,7 +168,8 @@ public class PetController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED, ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
+                        ResponseCode.Authentication.PERMISSION_DENIED));
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (bindingResult.hasErrors()) {
@@ -199,7 +201,8 @@ public class PetController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED, ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
+                        ResponseCode.Authentication.PERMISSION_DENIED));
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (StringUtil.isNullOrBlank(id)) {

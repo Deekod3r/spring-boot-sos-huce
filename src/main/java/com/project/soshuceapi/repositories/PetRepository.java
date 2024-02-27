@@ -28,7 +28,7 @@ public interface PetRepository extends JpaRepository<Pet, String> {
             "AND (:age IS NULL OR age = :age) " +
             "AND (:status IS NULL OR status = :status) " +
             "AND (:diet IS NULL OR diet = :diet) " +
-            "AND (:vaccin IS NULL OR vaccin = :vaccin) " +
+            "AND (:vaccine IS NULL OR vaccine = :vaccine) " +
             "AND (:sterilization IS NULL OR sterilization = :sterilization) " +
             "AND (:rabies IS NULL OR rabies = :rabies) " +
             "ORDER BY created_at DESC "
@@ -43,7 +43,7 @@ public interface PetRepository extends JpaRepository<Pet, String> {
             @Param("gender") Integer gender,
             @Param("status") Integer status,
             @Param("diet") Integer diet,
-            @Param("vaccin") Integer vaccin,
+            @Param("vaccine") Integer vaccine,
             @Param("sterilization") Integer sterilization,
             @Param("rabies") Integer rabies,
             Pageable pageable

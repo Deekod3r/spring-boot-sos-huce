@@ -5,7 +5,6 @@ import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.exceptions.NotFoundException;
 import com.project.soshuceapi.models.DTOs.UserDTO;
-import com.project.soshuceapi.models.requests.UserChangePasswordRequest;
 import com.project.soshuceapi.models.requests.UserCreateRequest;
 import com.project.soshuceapi.models.requests.UserResetPasswordRequest;
 import com.project.soshuceapi.models.responses.Error;
@@ -15,7 +14,6 @@ import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
 import com.project.soshuceapi.utils.DataUtil;
 import com.project.soshuceapi.utils.StringUtil;
-import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -109,8 +107,10 @@ public class UserController {
             }
             String verifyCode = StringUtil.generateRandomString(Constants.Secutiry.VERIFY_CODE_LENGTH);
             String key = String.valueOf(System.currentTimeMillis());
-            emailService.sendMail(user.getEmail(), String.format(Constants.Mail.SUBJECT, "Password Reset"), String.format(Constants.Mail.VERIFY_BODY, user.getEmail(), "đặt lại mật khẩu", verifyCode));
-            redisService.saveDataToRedis(user.getPhoneNumber() + key + "-FORGOT-PASSWORD-CODE", verifyCode, Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
+            emailService.sendMail(user.getEmail(), String.format(Constants.Mail.SUBJECT, "Password Reset"),
+                    String.format(Constants.Mail.VERIFY_BODY, user.getEmail(), "đặt lại mật khẩu", verifyCode));
+            redisService.saveDataToRedis(user.getPhoneNumber() + key + "-FORGOT-PASSWORD-CODE", verifyCode,
+                    Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
             response.setData(Map.of("id", user.getPhoneNumber() + key));
             response.setSuccess(true);
             return ResponseEntity.ok(response);

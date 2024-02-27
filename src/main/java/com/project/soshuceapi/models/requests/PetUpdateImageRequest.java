@@ -15,9 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PetUpdateImageRequest {
-    @NotBlank(message = "misssing.pet.id")
+    @NotBlank(message = "missing.pet.id")
     String id;
-    @NotNull(message = "misssing.pet.image")
+    @NotNull(message = "missing.pet.image")
     MultipartFile image;
     @JsonIgnore
     String updatedBy;

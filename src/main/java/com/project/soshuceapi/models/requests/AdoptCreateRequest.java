@@ -1,7 +1,6 @@
 package com.project.soshuceapi.models.requests;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -25,8 +24,13 @@ public class AdoptCreateRequest {
     @NotBlank(message = "missing.adopt.address")
     @Length(max = 255, message = "invalid.length.adopt.address")
     String address;
+    @NotBlank(message = "missing.adopt.reason")
+    @Length(max = 255, message = "invalid.length.adopt.reason")
+    String reason;
     @NotNull(message = "missing.adopt.pet.id")
     String petId;
+    @NotBlank(message = "missing.adopt.registered.by")
+    String registeredBy;
     @JsonIgnore
     String createdBy;
 }

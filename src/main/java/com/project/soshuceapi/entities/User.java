@@ -51,8 +51,10 @@ public class User implements UserDetails {
     private String updatedBy;
 
     @JsonIgnore
+    @OneToMany(mappedBy = "registeredBy", fetch = FetchType.LAZY)
+    private Set<Adopt> adoptsRegistered = new HashSet<>();
     @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
-    private Set<Adopt> adopts = new HashSet<>();
+    private Set<Adopt> adoptsCreated = new HashSet<>();
     @JsonIgnore
     @OneToMany(mappedBy = "adoptedBy", fetch = FetchType.LAZY)
     private Set<Pet> pets = new HashSet<>();

@@ -12,7 +12,7 @@ public interface IPetService {
     Map<String, Object> getAll(int page, int limit,
                                String name, String breed, String color, String code,
                                Integer type, Integer age, Integer gender,  Integer status, Integer diet,
-                               Integer vaccin, Integer sterilization, Integer rabies);
+                               Integer vaccine, Integer sterilization, Integer rabies);
 
     Map<String, Long> getStatisticCases();
 

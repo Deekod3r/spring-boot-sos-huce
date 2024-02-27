@@ -51,10 +51,20 @@ public class PetService implements IPetService {
     public Map<String, Object> getAll(int page, int limit,
                                       String name, String breed, String color, String code,
                                       Integer type, Integer age, Integer gender, Integer status,
-                                      Integer diet, Integer vaccin, Integer sterilization, Integer rabies) {
-        Page<Pet> pets = petRepository.findAll(name, breed, color, code, type, age, gender, status, diet, vaccin, sterilization, rabies ,Pageable.ofSize(limit).withPage(page - 1));
+                                      Integer diet, Integer vaccine, Integer sterilization, Integer rabies) {
+        Page<Pet> pets = petRepository.findAll(name, breed, color, code, type, age, gender, status, diet, vaccine, sterilization, rabies ,Pageable.ofSize(limit).withPage(page - 1));
+        List<PetDTO> petDTOs = pets.getContent().stream()
+                .map(pet -> {
+                    User adoptedBy = pet.getAdoptedBy();
+                    PetDTO petDTO = petMapper.mapTo(pet, PetDTO.class);
+                    if (Objects.nonNull(adoptedBy)) {
+                        petDTO.setAdoptedBy(adoptedBy.getPhoneNumber() + " - " + adoptedBy.getName());
+                    }
+                    return petDTO;
+                })
+                .toList();
         return Map.of(
-                "pets", pets.getContent().stream().map(pet -> petMapper.mapTo(pet, PetDTO.class)).collect(Collectors.toList()),
+                "pets", petDTOs,
                 "total", pets.getTotalElements(),
                 "page", pets.getNumber() + 1,
                 "limit", pets.getSize(),
@@ -97,7 +107,7 @@ public class PetService implements IPetService {
             pet.setGender(request.getGender());
             pet.setStatus(request.getStatus());
             pet.setWeight(request.getWeight());
-            pet.setVaccin(request.getVaccin());
+            pet.setVaccine(request.getVaccine());
             pet.setSterilization(request.getSterilization());
             pet.setDiet(request.getDiet());
             pet.setRabies(request.getRabies());
@@ -205,43 +215,47 @@ public class PetService implements IPetService {
     }
 
     private void logCreate(Pet pet) {
-        actionLogService.create(ActionLogDTO.builder()
-                .action(Constants.ActionLog.CREATE)
-                .description(Constants.ActionLog.CREATE + "." + TAG)
-                .createdBy(pet.getCreatedBy())
-                .details(List.of(
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(pet.getId())
-                                .columnName("name")
-                                .newValue(pet.getName())
-                                .build(),
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(pet.getId())
-                                .columnName("type")
-                                .newValue(String.valueOf(pet.getType()))
-                                .build(),
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(pet.getId())
-                                .columnName("gender")
-                                .newValue(String.valueOf(pet.getGender()))
-                                .build(),
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(pet.getId())
-                                .columnName("status")
-                                .newValue(String.valueOf(pet.getStatus()))
-                                .build(),
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(pet.getId())
-                                .columnName("image")
-                                .newValue(pet.getImage())
-                                .build()
-                ))
-                .build());
+        try {
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.CREATE)
+                    .description(Constants.ActionLog.CREATE + "." + TAG)
+                    .createdBy(pet.getCreatedBy())
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(pet.getId())
+                                    .columnName("name")
+                                    .newValue(pet.getName())
+                                    .build(),
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(pet.getId())
+                                    .columnName("type")
+                                    .newValue(String.valueOf(pet.getType()))
+                                    .build(),
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(pet.getId())
+                                    .columnName("gender")
+                                    .newValue(String.valueOf(pet.getGender()))
+                                    .build(),
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(pet.getId())
+                                    .columnName("status")
+                                    .newValue(String.valueOf(pet.getStatus()))
+                                    .build(),
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(pet.getId())
+                                    .columnName("image")
+                                    .newValue(pet.getImage())
+                                    .build()
+                    ))
+                    .build());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     private void logUpdate(Pet newValue, Pet oldValue) {
@@ -322,13 +336,13 @@ public class PetService implements IPetService {
                         .newValue(String.valueOf(newValue.getWeight()))
                         .build());
             }
-            if (!Objects.equals(newValue.getVaccin(), oldValue.getVaccin())) {
+            if (!Objects.equals(newValue.getVaccine(), oldValue.getVaccine())) {
                 actionLogDetails.add(ActionLogDetail.builder()
                         .tableName(TAG)
                         .rowId(newValue.getId())
                         .columnName("vaccin")
-                        .oldValue(String.valueOf(oldValue.getVaccin()))
-                        .newValue(String.valueOf(newValue.getVaccin()))
+                        .oldValue(String.valueOf(oldValue.getVaccine()))
+                        .newValue(String.valueOf(newValue.getVaccine()))
                         .build());
             }
             if (!Objects.equals(newValue.getSterilization(), oldValue.getSterilization())) {
