@@ -15,6 +15,8 @@ import com.project.soshuceapi.models.requests.PetUpdateRequest;
 import com.project.soshuceapi.repositories.PetRepository;
 import com.project.soshuceapi.services.iservice.IFileService;
 import com.project.soshuceapi.services.iservice.IPetService;
+import com.project.soshuceapi.utils.DataUtil;
+import com.project.soshuceapi.utils.StringUtil;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -52,7 +54,7 @@ public class PetService implements IPetService {
                                       String name, String breed, String color, String code,
                                       Integer type, Integer age, Integer gender, Integer status,
                                       Integer diet, Integer vaccine, Integer sterilization, Integer rabies) {
-        Page<Pet> pets = petRepository.findAll(name, breed, color, code, type, age, gender, status, diet, vaccine, sterilization, rabies ,Pageable.ofSize(limit).withPage(page - 1));
+        Page<Pet> pets = petRepository.findAll(name.trim(), breed.trim(), color.trim(), code.trim(), type, age, gender, status, diet, vaccine, sterilization, rabies ,Pageable.ofSize(limit).withPage(page - 1));
         List<PetDTO> petDTOs = pets.getContent().stream()
                 .map(pet -> {
                     User adoptedBy = pet.getAdoptedBy();
@@ -78,9 +80,11 @@ public class PetService implements IPetService {
         try {
             Map<String, String> data = fileService.upload(request.getImage());
             String url = data.get("url");
-            request.setBreed(upcaseFirstLetter(request.getBreed()));
-            request.setColor(upcaseFirstLetter(request.getColor()));
-            request.setName(upcaseAllFirstLetters(request.getName()));
+            request.setBreed(upcaseFirstLetter(request.getBreed().trim()));
+            request.setColor(upcaseFirstLetter(request.getColor().trim()));
+            request.setName(upcaseAllFirstLetters(request.getName().trim()));
+            request.setDescription(request.getDescription().trim());
+            request.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : null);
             Pet pet = petMapper.mapFrom(request);
             pet.setImage(url);
             pet.setCreatedAt(LocalDateTime.now());
@@ -100,9 +104,9 @@ public class PetService implements IPetService {
         try {
             Pet pet = petRepository.findById(request.getId()).orElseThrow(() -> new NotFoundException("pet.not.found"));
             Pet oldValue = pet;
-            pet.setBreed(upcaseFirstLetter(request.getBreed()));
-            pet.setColor(upcaseFirstLetter(request.getColor()));
-            pet.setName(upcaseAllFirstLetters(request.getName()));
+            pet.setBreed(upcaseFirstLetter(request.getBreed().trim()));
+            pet.setColor(upcaseFirstLetter(request.getColor().trim()));
+            pet.setName(upcaseAllFirstLetters(request.getName().trim()));
             pet.setAge(request.getAge());
             pet.setGender(request.getGender());
             pet.setStatus(request.getStatus());
@@ -115,8 +119,8 @@ public class PetService implements IPetService {
             pet.setFriendlyToHuman(request.getFriendlyToHuman());
             pet.setFriendlyToDogs(request.getFriendlyToDogs());
             pet.setFriendlyToCats(request.getFriendlyToCats());
-            pet.setDescription(request.getDescription());
-            pet.setNote(request.getNote());
+            pet.setDescription(request.getDescription().trim());
+            pet.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : null);
             pet.setUpdatedBy(request.getUpdatedBy());
             pet.setUpdatedAt(LocalDateTime.now());
             pet = petRepository.save(pet);

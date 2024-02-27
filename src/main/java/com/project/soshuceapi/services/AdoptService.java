@@ -62,8 +62,8 @@ public class AdoptService implements IAdoptService {
             adopt.setWardId(request.getWardId());
             adopt.setDistrictId(request.getDistrictId());
             adopt.setProvinceId(request.getProvinceId());
-            adopt.setAddress(request.getAddress());
-            adopt.setReason(request.getReason());
+            adopt.setAddress(request.getAddress().trim());
+            adopt.setReason(request.getReason().trim());
             adopt.setStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING);
             adopt.setIsDeleted(false);
             adopt = adoptRepository.save(adopt);

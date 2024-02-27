@@ -42,6 +42,9 @@ public class UserService implements IUserService {
             if (isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())) {
                 throw new UserExistedException("existed.user.by.code/email");
             }
+            request.setPhoneNumber(request.getPhoneNumber().trim());
+            request.setEmail(request.getEmail().trim());
+            request.setName(request.getName().trim());
             User user = userMapper.mapFrom(request);
             user.setIsActivated(true);
             user.setPassword(passwordEncoder.encode(request.getPassword()));

@@ -44,10 +44,10 @@ public class AuthService implements IAuthService {
     public Map<String, Object> authenticate(LoginRequest loginRequest) {
         try {
             Authentication authenticate = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail().trim(), loginRequest.getPassword())
             );
             if (authenticate.isAuthenticated()) {
-                User user = userMapper.mapFrom(userService.getByEmail(loginRequest.getEmail()));
+                User user = userMapper.mapFrom(userService.getByEmail(loginRequest.getEmail().trim()));
                 String token = jwtProvider.generateToken(null, user);
                 String refreshToken = jwtProvider.generateRefreshToken(null, user);
                 revokeAllUserTokens(user);
