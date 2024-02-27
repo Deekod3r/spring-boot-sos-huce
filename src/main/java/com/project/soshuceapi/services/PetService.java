@@ -172,8 +172,8 @@ public class PetService implements IPetService {
         try {
             petRepository.findById(id).orElseThrow(() -> new NotFoundException("pet.not.found"));
             actionLogService.create(ActionLogDTO.builder()
-                    .action(Constants.ActionLog.DELETE)
-                    .description(Constants.ActionLog.DELETE + "." + TAG)
+                    .action(Constants.ActionLog.DELETE_SOFT)
+                    .description(Constants.ActionLog.DELETE_SOFT + "." + TAG)
                     .createdBy(id)
                     .details(List.of(
                             ActionLogDetail.builder()

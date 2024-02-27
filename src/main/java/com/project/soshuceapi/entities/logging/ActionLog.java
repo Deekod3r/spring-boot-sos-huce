@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 public class ActionLog {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    @SequenceGenerator(name = "action_log_seq", sequenceName = "action_log_seq", allocationSize = 1)
     private Long id;
     @Column(name = "action")
     private String action;

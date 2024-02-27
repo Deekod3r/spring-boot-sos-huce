@@ -13,7 +13,6 @@ import lombok.*;
 public class ActionLogDetail {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    @SequenceGenerator(name = "action_log_detail_seq", sequenceName = "action_log_detail_seq", allocationSize = 1)
     private Long id;
     @Column(name = "action_log_id")
     private Long actionLogId;

@@ -42,6 +42,7 @@ public class Constants {
         public final static String CREATE = "CREATE";
         public final static String UPDATE = "UPDATE";
         public final static String DELETE = "DELETE";
+        public final static String DELETE_SOFT = "DELETE_SOFT";
     }
 
     public static class AdoptStatus {
