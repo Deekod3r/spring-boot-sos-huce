@@ -14,16 +14,16 @@ public class ActionLogDetail {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "action_log_id")
+    @Column(name = "action_log_id", columnDefinition = "BIGINT", nullable = false)
     private Long actionLogId;
-    @Column(name = "table_name")
+    @Column(name = "table_name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String tableName;
-    @Column(name = "column_name")
+    @Column(name = "column_name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String columnName;
-    @Column(name = "row_id")
+    @Column(name = "row_id", columnDefinition = "VARCHAR(36)", nullable = false)
     private String rowId;
-    @Column(name = "old_value")
+    @Column(name = "old_value", columnDefinition = "TEXT", nullable = false)
     private String oldValue;
-    @Column(name = "new_value")
+    @Column(name = "new_value", columnDefinition = "TEXT", nullable = false)
     private String newValue;
 }

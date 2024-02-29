@@ -27,12 +27,12 @@ public class LogoutService implements LogoutHandler {
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         try {
-            final String authHeader = request.getHeader(Constants.Secutiry.REQUEST_HEADER_AUTH);
-            if (authHeader == null || !authHeader.startsWith(Constants.Secutiry.TOKEN_PREFIX)) {
+            final String authHeader = request.getHeader(Constants.Security.REQUEST_HEADER_AUTH);
+            if (authHeader == null || !authHeader.startsWith(Constants.Security.TOKEN_PREFIX)) {
                 return;
             }
-            String jwt = authHeader.substring(Constants.Secutiry.TOKEN_PREFIX.length());
-            String key = Constants.Secutiry.TOKEN_HEADER_KEY + jwtProvider.extractEmail(jwt);
+            String jwt = authHeader.substring(Constants.Security.TOKEN_PREFIX.length());
+            String key = Constants.Security.TOKEN_HEADER_KEY + jwtProvider.extractEmail(jwt);
             String storedToken = (String) redisService.getDataFromRedis(key);
             if (storedToken != null) {
                 redisService.deleteDataFromRedis(key);

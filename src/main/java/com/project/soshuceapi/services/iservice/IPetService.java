@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface IPetService {
 
-    Map<String, Object> getAll(int page, int limit,
+    Map<String, Object> getAll(Integer page, Integer limit,
                                String name, String breed, String color, String code,
                                Integer type, Integer age, Integer gender,  Integer status, Integer diet,
                                Integer vaccine, Integer sterilization, Integer rabies);
@@ -22,7 +22,7 @@ public interface IPetService {
 
     PetDTO updateImage(PetUpdateImageRequest request);
 
-    boolean deleteSoft(String id);
+    Boolean deleteSoft(String id);
 
     PetDTO getById(String id);
 

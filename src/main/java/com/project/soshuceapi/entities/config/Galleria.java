@@ -29,6 +29,8 @@ public class Galleria {
     private String image;
     @Column(name = "description", columnDefinition = "VARCHAR(255)", nullable = false)
     private String description;
+    @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
+    private Boolean status;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;

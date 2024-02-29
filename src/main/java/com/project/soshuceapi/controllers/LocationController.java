@@ -29,7 +29,7 @@ public class LocationController {
     public ResponseEntity<?> getAllDistricts(@RequestParam(value = "provinceId", required = false, defaultValue = "0")
                                                  int provinceId) {
         try {
-            return ResponseEntity.ok(locationService.getAllDistrics(provinceId));
+            return ResponseEntity.ok(locationService.getAllDistricts(provinceId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

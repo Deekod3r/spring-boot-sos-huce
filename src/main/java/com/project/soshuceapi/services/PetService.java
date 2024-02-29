@@ -3,7 +3,6 @@ package com.project.soshuceapi.services;
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.entities.Pet;
 import com.project.soshuceapi.entities.User;
-import com.project.soshuceapi.entities.logging.ActionLog;
 import com.project.soshuceapi.entities.logging.ActionLogDetail;
 import com.project.soshuceapi.exceptions.NotFoundException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
@@ -15,21 +14,18 @@ import com.project.soshuceapi.models.requests.PetUpdateRequest;
 import com.project.soshuceapi.repositories.PetRepository;
 import com.project.soshuceapi.services.iservice.IFileService;
 import com.project.soshuceapi.services.iservice.IPetService;
-import com.project.soshuceapi.utils.DataUtil;
 import com.project.soshuceapi.utils.StringUtil;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.project.soshuceapi.utils.StringUtil.upcaseAllFirstLetters;
 import static com.project.soshuceapi.utils.StringUtil.upcaseFirstLetter;
@@ -50,11 +46,12 @@ public class PetService implements IPetService {
 
 
     @Override
-    public Map<String, Object> getAll(int page, int limit,
+    public Map<String, Object> getAll(Integer page, Integer limit,
                                       String name, String breed, String color, String code,
                                       Integer type, Integer age, Integer gender, Integer status,
                                       Integer diet, Integer vaccine, Integer sterilization, Integer rabies) {
-        Page<Pet> pets = petRepository.findAll(name.trim(), breed.trim(), color.trim(), code.trim(), type, age, gender, status, diet, vaccine, sterilization, rabies ,Pageable.ofSize(limit).withPage(page - 1));
+        Page<Pet> pets = petRepository.findAll(name.trim(), breed.trim(), color.trim(), code.trim(), type, age, gender,
+                status, diet, vaccine, sterilization, rabies ,Pageable.ofSize(limit).withPage(page - 1));
         List<PetDTO> petDTOs = pets.getContent().stream()
                 .map(pet -> {
                     User adoptedBy = pet.getAdoptedBy();
@@ -119,7 +116,7 @@ public class PetService implements IPetService {
             pet.setFriendlyToHuman(request.getFriendlyToHuman());
             pet.setFriendlyToDogs(request.getFriendlyToDogs());
             pet.setFriendlyToCats(request.getFriendlyToCats());
-            pet.setDescription(request.getDescription().trim());
+            pet.setDescription(!StringUtil.isNullOrBlank(request.getDescription()) ? request.getDescription().trim() : null);
             pet.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : null);
             pet.setUpdatedBy(request.getUpdatedBy());
             pet.setUpdatedAt(LocalDateTime.now());
@@ -168,7 +165,7 @@ public class PetService implements IPetService {
 
     @Override
     @Transactional
-    public boolean deleteSoft(String id) {
+    public Boolean deleteSoft(String id) {
         try {
             petRepository.findById(id).orElseThrow(() -> new NotFoundException("pet.not.found"));
             actionLogService.create(ActionLogDTO.builder()
@@ -229,7 +226,7 @@ public class PetService implements IPetService {
                                     .tableName(TAG)
                                     .rowId(pet.getId())
                                     .columnName("name")
-                                    .newValue(pet.getName())
+                                    .newValue(pet.getName().trim())
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
@@ -274,7 +271,7 @@ public class PetService implements IPetService {
                         .rowId(newValue.getId())
                         .columnName("breed")
                         .oldValue(oldValue.getBreed())
-                        .newValue(newValue.getBreed())
+                        .newValue(newValue.getBreed().trim())
                         .build());
             }
             if (!Objects.equals(newValue.getColor(), oldValue.getColor())) {
@@ -283,7 +280,7 @@ public class PetService implements IPetService {
                         .rowId(newValue.getId())
                         .columnName("color")
                         .oldValue(oldValue.getColor())
-                        .newValue(newValue.getColor())
+                        .newValue(newValue.getColor().trim())
                         .build());
             }
             if (!Objects.equals(newValue.getName(), oldValue.getName())) {
@@ -292,7 +289,7 @@ public class PetService implements IPetService {
                         .rowId(newValue.getId())
                         .columnName("name")
                         .oldValue(oldValue.getName())
-                        .newValue(newValue.getName())
+                        .newValue(newValue.getName().trim())
                         .build());
             }
             if (!Objects.equals(newValue.getAge(), oldValue.getAge())) {
@@ -344,7 +341,7 @@ public class PetService implements IPetService {
                 actionLogDetails.add(ActionLogDetail.builder()
                         .tableName(TAG)
                         .rowId(newValue.getId())
-                        .columnName("vaccin")
+                        .columnName("vaccine")
                         .oldValue(String.valueOf(oldValue.getVaccine()))
                         .newValue(String.valueOf(newValue.getVaccine()))
                         .build());
@@ -418,7 +415,7 @@ public class PetService implements IPetService {
                         .rowId(newValue.getId())
                         .columnName("description")
                         .oldValue(oldValue.getDescription())
-                        .newValue(newValue.getDescription())
+                        .newValue(!StringUtil.isNullOrBlank(newValue.getDescription()) ? newValue.getDescription().trim() : null)
                         .build());
             }
             if (!Objects.equals(newValue.getNote(), oldValue.getNote())) {
@@ -427,7 +424,7 @@ public class PetService implements IPetService {
                         .rowId(newValue.getId())
                         .columnName("note")
                         .oldValue(oldValue.getNote())
-                        .newValue(newValue.getNote())
+                        .newValue(!StringUtil.isNullOrBlank(newValue.getNote()) ? newValue.getNote().trim() : null)
                         .build());
             }
             if (!Objects.equals(newValue.getImage(), oldValue.getImage())) {

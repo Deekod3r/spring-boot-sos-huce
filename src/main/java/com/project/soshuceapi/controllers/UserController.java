@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,14 +52,14 @@ public class UserController {
                 response.setError(Error.of(ResponseMessage.Common.EXISTED, ResponseCode.Common.EXISTED));
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
-            String verifyCode = StringUtil.generateRandomString(Constants.Secutiry.VERIFY_CODE_LENGTH);
+            String verifyCode = StringUtil.generateRandomString(Constants.Security.VERIFY_CODE_LENGTH);
             String key = String.valueOf(System.currentTimeMillis());
             emailService.sendMail(request.getEmail(), String.format(Constants.Mail.SUBJECT, "Email Verification"),
                     String.format(Constants.Mail.VERIFY_BODY, request.getEmail(), "đăng ký tài khoản", verifyCode));
-            redisService.saveDataToRedis(request.getPhoneNumber() + key + "-REGISTER-INFO", DataUtil.toJSON(request),
-                    Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
-            redisService.saveDataToRedis(request.getPhoneNumber() + key + "-REGISTER-CODE", verifyCode,
-                    Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
+            redisService.saveDataToRedis(request.getPhoneNumber() + key + Constants.User.KEY_REGISTER_INFO, DataUtil.toJSON(request),
+                    Constants.Security.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
+            redisService.saveDataToRedis(request.getPhoneNumber() + key + Constants.User.KEY_REGISTER_CODE, verifyCode,
+                    Constants.Security.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
             response.setData(Map.of("id", request.getPhoneNumber() + key));
             response.setSuccess(true);
             return ResponseEntity.ok(response);
@@ -105,12 +106,12 @@ public class UserController {
                 response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
-            String verifyCode = StringUtil.generateRandomString(Constants.Secutiry.VERIFY_CODE_LENGTH);
+            String verifyCode = StringUtil.generateRandomString(Constants.Security.VERIFY_CODE_LENGTH);
             String key = String.valueOf(System.currentTimeMillis());
             emailService.sendMail(user.getEmail(), String.format(Constants.Mail.SUBJECT, "Password Reset"),
                     String.format(Constants.Mail.VERIFY_BODY, user.getEmail(), "đặt lại mật khẩu", verifyCode));
-            redisService.saveDataToRedis(user.getPhoneNumber() + key + "-FORGOT-PASSWORD-CODE", verifyCode,
-                    Constants.Secutiry.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
+            redisService.saveDataToRedis(user.getPhoneNumber() + key + Constants.User.KEY_FORGOT_PASSWORD_CODE, verifyCode,
+                    Constants.Security.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
             response.setData(Map.of("id", user.getPhoneNumber() + key));
             response.setSuccess(true);
             return ResponseEntity.ok(response);
@@ -130,7 +131,7 @@ public class UserController {
                 response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
-            String key = id + "-FORGOT-PASSWORD-CODE";
+            String key = id + Constants.User.KEY_FORGOT_PASSWORD_CODE;
             String verifyCode = (String) redisService.getDataFromRedis(key);
             if (StringUtil.isNullOrBlank(verifyCode)) {
                 response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED,
@@ -162,7 +163,7 @@ public class UserController {
                         ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
-            String key = request.getId() + "-FORGOT-PASSWORD-CODE";
+            String key = request.getId() + Constants.User.KEY_FORGOT_PASSWORD_CODE;
             String verifyCode = (String) redisService.getDataFromRedis(key);
             if (StringUtil.isNullOrBlank(verifyCode)) {
                 response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED,
@@ -183,4 +184,50 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable(value = "id") String id) {
+        Response<UserDTO> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (StringUtil.isNullOrBlank(id)) {
+                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
+                return ResponseEntity.badRequest().body(response);
+            }
+            UserDTO user = userService.getById(id);
+            response.setData(user);
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        } catch (NotFoundException e) {
+            response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+    public ResponseEntity<?> getUsers(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                      @RequestParam(value = "size", defaultValue = "10") Integer limit,
+                                      @RequestParam(value = "name", defaultValue = "") String name,
+                                      @RequestParam(value = "email", defaultValue = "") String email,
+                                      @RequestParam(value = "phoneNumber", defaultValue = "") String phoneNumber,
+                                      @RequestParam(value = "role", defaultValue = "") String role) {
+        Response<Map<String, Object>> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            response.setData(userService.getAll(page, limit, name, email, phoneNumber, role));
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        } catch (NotFoundException e) {
+            response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 }

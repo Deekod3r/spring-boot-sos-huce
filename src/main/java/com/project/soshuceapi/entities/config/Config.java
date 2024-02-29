@@ -19,13 +19,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Config {
     @Id
+    private Integer id;
+    @Column(name = "key", columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
     private String key;
     @Column(name = "value", columnDefinition = "TEXT", nullable = false)
     private String value;
-    @Column(name = "description", columnDefinition = "VARCHAR(255)")
+    @Column(name = "description", columnDefinition = "VARCHAR(255)", nullable = false)
     private String description;
 
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime updatedAt;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")
     private String updatedBy;

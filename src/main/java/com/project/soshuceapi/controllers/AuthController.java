@@ -1,5 +1,6 @@
 package com.project.soshuceapi.controllers;
 
+import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.common.enums.security.ERole;
@@ -70,7 +71,7 @@ public class AuthController {
                 response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
-            String verifyCode = (String) redisService.getDataFromRedis(id + "-REGISTER-CODE");
+            String verifyCode = (String) redisService.getDataFromRedis(id + Constants.User.KEY_REGISTER_CODE);
             if (verifyCode == null) {
                 response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED,
                         ResponseCode.Authentication.VERIFY_CODE_EXPIRED));
@@ -81,12 +82,12 @@ public class AuthController {
                         ResponseCode.Authentication.VERIFY_CODE_INCORRECT));
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
-            String data = (String) redisService.getDataFromRedis(id + "-REGISTER-INFO");
+            String data = (String) redisService.getDataFromRedis(id + Constants.User.KEY_REGISTER_INFO);
             UserCreateRequest request = DataUtil.fromJSON(data, UserCreateRequest.class);
             request.setRole(ERole.USER);
             request.setCreatedBy("SELF");
-            redisService.deleteDataFromRedis(id + "-REGISTER-CODE");
-            redisService.deleteDataFromRedis(id + "-REGISTER-INFO");
+            redisService.deleteDataFromRedis(id + Constants.User.KEY_REGISTER_CODE);
+            redisService.deleteDataFromRedis(id + Constants.User.KEY_REGISTER_INFO);
             response.setData(userService.create(request));
             response.setSuccess(true);
             return ResponseEntity.ok(response);

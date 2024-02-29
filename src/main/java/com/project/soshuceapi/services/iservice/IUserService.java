@@ -4,6 +4,8 @@ import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.requests.UserCreateRequest;
 import com.project.soshuceapi.models.requests.UserUpdateRequest;
 
+import java.util.Map;
+
 public interface IUserService {
 
     UserDTO create (UserCreateRequest request);
@@ -11,6 +13,8 @@ public interface IUserService {
     UserDTO update (UserUpdateRequest request);
 
     UserDTO updatePassword (String email, String password, String updatedBy);
+
+    Map<String, Object> getAll(Integer page, Integer limit, String name, String email, String phoneNumber, String role);
 
     UserDTO getById(String id);
 
@@ -20,8 +24,8 @@ public interface IUserService {
 
     UserDTO getByPhoneNumberOrEmail(String phoneNumber, String email);
 
-    boolean isExistsById(String id);
+    Boolean isExistsById(String id);
 
-    boolean isExistByPhoneNumberOrEmail(String phoneNumber, String email);
+    Boolean isExistByPhoneNumberOrEmail(String phoneNumber, String email);
 
 }

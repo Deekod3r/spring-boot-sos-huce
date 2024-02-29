@@ -80,7 +80,7 @@ public class AdoptService implements IAdoptService {
     }
 
     @Override
-    public boolean deleteSoft(String id) {
+    public Boolean deleteSoft(String id) {
         return true;
     }
 

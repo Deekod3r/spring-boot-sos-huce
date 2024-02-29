@@ -66,20 +66,20 @@ public class AuthService implements IAuthService {
     @Override
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
         try {
-            final String authHeader = request.getHeader(Constants.Secutiry.REQUEST_HEADER_AUTH);
-            if (authHeader == null || !authHeader.startsWith(Constants.Secutiry.TOKEN_PREFIX)) {
+            final String authHeader = request.getHeader(Constants.Security.REQUEST_HEADER_AUTH);
+            if (authHeader == null || !authHeader.startsWith(Constants.Security.TOKEN_PREFIX)) {
                 return;
             }
-            String jwtRefresh = authHeader.substring(Constants.Secutiry.TOKEN_PREFIX.length());
+            String jwtRefresh = authHeader.substring(Constants.Security.TOKEN_PREFIX.length());
             String email = jwtProvider.extractEmail(jwtRefresh);
             if (email != null) {
                 User user = userMapper.mapFrom(userService.getByEmail(email));
-                String key = Constants.Secutiry.TOKEN_HEADER_KEY + email;
+                String key = Constants.Security.TOKEN_HEADER_KEY + email;
                 String storedToken = (String) redisService.getDataFromRedis(key);
                 if (storedToken == null && jwtProvider.isTokenValid(jwtRefresh, user)) {
                     String token = jwtProvider.generateToken(null, user);
                     saveUserToken(user, token);
-                    response.setHeader(Constants.Secutiry.REQUEST_HEADER_AUTH, Constants.Secutiry.TOKEN_PREFIX + token);
+                    response.setHeader(Constants.Security.REQUEST_HEADER_AUTH, Constants.Security.TOKEN_PREFIX + token);
                 }
             }
         } catch (Exception e) {
@@ -88,11 +88,11 @@ public class AuthService implements IAuthService {
     }
 
     private void saveUserToken(User user, String jwtToken) {
-        redisService.saveDataToRedis(Constants.Secutiry.TOKEN_HEADER_KEY + user.getEmail(), jwtToken, Constants.Secutiry.TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
+        redisService.saveDataToRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail(), jwtToken, Constants.Security.TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
     }
 
     private void revokeAllUserTokens(User user) {
-        redisService.deleteDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + user.getEmail());
+        redisService.deleteDataFromRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail());
     }
 
 }

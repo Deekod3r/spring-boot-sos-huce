@@ -14,6 +14,6 @@ public interface IAdoptService {
 
     AdoptDTO update(AdoptUpdateRequest request);
 
-    boolean deleteSoft(String id);
+    Boolean deleteSoft(String id);
 
 }

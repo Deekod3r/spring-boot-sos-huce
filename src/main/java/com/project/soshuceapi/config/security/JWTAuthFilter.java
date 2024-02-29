@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -38,17 +37,17 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain ) throws ServletException, IOException {
-        final String authHeader = request.getHeader(Constants.Secutiry.REQUEST_HEADER_AUTH);
+        final String authHeader = request.getHeader(Constants.Security.REQUEST_HEADER_AUTH);
         try {
-            if (authHeader == null || !authHeader.startsWith(Constants.Secutiry.TOKEN_PREFIX)) {
+            if (authHeader == null || !authHeader.startsWith(Constants.Security.TOKEN_PREFIX)) {
                 filterChain.doFilter(request, response);
                 return;
             }
-            String jwt = authHeader.substring(Constants.Secutiry.TOKEN_PREFIX.length());
+            String jwt = authHeader.substring(Constants.Security.TOKEN_PREFIX.length());
             String email = jwtProvider.extractEmail(jwt);
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
-                var token = redisService.getDataFromRedis(Constants.Secutiry.TOKEN_HEADER_KEY + email);
+                var token = redisService.getDataFromRedis(Constants.Security.TOKEN_HEADER_KEY + email);
                 boolean isTokenValid = token != null && token.equals(jwt);
                 if (isTokenValid && jwtProvider.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

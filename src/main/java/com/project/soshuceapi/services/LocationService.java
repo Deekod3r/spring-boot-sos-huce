@@ -35,7 +35,7 @@ public class LocationService implements ILocationService {
     }
 
     @Override
-    public List<District> getAllDistrics(int provinceId) {
+    public List<District> getAllDistricts(int provinceId) {
         try {
             if (NumberUtil.isNullOrZero(provinceId)) {
                 return districtRepository.findAll();

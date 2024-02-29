@@ -14,12 +14,15 @@ import com.project.soshuceapi.models.requests.UserUpdateRequest;
 import com.project.soshuceapi.repositories.UserRepository;
 import com.project.soshuceapi.services.iservice.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService implements IUserService {
@@ -60,25 +63,25 @@ public class UserService implements IUserService {
                                     .tableName(TAG)
                                     .rowId(user.getId())
                                     .columnName("email")
-                                    .newValue(user.getEmail())
+                                    .newValue(user.getEmail().trim())
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(user.getId())
                                     .columnName("name")
-                                    .newValue(user.getName())
+                                    .newValue(user.getName().trim())
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(user.getId())
                                     .columnName("phone_number")
-                                    .newValue(user.getPhoneNumber())
+                                    .newValue(user.getPhoneNumber().trim())
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(user.getId())
                                     .columnName("role")
-                                    .newValue(String.valueOf(user.getRole()))
+                                    .newValue(String.valueOf(user.getRole()).trim())
                                     .build()
 
                     ))
@@ -139,6 +142,27 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public Map<String, Object> getAll(Integer page, Integer limit, String name,
+                                      String email, String phoneNumber, String role) {
+        Page<User> users = userRepository.getAll(
+                name.trim(),
+                email.trim(),
+                phoneNumber.trim(),
+                role.trim(),
+                PageRequest.ofSize(limit).withPage(page - 1)
+        );
+        List<UserDTO> userDTOs = users.getContent().stream().map(user ->
+                userMapper.mapTo(user, UserDTO.class)).toList();
+        return Map.of(
+                "users", userDTOs,
+                "total", users.getTotalElements(),
+                "page", users.getNumber() + 1,
+                "limit", users.getSize(),
+                "totalPage", users.getTotalPages()
+        );
+    }
+
+    @Override
     public UserDTO getById(String id) {
         User user = userRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("not.found.user.by.id"));
@@ -165,12 +189,12 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public boolean isExistsById(String id) {
+    public Boolean isExistsById(String id) {
         return userRepository.existsById(id);
     }
 
     @Override
-    public boolean isExistByPhoneNumberOrEmail(String phoneNumber, String email) {
+    public Boolean isExistByPhoneNumberOrEmail(String phoneNumber, String email) {
         return userRepository.countByPhoneNumberOrEmail(phoneNumber, email) > 0;
     }
 

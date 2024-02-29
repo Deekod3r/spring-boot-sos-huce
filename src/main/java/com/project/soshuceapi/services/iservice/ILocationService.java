@@ -10,7 +10,7 @@ public interface ILocationService {
 
     List<Province> getAllProvinces();
 
-    List<District> getAllDistrics(int provinceId);
+    List<District> getAllDistricts(int provinceId);
 
     List<Ward> getAllWards(int districtId);
 

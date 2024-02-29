@@ -16,14 +16,14 @@ public class ActionLog {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "action")
+    @Column(name = "action", columnDefinition = "VARCHAR(100)", nullable = false)
     private String action;
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "VARCHAR(100)", nullable = false)
     private String description;
-    @Column(name = "ip")
+    @Column(name = "ip", columnDefinition = "VARCHAR(100)", nullable = false)
     private String ip;
-    @Column(name = "created_by")
+    @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
     private String createdBy;
-    @Column(name = "created_at")
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
 }

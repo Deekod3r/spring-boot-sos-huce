@@ -55,11 +55,11 @@ public class Pet {
     private Integer rabies; //tiem dai '1-no; 2-yes; 3-unknown'
     @Column(name = "toilet", columnDefinition = "INTEGER", nullable = false)
     private Integer toilet; //biet di ve sinh '1-no; 2-yes; 3-unknown'
-    @Column(name = "friendlyToHuman", columnDefinition = "INTEGER", nullable = false)
+    @Column(name = "friendly_to_human", columnDefinition = "INTEGER", nullable = false)
     private Integer friendlyToHuman; // '1-no; 2-yes; 3-unknown'
-    @Column(name = "friendlyToDogs", columnDefinition = "INTEGER", nullable = false)
+    @Column(name = "friendly_to_dogs", columnDefinition = "INTEGER", nullable = false)
     private Integer friendlyToDogs; // '1-no; 2-yes; 3-unknown'
-    @Column(name = "friendlyToCats", columnDefinition = "INTEGER", nullable = false)
+    @Column(name = "friendly_to_cats", columnDefinition = "INTEGER", nullable = false)
     private Integer friendlyToCats; // '1-no; 2-yes; 3-unknown'
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;

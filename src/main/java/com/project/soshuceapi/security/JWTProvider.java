@@ -48,12 +48,12 @@ public class JWTProvider {
 
     public String generateToken(@Nullable Map<String, Object> extraClaims, UserDetails userDetails ) {
         if (extraClaims == null) extraClaims = new HashMap<>();
-        return buildToken(extraClaims, userDetails, Constants.Secutiry.TOKEN_EXPIRATION_TIME);
+        return buildToken(extraClaims, userDetails, Constants.Security.TOKEN_EXPIRATION_TIME);
     }
 
     public String generateRefreshToken(@Nullable Map<String, Object> extraClaims, UserDetails userDetails) {
         if (extraClaims == null) extraClaims = new HashMap<>();
-        return buildToken(extraClaims, userDetails, Constants.Secutiry.TOKEN_REFRESH_EXPIRATION_TIME);
+        return buildToken(extraClaims, userDetails, Constants.Security.TOKEN_REFRESH_EXPIRATION_TIME);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

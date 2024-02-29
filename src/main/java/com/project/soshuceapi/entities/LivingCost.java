@@ -13,24 +13,24 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "donates")
+@Table(name = "living_costs")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
-public class Donate {
+public class LivingCost {
     @Id
     @UuidGenerator
     @Column(name = "id", columnDefinition = "VARCHAR(36)")
     private String id;
-    @Column(name = "remitter", columnDefinition = "VARCHAR(100)", nullable = false)
-    private String remitter;
-    @Column(name = "payee", columnDefinition = "VARCHAR(100)", nullable = false)
-    private String payee;
-    @Column(name = "detail", columnDefinition = "VARCHAR(255)")
-    private String detail;
-    @Column(name = "amount", columnDefinition = "BIGINT", nullable = false)
-    private Long amount;
+    @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
+    private String name;
+    @Column(name = "cost", columnDefinition = "FLOAT", nullable = false)
+    private Float cost;
     @Column(name = "date", columnDefinition = "DATE", nullable = false)
     private LocalDate date;
+    @Column(name = "bill", columnDefinition = "TEXT", nullable = false)
+    private String bill;
+    @Column(name = "note", columnDefinition = "TEXT")
+    private String note;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
     private Boolean isDeleted;
@@ -46,5 +46,4 @@ public class Donate {
     private String deletedBy;
     @JoinColumn(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
     private String createdBy;
-
 }

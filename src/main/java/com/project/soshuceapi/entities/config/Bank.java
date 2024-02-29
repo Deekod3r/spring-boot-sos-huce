@@ -1,36 +1,36 @@
-package com.project.soshuceapi.entities;
+package com.project.soshuceapi.entities.config;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "donates")
+@Table(name = "banks")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
-public class Donate {
+public class Bank {
     @Id
     @UuidGenerator
     @Column(name = "id", columnDefinition = "VARCHAR(36)")
     private String id;
-    @Column(name = "remitter", columnDefinition = "VARCHAR(100)", nullable = false)
-    private String remitter;
-    @Column(name = "payee", columnDefinition = "VARCHAR(100)", nullable = false)
-    private String payee;
-    @Column(name = "detail", columnDefinition = "VARCHAR(255)")
-    private String detail;
-    @Column(name = "amount", columnDefinition = "BIGINT", nullable = false)
-    private Long amount;
-    @Column(name = "date", columnDefinition = "DATE", nullable = false)
-    private LocalDate date;
+    @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
+    private String name;
+    @Column(name = "account_number", columnDefinition = "VARCHAR(100)", nullable = false)
+    private String accountNumber;
+    @Column(name = "owner", columnDefinition = "VARCHAR(100)", nullable = false)
+    private String owner;
+    @Column(name = "logo", columnDefinition = "VARCHAR(100)", nullable = false)
+    private String logo;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
     private Boolean isDeleted;
@@ -44,7 +44,6 @@ public class Donate {
     private String updatedBy;
     @Column(name = "deleted_by", columnDefinition = "VARCHAR(36)")
     private String deletedBy;
-    @JoinColumn(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
+    @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
     private String createdBy;
-
 }
