@@ -2,6 +2,7 @@ package com.project.soshuceapi.models.requests;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.soshuceapi.common.Constants;
+import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.common.enums.security.ERole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -18,21 +19,21 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreateRequest {
-    @NotBlank(message = "missing.user.phone.number")
-    @Pattern(regexp = Constants.Regex.PHONE_NUMBER, message = "invalid.user.code")
-    @Length(min = 10, max = 15, message = "invalid.length.user.phone.number")
+    @NotBlank(message = ResponseMessage.User.MISSING_PHONE_NUMBER)
+    @Pattern(regexp = Constants.Regex.PHONE_NUMBER, message = ResponseMessage.User.INVALID_PHONE_NUMBER)
+    @Length(min = 10, max = 15, message = ResponseMessage.User.INVALID_PHONE_NUMBER)
     String phoneNumber;
-    @NotBlank(message = "missing.user.name")
-    @Pattern(regexp = Constants.Regex.NAME, message = "invalid.user.name")
-    @Length(min = 2, max = 100, message = "invalid.length.user.name")
+    @NotBlank(message = ResponseMessage.User.MISSING_NAME)
+    @Pattern(regexp = Constants.Regex.NAME, message = ResponseMessage.User.INVALID_NAME)
+    @Length(min = 2, max = 100, message = ResponseMessage.User.INVALID_NAME)
     String name;
-    @NotBlank(message = "missing.user.email")
-    @Email(message = "invalid.user.email")
-    @Length(min = 5, max = 100, message = "invalid.length.user.email")
+    @NotBlank(message = ResponseMessage.User.MISSING_EMAIL)
+    @Email(message = ResponseMessage.User.INVALID_EMAIL)
+    @Length(min = 5, max = 100, message = ResponseMessage.User.INVALID_EMAIL)
     String email;
-    @NotBlank(message = "missing.user.password")
-    @Pattern(regexp = Constants.Regex.PASSWORD, message = "invalid.user.password")
-    @Length(min = 8, max = 100, message = "invalid.length.user.password")
+    @NotBlank(message = ResponseMessage.User.MISSING_PASSWORD)
+    @Pattern(regexp = Constants.Regex.PASSWORD, message = ResponseMessage.User.INVALID_PASSWORD)
+    @Length(min = 8, max = 100, message = ResponseMessage.User.INVALID_PASSWORD)
     String password;
     @JsonIgnore
     ERole role;

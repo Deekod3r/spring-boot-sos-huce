@@ -24,7 +24,7 @@ public class StringUtil {
         return str == null || str.isBlank();
     }
 
-    public static String upcaseFirstLetter(String input) {
+    public static String uppercaseFirstLetter(String input) {
         if (isNullOrBlank(input)) {
             return input;
         }
@@ -33,7 +33,7 @@ public class StringUtil {
         return firstChar + input.substring(1);
     }
 
-    public static String upcaseAllFirstLetters(String input) {
+    public static String uppercaseAllFirstLetters(String input) {
         if (isNullOrBlank(input)) {
             return input;
         }

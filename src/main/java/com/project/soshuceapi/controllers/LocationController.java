@@ -1,6 +1,5 @@
 package com.project.soshuceapi.controllers;
 
-import com.project.soshuceapi.services.LocationService;
 import com.project.soshuceapi.services.iservice.ILocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,7 @@ public class LocationController {
     private ILocationService locationService;
 
     @GetMapping("/provinces")
-    public ResponseEntity<?> getAllProvinces() {
+    public ResponseEntity<?> getAllProvince() {
         try {
             return ResponseEntity.ok(locationService.getAllProvinces());
         } catch (Exception e) {
@@ -26,7 +25,7 @@ public class LocationController {
     }
 
     @GetMapping("/districts")
-    public ResponseEntity<?> getAllDistricts(@RequestParam(value = "provinceId", required = false, defaultValue = "0")
+    public ResponseEntity<?> getAllDistrict(@RequestParam(value = "provinceId", required = false, defaultValue = "0")
                                                  int provinceId) {
         try {
             return ResponseEntity.ok(locationService.getAllDistricts(provinceId));
@@ -36,7 +35,7 @@ public class LocationController {
     }
 
     @GetMapping("/wards")
-    public ResponseEntity<?> getAllWards(@RequestParam(value = "districtId", required = false, defaultValue = "0")
+    public ResponseEntity<?> getAllWard(@RequestParam(value = "districtId", required = false, defaultValue = "0")
                                              int districtId) {
         try {
             return ResponseEntity.ok(locationService.getAllWards(districtId));

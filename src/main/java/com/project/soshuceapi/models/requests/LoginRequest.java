@@ -1,5 +1,6 @@
 package com.project.soshuceapi.models.requests;
 
+import com.project.soshuceapi.common.ResponseMessage;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
@@ -13,9 +14,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginRequest {
-    @NotBlank(message = "missing.user.email")
-    @Email(message = "invalid.user.email")
+    @NotBlank(message = ResponseMessage.User.MISSING_EMAIL)
+    @Email(message = ResponseMessage.User.INVALID_EMAIL)
     String email;
-    @NotBlank(message = "missing.user.password")
+    @NotBlank(message = ResponseMessage.User.MISSING_PASSWORD)
     String password;
 }

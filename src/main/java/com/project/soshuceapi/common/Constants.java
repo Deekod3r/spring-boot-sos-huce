@@ -17,6 +17,10 @@ public class Constants {
         public final static String KEY_REGISTER_INFO = "-REGISTER-INFO";
         public final static String KEY_REGISTER_CODE = "-REGISTER-CODE";
         public final static String KEY_FORGOT_PASSWORD_CODE = "-FORGOT-PASSWORD-CODE";
+        public final static String KEY_ROLE = "ROLE_";
+        public final static String ROLE_ADMIN = "ADMIN";
+        public final static String ROLE_MANAGER = "MANAGER";
+        public final static String ROLE_USER = "USER";
     }
 
     //regex register
@@ -59,7 +63,7 @@ public class Constants {
         public final static Integer REJECT = 3;
         public final static Integer CANCEL = 4;
         public final static Integer COMPLETE = 5;
-        public final static Integer RETURN = 6;
+        public final static Integer REFUND = 6;
     }
 
     public static class PetStatus {

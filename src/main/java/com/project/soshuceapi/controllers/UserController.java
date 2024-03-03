@@ -3,12 +3,15 @@ package com.project.soshuceapi.controllers;
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
+import com.project.soshuceapi.common.enums.security.ERole;
 import com.project.soshuceapi.exceptions.NotFoundException;
+import com.project.soshuceapi.exceptions.UserExistedException;
 import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.requests.UserCreateRequest;
 import com.project.soshuceapi.models.requests.UserResetPasswordRequest;
 import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
+import com.project.soshuceapi.services.AdoptService;
 import com.project.soshuceapi.services.iservice.IEmailService;
 import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
@@ -16,12 +19,18 @@ import com.project.soshuceapi.utils.DataUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +45,10 @@ public class UserController {
     private IRedisService redisService;
     @Autowired
     private IEmailService emailService;
+    @Autowired
+    private AdoptService adoptService;
+    @Autowired
+    private AuditorAware<String> auditorAware;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request,
@@ -69,8 +82,51 @@ public class UserController {
         }
     }
 
+    @GetMapping("/verify-register/{id}")
+    public ResponseEntity<?> verifyRegister(@PathVariable("id") String id, @RequestParam("code") String code) {
+        Response<UserDTO> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(code)) {
+                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
+                return ResponseEntity.badRequest().body(response);
+            }
+            String verifyCode = (String) redisService.getDataFromRedis(id + Constants.User.KEY_REGISTER_CODE);
+            if (StringUtil.isNullOrBlank(verifyCode)) {
+                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED,
+                        ResponseCode.Authentication.VERIFY_CODE_EXPIRED));
+                return ResponseEntity.status(HttpStatus.GONE).body(response);
+            }
+            if (!verifyCode.equals(code)) {
+                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT,
+                        ResponseCode.Authentication.VERIFY_CODE_INCORRECT));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            String data = (String) redisService.getDataFromRedis(id + Constants.User.KEY_REGISTER_INFO);
+            if (Objects.isNull(data)) {
+                response.setError(Error.of(ResponseMessage.Common.NOT_FOUND,
+                        ResponseCode.Common.NOT_FOUND));
+                return ResponseEntity.status(HttpStatus.GONE).body(response);
+            }
+            UserCreateRequest request = DataUtil.fromJSON(data, UserCreateRequest.class);
+            request.setRole(ERole.USER);
+            request.setCreatedBy("SELF");
+            response.setData(userService.create(request));
+            redisService.deleteDataFromRedis(id + Constants.User.KEY_REGISTER_CODE);
+            redisService.deleteDataFromRedis(id + Constants.User.KEY_REGISTER_INFO);
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        } catch (UserExistedException e) {
+            response.setError(Error.of(ResponseMessage.Common.EXISTED, ResponseCode.Common.EXISTED));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        } catch (Exception e) {
+            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     @GetMapping("/check-exist")
-    public ResponseEntity<?> checkExist(@RequestParam(value = "account") String account) {
+    public ResponseEntity<?> checkUserExist(@RequestParam(value = "account") String account) {
         Response<String> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -141,7 +197,7 @@ public class UserController {
             if (!verifyCode.equals(code)) {
                 response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT,
                         ResponseCode.Authentication.VERIFY_CODE_INCORRECT));
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             response.setData(Map.of("code", verifyCode));
             response.setSuccess(true);
@@ -155,7 +211,7 @@ public class UserController {
     @PutMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody UserResetPasswordRequest request,
                                            BindingResult bindingResult) {
-        Response<Map<String, String>> response = new Response<>();
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
             if (bindingResult.hasErrors()) {
@@ -177,6 +233,7 @@ public class UserController {
             }
             userService.updatePassword(request.getEmail(), request.getNewPassword(), "SELF");
             redisService.deleteDataFromRedis(key);
+            response.setData(true);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -186,16 +243,42 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable(value = "id") String id) {
-        Response<UserDTO> response = new Response<>();
+    public ResponseEntity<?> getUserById(@PathVariable(value = "id") String id,
+                                         @RequestParam(value = "role") String role) {
+        Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(id)) {
                 response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
+                        ResponseCode.Authentication.PERMISSION_DENIED));
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            boolean roleExists = authorities.stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(Constants.User.KEY_ROLE + role));
+            if (!roleExists) {
+                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
+                        ResponseCode.Authentication.PERMISSION_DENIED));
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (Objects.equals(role, Constants.User.ROLE_USER)) {
+                if (!auditorAware.getCurrentAuditor().get().equals(id)) {
+                    response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
+                            ResponseCode.Authentication.PERMISSION_DENIED));
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+                }
+            }
+            Map<String, Object> data = new HashMap<>();
             UserDTO user = userService.getById(id);
-            response.setData(user);
+            Map<String, Long> statistic = adoptService.statisticStatus(id);
+            data.put("user", user);
+            data.put("statistic", statistic);
+            response.setData(data);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (NotFoundException e) {
@@ -221,9 +304,6 @@ public class UserController {
             response.setData(userService.getAll(page, limit, name, email, phoneNumber, role));
             response.setSuccess(true);
             return ResponseEntity.ok(response);
-        } catch (NotFoundException e) {
-            response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
             response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

@@ -1,6 +1,7 @@
 package com.project.soshuceapi.models.requests;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.soshuceapi.common.ResponseMessage;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -15,21 +16,21 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdoptCreateRequest {
-    @NotNull(message = "missing.adopt.ward.id")
+    @NotNull(message = ResponseMessage.Adopt.MISSING_WARD_ID)
     Integer wardId;
-    @NotNull(message = "missing.adopt.district.id")
+    @NotNull(message = ResponseMessage.Adopt.MISSING_DISTRICT_ID)
     Integer districtId;
-    @NotNull(message = "missing.adopt.province.id")
+    @NotNull(message = ResponseMessage.Adopt.MISSING_PROVINCE_ID)
     Integer provinceId;
-    @NotBlank(message = "missing.adopt.address")
-    @Length(max = 255, message = "invalid.length.adopt.address")
+    @NotBlank(message = ResponseMessage.Adopt.MISSING_ADDRESS)
+    @Length(max = 255, message = ResponseMessage.Adopt.INVALID_ADDRESS)
     String address;
-    @NotBlank(message = "missing.adopt.reason")
-    @Length(max = 255, message = "invalid.length.adopt.reason")
+    @NotBlank(message = ResponseMessage.Adopt.MISSING_REASON)
+    @Length(max = 255, message = ResponseMessage.Adopt.INVALID_REASON)
     String reason;
-    @NotNull(message = "missing.adopt.pet.id")
+    @NotNull(message = ResponseMessage.Pet.MISSING_ID)
     String petId;
-    @NotBlank(message = "missing.adopt.registered.by")
+    @NotBlank(message = ResponseMessage.Adopt.MISSING_REGISTERED_BY)
     String registeredBy;
     @JsonIgnore
     String createdBy;

@@ -2,6 +2,7 @@ package com.project.soshuceapi.models.requests;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.soshuceapi.common.Constants;
+import com.project.soshuceapi.common.ResponseMessage;
 import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,71 +16,71 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PetUpdateRequest {
-    @NotBlank(message = "missing.pet.id")
+    @NotBlank(message = ResponseMessage.Pet.MISSING_ID)
     String id;
-    @NotBlank(message = "missing.pet.name")
-    @Length(min = 2, max = 50, message = "invalid.length.pet.name")
-    @Pattern(regexp = Constants.Regex.NAME, message = "invalid.pet.name")
+    @NotBlank(message = ResponseMessage.Pet.MISSING_NAME)
+    @Length(min = 2, max = 50, message = ResponseMessage.Pet.INVALID_NAME)
+    @Pattern(regexp = Constants.Regex.NAME, message = ResponseMessage.Pet.INVALID_NAME)
     String name;
-    @NotNull(message = "missing.pet.type")
-    @Min(value = 1, message = "invalid.pet.type")
-    @Max(value = 3, message = "invalid.pet.type")
+    @NotNull(message = ResponseMessage.Pet.MISSING_TYPE)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_TYPE)
+    @Max(value = 3, message = ResponseMessage.Pet.INVALID_TYPE)
     Integer type;
-    @NotBlank(message = "missing.pet.breed")
-    @Length(min = 2, max = 100, message = "invalid.length.pet.breed")
+    @NotBlank(message = ResponseMessage.Pet.MISSING_BREED)
+    @Length(min = 2, max = 100, message = ResponseMessage.Pet.INVALID_BREED)
     String breed;
-    @NotBlank(message = "missing.pet.color")
-    @Length(min = 2, max = 100, message = "invalid.length.pet.color")
+    @NotBlank(message = ResponseMessage.Pet.MISSING_COLOR)
+    @Length(min = 2, max = 100, message = ResponseMessage.Pet.INVALID_COLOR)
     String color;
-    @NotNull(message = "missing.pet.age")
-    @Min(value = 1, message = "invalid.pet.age")
-    @Max(value = 4, message = "invalid.pet.age")
+    @NotNull(message = ResponseMessage.Pet.MISSING_AGE)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_AGE)
+    @Max(value = 4, message = ResponseMessage.Pet.INVALID_AGE)
     Integer age;
-    @NotNull(message = "missing.pet.gender")
-    @Min(value = 1, message = "invalid.pet.gender")
-    @Max(value = 3, message = "invalid.pet.gender")
+    @NotNull(message = ResponseMessage.Pet.MISSING_GENDER)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_GENDER)
+    @Max(value = 3, message = ResponseMessage.Pet.INVALID_GENDER)
     Integer gender;
-    @NotNull(message = "missing.pet.status")
-    @Min(value = 1, message = "invalid.pet.status")
-    @Max(value = 4, message = "invalid.pet.status")
+    @NotNull(message = ResponseMessage.Pet.MISSING_STATUS)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_STATUS)
+    @Max(value = 4, message = ResponseMessage.Pet.INVALID_STATUS)
     Integer status;
-    @NotNull(message = "missing.pet.weight")
-    @Min(value = 0, message = "invalid.pet.weight")
+    @NotNull(message = ResponseMessage.Pet.MISSING_WEIGHT)
+    @Min(value = 0, message = ResponseMessage.Pet.INVALID_WEIGHT)
     Float weight;
-    @NotNull(message = "missing.pet.vaccine")
-    @Min(value = 1, message = "invalid.pet.vaccine")
-    @Max(value = 3, message = "invalid.pet.vaccine")
+    @NotNull(message = ResponseMessage.Pet.MISSING_VACCINE)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_VACCINE)
+    @Max(value = 3, message = ResponseMessage.Pet.INVALID_VACCINE)
     Integer vaccine;
-    @NotNull(message = "missing.pet.sterilization")
-    @Min(value = 1, message = "invalid.pet.sterilization")
-    @Max(value = 3, message = "invalid.pet.sterilization")
+    @NotNull(message = ResponseMessage.Pet.MISSING_STERILIZATION)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_STERILIZATION)
+    @Max(value = 3, message = ResponseMessage.Pet.INVALID_STERILIZATION)
     Integer sterilization;
-    @NotNull(message = "missing.pet.diet")
-    @Min(value = 1, message = "invalid.pet.diet")
-    @Max(value = 3, message = "invalid.pet.diet")
+    @NotNull(message = ResponseMessage.Pet.MISSING_DIET)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_DIET)
+    @Max(value = 3, message = ResponseMessage.Pet.INVALID_DIET)
     Integer diet;
-    @NotNull(message = "missing.pet.rabies")
-    @Min(value = 1, message = "invalid.pet.rabies")
-    @Max(value = 3, message = "invalid.pet.rabies")
+    @NotNull(message = ResponseMessage.Pet.MISSING_RABIES)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_RABIES)
+    @Max(value = 3, message = ResponseMessage.Pet.INVALID_RABIES)
     Integer rabies;
-    @NotNull(message = "missing.pet.toilet")
-    @Min(value = 1, message = "invalid.pet.toilet")
-    @Max(value = 3, message = "invalid.pet.toilet")
+    @NotNull(message = ResponseMessage.Pet.MISSING_TOILET)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_TOILET)
+    @Max(value = 3, message = ResponseMessage.Pet.INVALID_TOILET)
     Integer toilet;
-    @NotNull(message = "missing.pet.friendlyToHuman")
-    @Min(value = 1, message = "invalid.pet.friendlyToHuman")
-    @Max(value = 3, message = "invalid.pet.friendlyToHuman")
+    @NotNull(message = ResponseMessage.Pet.MISSING_FRIENDLY_TO_HUMAN)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_FRIENDLY_TO_HUMAN)
+    @Max(value = 3, message = ResponseMessage.Pet.INVALID_FRIENDLY_TO_HUMAN)
     Integer friendlyToHuman;
-    @NotNull(message = "missing.pet.friendlyToDogs")
-    @Min(value = 1, message = "invalid.pet.friendlyToDogs")
-    @Max(value = 3, message = "invalid.pet.friendlyToDogs")
+    @NotNull(message = ResponseMessage.Pet.MISSING_FRIENDLY_TO_DOGS)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_FRIENDLY_TO_DOGS)
+    @Max(value = 3, message = ResponseMessage.Pet.INVALID_FRIENDLY_TO_DOGS)
     Integer friendlyToDogs;
-    @NotNull(message = "missing.pet.friendlyToCats")
-    @Min(value = 1, message = "invalid.pet.friendlyToCats")
-    @Max(value = 3, message = "invalid.pet.friendlyToCats")
+    @NotNull(message = ResponseMessage.Pet.MISSING_FRIENDLY_TO_CATS)
+    @Min(value = 1, message = ResponseMessage.Pet.INVALID_FRIENDLY_TO_CATS)
+    @Max(value = 3, message = ResponseMessage.Pet.INVALID_FRIENDLY_TO_CATS)
     Integer friendlyToCats;
     String note;
-    @NotBlank(message = "missing.pet.description")
+    @NotBlank(message = ResponseMessage.Pet.MISSING_DESCRIPTION)
     String description;
     @JsonIgnore
     String updatedBy;

@@ -17,5 +17,6 @@ public class ResponseCode {
         public static final String VERIFY_CODE_INCORRECT = "102";
         public static final String PERMISSION_DENIED = "103";
     }
+
     
 }

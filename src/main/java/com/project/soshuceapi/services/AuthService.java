@@ -88,11 +88,19 @@ public class AuthService implements IAuthService {
     }
 
     private void saveUserToken(User user, String jwtToken) {
-        redisService.saveDataToRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail(), jwtToken, Constants.Security.TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
+        try {
+            redisService.saveDataToRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail(), jwtToken, Constants.Security.TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     private void revokeAllUserTokens(User user) {
-        redisService.deleteDataFromRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail());
+        try {
+            redisService.deleteDataFromRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
 }

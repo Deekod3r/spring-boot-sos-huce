@@ -68,12 +68,18 @@ public class FileService implements IFileService {
         File tempFile = new File(fileName);
         try (FileOutputStream fos = new FileOutputStream(tempFile)) {
             fos.write(multipartFile.getBytes());
+        } catch (Exception e) {
+            throw new IOException(e.getMessage());
         }
         return tempFile;
     }
 
     private String getExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf("."));
+        try {
+            return fileName.substring(fileName.lastIndexOf("."));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
 }

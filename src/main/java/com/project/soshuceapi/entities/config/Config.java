@@ -24,6 +24,8 @@ public class Config {
     private String key;
     @Column(name = "value", columnDefinition = "TEXT", nullable = false)
     private String value;
+    @Column(name = "type", columnDefinition = "VARCHAR(50)", nullable = false)
+    private String type;
     @Column(name = "description", columnDefinition = "VARCHAR(255)", nullable = false)
     private String description;
 

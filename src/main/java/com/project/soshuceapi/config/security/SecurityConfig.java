@@ -33,10 +33,10 @@ public class SecurityConfig {
     private final LogoutHandler logoutHandler;
     private static final String[] WHITE_LIST_URL = {
             "/login",
-            "/verify/**",
             "/logout",
             "/users/register",
             "/users/check-exist",
+            "/users/verify-register/**",
             "/users/verify-forgot-password/{id}",
             "/users/forgot-password",
             "/users/reset-password",

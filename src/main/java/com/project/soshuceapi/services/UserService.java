@@ -5,7 +5,6 @@ import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.entities.logging.ActionLogDetail;
 import com.project.soshuceapi.exceptions.NotFoundException;
 import com.project.soshuceapi.exceptions.UserExistedException;
-import com.project.soshuceapi.exceptions.UserNotFoundException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.mappers.UserMapper;
@@ -57,30 +56,34 @@ public class UserService implements IUserService {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.CREATE)
                     .description(Constants.ActionLog.CREATE + "." + TAG)
-                    .createdBy(request.getCreatedBy())
+                    .createdBy(user.getId())
                     .details(List.of(
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(user.getId())
                                     .columnName("email")
+                                    .oldValue("")
                                     .newValue(user.getEmail().trim())
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(user.getId())
                                     .columnName("name")
+                                    .oldValue("")
                                     .newValue(user.getName().trim())
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(user.getId())
                                     .columnName("phone_number")
+                                    .oldValue("")
                                     .newValue(user.getPhoneNumber().trim())
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(user.getId())
                                     .columnName("role")
+                                    .oldValue("")
                                     .newValue(String.valueOf(user.getRole()).trim())
                                     .build()
 
@@ -99,12 +102,12 @@ public class UserService implements IUserService {
     public UserDTO update(UserUpdateRequest request) {
         try {
            if (!isExistsById(request.getId())) {
-               throw new UserNotFoundException("not.found.user");
+               throw new NotFoundException("user.not.found.by.id");
            }
             User user = userMapper.mapFrom(request);
             return userMapper.mapTo(user, UserDTO.class);
-        } catch (UserNotFoundException e) {
-            throw new UserNotFoundException(e.getMessage());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -115,7 +118,7 @@ public class UserService implements IUserService {
     public UserDTO updatePassword(String email, String password, String updatedBy) {
         try {
             User user = userRepository.findByEmail(email).orElseThrow(() ->
-                    new UserNotFoundException("not.found.user"));
+                    new NotFoundException("user.not.found.by.email"));
             String oldPassword = user.getPassword();
             user.setPassword(passwordEncoder.encode(password));
             user.setUpdatedBy(updatedBy);
@@ -136,6 +139,8 @@ public class UserService implements IUserService {
                     ))
                     .build());
             return userMapper.mapTo(user, UserDTO.class);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -144,36 +149,52 @@ public class UserService implements IUserService {
     @Override
     public Map<String, Object> getAll(Integer page, Integer limit, String name,
                                       String email, String phoneNumber, String role) {
-        Page<User> users = userRepository.getAll(
-                name.trim(),
-                email.trim(),
-                phoneNumber.trim(),
-                role.trim(),
-                PageRequest.ofSize(limit).withPage(page - 1)
-        );
-        List<UserDTO> userDTOs = users.getContent().stream().map(user ->
-                userMapper.mapTo(user, UserDTO.class)).toList();
-        return Map.of(
-                "users", userDTOs,
-                "total", users.getTotalElements(),
-                "page", users.getNumber() + 1,
-                "limit", users.getSize(),
-                "totalPage", users.getTotalPages()
-        );
+        try {
+            Page<User> users = userRepository.getAll(
+                    name.trim(),
+                    email.trim(),
+                    phoneNumber.trim(),
+                    role.trim(),
+                    PageRequest.ofSize(limit).withPage(page - 1)
+            );
+            List<UserDTO> userDTOs = users.getContent().stream().map(user ->
+                    userMapper.mapTo(user, UserDTO.class)).toList();
+            return Map.of(
+                    "users", userDTOs,
+                    "total", users.getTotalElements(),
+                    "page", users.getNumber() + 1,
+                    "limit", users.getSize(),
+                    "totalPage", users.getTotalPages()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
     public UserDTO getById(String id) {
-        User user = userRepository.findById(id).orElseThrow(() ->
-                new RuntimeException("not.found.user.by.id"));
-        return userMapper.mapTo(user, UserDTO.class);
+        try {
+            User user = userRepository.findById(id).orElseThrow(() ->
+                    new RuntimeException("user.not.found.by.id"));
+            return userMapper.mapTo(user, UserDTO.class);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
     public UserDTO getByEmail(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() ->
-                new RuntimeException("not.found.user.by.email"));
-        return userMapper.mapTo(user, UserDTO.class);
+        try {
+            User user = userRepository.findByEmail(email).orElseThrow(() ->
+                    new NotFoundException("user.not.found.by.email"));
+            return userMapper.mapTo(user, UserDTO.class);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
@@ -183,19 +204,33 @@ public class UserService implements IUserService {
 
     @Override
     public UserDTO getByPhoneNumberOrEmail(String phoneNumber, String email) {
-        return userRepository.findByPhoneNumberOrEmail(phoneNumber, email).map(user ->
-                userMapper.mapTo(user, UserDTO.class)).orElseThrow(() ->
-                new NotFoundException("not.found.user.by.phone_number/email"));
+        try {
+            return userRepository.findByPhoneNumberOrEmail(phoneNumber, email).map(user ->
+                    userMapper.mapTo(user, UserDTO.class)).orElseThrow(() ->
+                    new NotFoundException("user.not.found.by.phone_number/email"));
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
     public Boolean isExistsById(String id) {
-        return userRepository.existsById(id);
+        try {
+            return userRepository.existsById(id);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
     public Boolean isExistByPhoneNumberOrEmail(String phoneNumber, String email) {
-        return userRepository.countByPhoneNumberOrEmail(phoneNumber, email) > 0;
+        try {
+            return userRepository.countByPhoneNumberOrEmail(phoneNumber, email) > 0;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
 }

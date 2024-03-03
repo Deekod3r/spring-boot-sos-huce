@@ -47,14 +47,15 @@ public class PetController {
             @RequestParam(value = "diet", defaultValue = "", required = false) Integer diet,
             @RequestParam(value = "vaccine", defaultValue = "", required = false) Integer vaccine,
             @RequestParam(value = "sterilization", defaultValue = "", required = false) Integer sterilization,
-            @RequestParam(value = "rabies", defaultValue = "", required = false) Integer rabies
+            @RequestParam(value = "rabies", defaultValue = "", required = false) Integer rabies,
+            @RequestParam(value = "adoptedBy", defaultValue = "", required = false) String adoptedBy
     ) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
             response.setData(petService.getAll(page, limit,
                     name, breed, color, code, type, age, gender,
-                    status, diet, vaccine, sterilization, rabies));
+                    status, diet, vaccine, sterilization, rabies, adoptedBy));
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -100,7 +101,7 @@ public class PetController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> create(@Valid @ModelAttribute PetCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> createPet(@Valid @ModelAttribute PetCreateRequest request, BindingResult bindingResult) {
         Response<String> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -126,7 +127,7 @@ public class PetController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> update(@Valid @ModelAttribute PetUpdateRequest request,
+    public ResponseEntity<?> updatePet(@Valid @ModelAttribute PetUpdateRequest request,
                                     @PathVariable("id") String id,
                                     BindingResult bindingResult) {
         Response<String> response = new Response<>();
@@ -161,7 +162,7 @@ public class PetController {
 
     @PutMapping("/update-image/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateImage(@Valid @ModelAttribute PetUpdateImageRequest request,
+    public ResponseEntity<?> updateImagePet(@Valid @ModelAttribute PetUpdateImageRequest request,
                                          @PathVariable("id") String id,
                                          BindingResult bindingResult) {
         Response<String> response = new Response<>();
@@ -196,7 +197,7 @@ public class PetController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deleteSoft(@PathVariable("id") String id) {
+    public ResponseEntity<?> deleteSoftPet(@PathVariable("id") String id) {
         Response<String> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -209,7 +210,7 @@ public class PetController {
                 response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
                 return ResponseEntity.badRequest().body(response);
             }
-            response.setSuccess(petService.deleteSoft(id));
+            response.setSuccess(petService.deleteSoft(id, auditorAware.getCurrentAuditor().get()));
             return ResponseEntity.ok(response);
         } catch (NotFoundException e) {
             response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));

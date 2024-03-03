@@ -4,11 +4,12 @@ import com.project.soshuceapi.entities.Pet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public interface PetRepository extends JpaRepository<Pet, String> {
@@ -31,6 +32,7 @@ public interface PetRepository extends JpaRepository<Pet, String> {
             "AND (:vaccine IS NULL OR vaccine = :vaccine) " +
             "AND (:sterilization IS NULL OR sterilization = :sterilization) " +
             "AND (:rabies IS NULL OR rabies = :rabies) " +
+            "AND (:adoptedBy = '' OR adopted_by = :adoptedBy) " +
             "ORDER BY created_at DESC "
             , nativeQuery = true)
     Page<Pet> findAll(
@@ -46,13 +48,18 @@ public interface PetRepository extends JpaRepository<Pet, String> {
             @Param("vaccine") Integer vaccine,
             @Param("sterilization") Integer sterilization,
             @Param("rabies") Integer rabies,
+            @Param("adoptedBy") String adoptedBy,
             Pageable pageable
     );
 
-    Long countByStatus(int status);
+    @NonNull
+    @Query(value = "SELECT * FROM pets WHERE is_deleted = false AND id = :id", nativeQuery = true)
+    Optional<Pet> findById(@NonNull @Param("id") String id);
 
-    @Modifying(clearAutomatically = true)
-    @Query(value = "UPDATE pets SET is_deleted = true WHERE id = :id", nativeQuery = true)
-    int deleteSoftById(@NonNull @Param("id") String id);
+    @Query(value = "SELECT count(1) FROM pets WHERE is_deleted = false", nativeQuery = true)
+    long count();
+
+    @Query(value = "SELECT count(1) FROM pets WHERE is_deleted = false AND status = :status", nativeQuery = true)
+    long countByStatus(int status);
 
 }
