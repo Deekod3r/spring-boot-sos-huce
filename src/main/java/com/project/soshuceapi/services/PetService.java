@@ -229,9 +229,9 @@ public class PetService implements IPetService {
         try {
             return Map.of(
                     "total", petRepository.count(),
-                    "adopted", petRepository.countByStatus(1),
-                    "healing", petRepository.countByStatus(2),
-                    "wait", petRepository.countByStatus(3)
+                    "adopted", petRepository.countByStatus(2),
+                    "healing", petRepository.countByStatus(3),
+                    "wait", petRepository.countByStatus(4)
             );
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
