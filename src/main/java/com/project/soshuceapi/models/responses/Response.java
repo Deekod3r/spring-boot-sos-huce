@@ -14,5 +14,5 @@ public class Response<T> {
     T data;
     Error error;
     boolean success;
-    String responseMessage;
+    String message;
 }

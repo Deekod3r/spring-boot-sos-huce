@@ -8,12 +8,14 @@ import com.project.soshuceapi.repositories.ActionLogRepository;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.utils.CollectionUtil;
 import com.project.soshuceapi.utils.DataUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class ActionLogService implements IActionLogService {
 
     private final static String TAG = "ACTION_LOG";
@@ -42,7 +44,9 @@ public class ActionLogService implements IActionLogService {
                 });
             }
         } catch (Exception e) {
-            throw new RuntimeException("error.create.action.log");
+            log.error(TAG + ": error.create.action.log");
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -51,7 +55,9 @@ public class ActionLogService implements IActionLogService {
         try {
             actionLogDetailRepository.save(actionLogDetail);
         } catch (Exception e) {
-            throw new RuntimeException("error.create.action.log.detail");
+            log.error(TAG + ": error.create.action.log.detail");
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 

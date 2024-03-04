@@ -3,22 +3,18 @@ package com.project.soshuceapi.common;
 public class ResponseMessage {
 
     public static class Common {
-        public static final String SERVER_ERROR = "server.error";
-        public static final String SUCCESS = "%.success";
-        public static final String FAIL = "%.fail";
-        public static final String ERROR = "%.error";
+        public static final String SERVER_ERROR = "Hệ thống đang gặp sự cố, vui lòng thử lại sau";
+        public static final String SUCCESS = "Thành công";
         public static final String NOT_FOUND = "%.not.found";
         public static final String EXISTED = "%.existed";
-        public static final String EMPTY = "%.empty";
-        public static final String NOT_MATCH = "%.not.match";
+        public static final String NOT_MATCH = "Thông tin định danh không khớp";
         public static final String INVALID_INPUT = "%.invalid.input";
     }
 
     public static class Authentication {
-        public static final String AUTHENTICATION_ERROR = "%.authentication.error";
-        public static final String VERIFY_CODE_EXPIRED = "%.verify.code.expired";
-        public static final String VERIFY_CODE_INCORRECT = "%.verify.code.incorrect";
-        public static final String PERMISSION_DENIED = "%.permission.denied";
+        public static final String VERIFY_CODE_EXPIRED = "Mã xác thực đã hết hạn";
+        public static final String VERIFY_CODE_INCORRECT = "Mã xác thực không chính xác";
+        public static final String PERMISSION_DENIED = "Không có quyền truy cập";
     }
 
     public static class User {
@@ -36,6 +32,17 @@ public class ResponseMessage {
         public static final String MISSING_VERIFY_CODE = "Mã xác nhận không được bỏ trống";
         public static final String INVALID_VERIFY_CODE = "Mã xác nhận không hợp lệ";
         public static final String MISSING_ID = "Thông tin định danh người dùng không được bỏ trống";
+        public static final String MISSING_ROLE = "Thông tin quyền người dùng không được bỏ trống";
+        public static final String INVALID_ROLE = "Thông tin quyền người dùng không hợp lệ";
+        public static final String USER_EXISTED = "Thông tin người dùng đã tồn tại";
+        public static final String NOT_FOUND = "Thông tin người dùng không tồn tại";
+        public static final String MISSING_AUTHENTICATION_INFO = "Thông tin xác thực không người dùng được bỏ trống";
+        public static final String INVALID_AUTHENTICATION_INFO = "Thông tin xác thực người dùng không hợp lệ";
+        public static final String VERIFY_CODE_EXPIRED = "Mã xác thực đã hết hạn";
+        public static final String VERIFY_CODE_INCORRECT = "Mã xác thực không chính xác";
+        public static final String PERMISSION_DENIED = "Không có quyền truy cập";
+        public static final String LOGIN_INFO_INCORRECT = "Thông tin đăng nhập không chính xác";
+        public static final String NOT_MATCH = "Thông tin định danh người dùng không khớp";
     }
 
     public static class Pet {
@@ -74,6 +81,10 @@ public class ResponseMessage {
         public static final String INVALID_FRIENDLY_TO_CATS = "Thông tin thân thiện với mèo không hợp lệ";
         public static final String MISSING_DESCRIPTION = "Thông tin mô tả thú cưng không được bỏ trống";
         public static final String MISSING_ID = "Thông tin định danh thú cưng không được bỏ trống";
+        public static final String NOT_FOUND = "Thông tin thú cưng không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh thú cưng không khớp";
+        public static final String NOT_AVAILABLE_FOR_ADOPT = "Thú cưng không trong trạng thái để nhận nuôi";
+
     }
 
     public static class Adopt {
@@ -85,6 +96,18 @@ public class ResponseMessage {
         public static final String MISSING_REASON = "Thông tin lý do không được bỏ trống";
         public static final String INVALID_REASON = "Thông tin lý do không hợp lệ";
         public static final String MISSING_REGISTERED_BY = "Thông tin người đăng ký không được bỏ trống";
+        public static final String NOT_FOUND = "Thông tin đơn nhận nuôi không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh đơn nhận nuôi không khớp";
+        public static final String NOT_AVAILABLE_FOR_CANCEL = "Đơn nhận nuôi không trong trạng thái để hủy";
+        public static final String MAX_ADOPTS = "Số lượng đơn nhận nuôi đã đạt tối đa";
+        public static final String DUPLICATE_ADOPT = "Đã có đơn nhận nuôi cho thú cưng này";
+        public static final String MISSING_ID = "Thông tin định danh đơn nhận nuôi không được bỏ trống";
+
     }
 
+    public static class Location {
+        public static final String GET_INFO_PROVINCE_FAIL = "Lấy thông tin tỉnh/thành phố thất bại";
+        public static final String GET_INFO_DISTRICT_FAIL = "Lấy thông tin quận/huyện thất bại";
+        public static final String GET_INFO_WARD_FAIL = "Lấy thông tin phường/xã thất bại";
+    }
 }

@@ -3,6 +3,7 @@ package com.project.soshuceapi.services;
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.exceptions.AuthenticationException;
+import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.mappers.UserMapper;
 import com.project.soshuceapi.models.requests.LoginRequest;
@@ -10,9 +11,9 @@ import com.project.soshuceapi.security.JWTProvider;
 import com.project.soshuceapi.services.iservice.IAuthService;
 import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
-import com.project.soshuceapi.services.iservice.IWebSocketService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 public class AuthService implements IAuthService {
 
     private final static String TAG = "AUTH";
@@ -35,8 +37,6 @@ public class AuthService implements IAuthService {
     private JWTProvider jwtProvider;
     @Autowired
     private AuthenticationManager authenticationManager;
-    @Autowired
-    private IWebSocketService webSocketService;
     @Autowired
     private UserMapper userMapper;
 
@@ -52,13 +52,15 @@ public class AuthService implements IAuthService {
                 String refreshToken = jwtProvider.generateRefreshToken(null, user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, token);
-                webSocketService.sendLogoutMessage(jwtProvider.extractEmail(token));
                 return Map.of("token",token,"refreshToken",refreshToken,"user", userMapper.mapTo(user, UserDTO.class));
             }
             return null;
         } catch (org.springframework.security.core.AuthenticationException authenticationException){
             throw new AuthenticationException(authenticationException.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -82,7 +84,10 @@ public class AuthService implements IAuthService {
                     response.setHeader(Constants.Security.REQUEST_HEADER_AUTH, Constants.Security.TOKEN_PREFIX + token);
                 }
             }
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -91,6 +96,7 @@ public class AuthService implements IAuthService {
         try {
             redisService.saveDataToRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail(), jwtToken, Constants.Security.TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -99,6 +105,7 @@ public class AuthService implements IAuthService {
         try {
             redisService.deleteDataFromRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }

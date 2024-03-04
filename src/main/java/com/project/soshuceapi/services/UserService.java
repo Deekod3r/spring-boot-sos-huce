@@ -1,10 +1,11 @@
 package com.project.soshuceapi.services;
 
 import com.project.soshuceapi.common.Constants;
+import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.entities.logging.ActionLogDetail;
+import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.exceptions.NotFoundException;
-import com.project.soshuceapi.exceptions.UserExistedException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.mappers.UserMapper;
@@ -12,6 +13,7 @@ import com.project.soshuceapi.models.requests.UserCreateRequest;
 import com.project.soshuceapi.models.requests.UserUpdateRequest;
 import com.project.soshuceapi.repositories.UserRepository;
 import com.project.soshuceapi.services.iservice.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class UserService implements IUserService {
 
     private final static String TAG = "USER";
@@ -42,7 +45,7 @@ public class UserService implements IUserService {
     public UserDTO create(UserCreateRequest request) {
         try {
             if (isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())) {
-                throw new UserExistedException("existed.user.by.code/email");
+                throw new BadRequestException(ResponseMessage.User.USER_EXISTED);
             }
             request.setPhoneNumber(request.getPhoneNumber().trim());
             request.setEmail(request.getEmail().trim());
@@ -90,9 +93,10 @@ public class UserService implements IUserService {
                     ))
                     .build());
             return userMapper.mapTo(user, UserDTO.class);
-        } catch (UserExistedException e) {
-            throw new UserExistedException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -102,13 +106,14 @@ public class UserService implements IUserService {
     public UserDTO update(UserUpdateRequest request) {
         try {
            if (!isExistsById(request.getId())) {
-               throw new NotFoundException("user.not.found.by.id");
+               throw new BadRequestException(ResponseMessage.User.NOT_FOUND);
            }
             User user = userMapper.mapFrom(request);
             return userMapper.mapTo(user, UserDTO.class);
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -118,7 +123,7 @@ public class UserService implements IUserService {
     public UserDTO updatePassword(String email, String password, String updatedBy) {
         try {
             User user = userRepository.findByEmail(email).orElseThrow(() ->
-                    new NotFoundException("user.not.found.by.email"));
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
             String oldPassword = user.getPassword();
             user.setPassword(passwordEncoder.encode(password));
             user.setUpdatedBy(updatedBy);
@@ -139,9 +144,10 @@ public class UserService implements IUserService {
                     ))
                     .build());
             return userMapper.mapTo(user, UserDTO.class);
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -167,6 +173,7 @@ public class UserService implements IUserService {
                     "totalPage", users.getTotalPages()
             );
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -175,11 +182,12 @@ public class UserService implements IUserService {
     public UserDTO getById(String id) {
         try {
             User user = userRepository.findById(id).orElseThrow(() ->
-                    new RuntimeException("user.not.found.by.id"));
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
             return userMapper.mapTo(user, UserDTO.class);
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -188,11 +196,12 @@ public class UserService implements IUserService {
     public UserDTO getByEmail(String email) {
         try {
             User user = userRepository.findByEmail(email).orElseThrow(() ->
-                    new NotFoundException("user.not.found.by.email"));
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
             return userMapper.mapTo(user, UserDTO.class);
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -207,10 +216,11 @@ public class UserService implements IUserService {
         try {
             return userRepository.findByPhoneNumberOrEmail(phoneNumber, email).map(user ->
                     userMapper.mapTo(user, UserDTO.class)).orElseThrow(() ->
-                    new NotFoundException("user.not.found.by.phone_number/email"));
+                    new NotFoundException(ResponseMessage.User.NOT_FOUND));
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }

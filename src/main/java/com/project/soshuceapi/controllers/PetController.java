@@ -1,15 +1,13 @@
 package com.project.soshuceapi.controllers;
 
-import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
-import com.project.soshuceapi.exceptions.NotFoundException;
+import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.requests.PetCreateRequest;
 import com.project.soshuceapi.models.requests.PetUpdateImageRequest;
 import com.project.soshuceapi.models.requests.PetUpdateRequest;
-import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
-import com.project.soshuceapi.services.PetService;
+import com.project.soshuceapi.services.iservice.IPetService;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,7 @@ import java.util.Objects;
 public class PetController {
 
     @Autowired
-    private PetService petService;
+    private IPetService petService;
     @Autowired
     private AuditorAware<String> auditorAware;
 
@@ -57,9 +55,10 @@ public class PetController {
                     name, breed, color, code, type, age, gender,
                     status, diet, vaccine, sterilization, rabies, adoptedBy));
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -70,17 +69,18 @@ public class PetController {
         response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(id)) {
-                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
+                response.setMessage(ResponseMessage.Pet.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
             response.setData(petService.getById(id));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
-        } catch (NotFoundException e) {
-            response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -91,10 +91,11 @@ public class PetController {
         response.setSuccess(false);
         try {
             response.setData(petService.getStatisticCases());
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -106,21 +107,20 @@ public class PetController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (bindingResult.hasErrors()) {
-                response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
-                        ResponseCode.Common.INVALID));
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
             request.setCreatedBy(auditorAware.getCurrentAuditor().get());
             response.setData(petService.create(request).getId());
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -134,28 +134,27 @@ public class PetController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (bindingResult.hasErrors()) {
-                response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
-                        ResponseCode.Common.INVALID));
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (!id.equals(request.getId())) {
-                response.setError(Error.of(ResponseMessage.Common.NOT_MATCH, ResponseCode.Common.NOT_MATCH));
+            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+                response.setMessage(ResponseMessage.Common.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
             response.setData(petService.update(request).getId());
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
-        } catch (NotFoundException e) {
-            response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -169,28 +168,27 @@ public class PetController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (bindingResult.hasErrors()) {
-                response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
-                        ResponseCode.Common.INVALID));
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (!id.equals(request.getId())) {
-                response.setError(Error.of(ResponseMessage.Common.NOT_MATCH, ResponseCode.Common.NOT_MATCH));
+            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+                response.setMessage(ResponseMessage.Pet.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
             response.setData(petService.updateImage(request).getId());
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
-        } catch (NotFoundException e) {
-            response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -202,21 +200,21 @@ public class PetController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (StringUtil.isNullOrBlank(id)) {
-                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
+                response.setMessage(ResponseMessage.Pet.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
             response.setSuccess(petService.deleteSoft(id, auditorAware.getCurrentAuditor().get()));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
-        } catch (NotFoundException e) {
-            response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

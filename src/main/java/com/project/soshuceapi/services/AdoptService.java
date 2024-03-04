@@ -1,11 +1,12 @@
 package com.project.soshuceapi.services;
 
 import com.project.soshuceapi.common.Constants;
+import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.entities.Adopt;
 import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.entities.locations.Ward;
 import com.project.soshuceapi.entities.logging.ActionLogDetail;
-import com.project.soshuceapi.exceptions.NotFoundException;
+import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.AdoptDTO;
 import com.project.soshuceapi.models.DTOs.PetDTO;
@@ -16,6 +17,7 @@ import com.project.soshuceapi.models.requests.AdoptUpdateRequest;
 import com.project.soshuceapi.repositories.AdoptRepository;
 import com.project.soshuceapi.services.iservice.IAdoptService;
 import jakarta.annotation.Nullable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import java.util.*;
 
 
 @Service
+@Slf4j
 public class AdoptService implements IAdoptService {
 
     private final String TAG = "ADOPT";
@@ -75,6 +78,7 @@ public class AdoptService implements IAdoptService {
             }
             return adoptDTOS;
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -110,6 +114,7 @@ public class AdoptService implements IAdoptService {
             }
             return adoptDTOS;
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -117,7 +122,8 @@ public class AdoptService implements IAdoptService {
     @Override
     public Map<String, Object> getById(String id) {
         try {
-            Adopt adopt = adoptRepository.findById(id).orElseThrow(() -> new NotFoundException("adopt.not.found.by.id"));
+            Adopt adopt = adoptRepository.findById(id).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
             AdoptDTO adoptDTO = adoptMapper.mapTo(adopt, AdoptDTO.class);
             adoptDTO.setPetId(adopt.getPet().getId());
             adoptDTO.setPetName(adopt.getPet().getCode() + " - " + adopt.getPet().getName());
@@ -143,9 +149,10 @@ public class AdoptService implements IAdoptService {
                 put("adopt", adoptDTO);
                 put("pet", petMapper.mapTo(adopt.getPet(), PetDTO.class));
             }};
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -156,14 +163,14 @@ public class AdoptService implements IAdoptService {
         try {
             PetDTO pet = petService.getById(request.getPetId());
             if (!Objects.equals(pet.getStatus(), Constants.PetStatus.WAIT_FOR_ADOPTING)) {
-                throw new RuntimeException("pet.is.not.available.for.adopting");
+                throw new BadRequestException(ResponseMessage.Pet.NOT_AVAILABLE_FOR_ADOPT);
             }
             Long count = adoptRepository.countByStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING, request.getRegisteredBy());
             if (count >= 3) {
-                throw new RuntimeException("user.has.reached.the.maximum.number.of.adopts");
+                throw new BadRequestException(ResponseMessage.Adopt.MAX_ADOPTS);
             }
             if (checkDuplicate(request.getPetId(), request.getRegisteredBy())) {
-                throw new RuntimeException("user.has.adopted.this.pet");
+                throw new BadRequestException(ResponseMessage.Adopt.DUPLICATE_ADOPT);
             }
             Adopt adopt = new Adopt();
             adopt.setPet(petMapper.mapFrom(pet));
@@ -181,7 +188,10 @@ public class AdoptService implements IAdoptService {
             adopt = adoptRepository.save(adopt);
             logCreate(adopt);
             return adoptMapper.mapTo(adopt, AdoptDTO.class);
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -194,9 +204,10 @@ public class AdoptService implements IAdoptService {
     @Override
     public Boolean cancel(String id, String userId) {
         try {
-            Adopt adopt = adoptRepository.findById(id).orElseThrow(() -> new NotFoundException("adopt.not.found.by.id"));
+            Adopt adopt = adoptRepository.findById(id).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
             if (!Objects.equals(adopt.getRegisteredBy().getId(), userId)) {
-                throw new RuntimeException("user.does.not.have.permission");
+                throw new BadRequestException(ResponseMessage.Authentication.PERMISSION_DENIED);
             }
             if (Objects.equals(adopt.getStatus(), Constants.AdoptStatus.WAIT_FOR_PROGRESSING)) {
                 adopt.setStatus(Constants.AdoptStatus.CANCEL);
@@ -218,10 +229,11 @@ public class AdoptService implements IAdoptService {
                         .build());
                 return true;
             }
-            throw new RuntimeException("adopt.is.not.available.for.cancelling");
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+            throw new BadRequestException(ResponseMessage.Adopt.NOT_AVAILABLE_FOR_CANCEL);
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -252,6 +264,7 @@ public class AdoptService implements IAdoptService {
                 put("countRefund", refund);
             }};
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -270,6 +283,7 @@ public class AdoptService implements IAdoptService {
             Long seq = adoptRepository.getSEQ();
             return "ADT" + String.format("%05d", seq);
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -340,6 +354,7 @@ public class AdoptService implements IAdoptService {
                     ))
                     .build());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }

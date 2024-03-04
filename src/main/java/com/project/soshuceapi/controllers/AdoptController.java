@@ -1,11 +1,10 @@
 package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.Constants;
-import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
+import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.AdoptDTO;
 import com.project.soshuceapi.models.requests.AdoptCreateRequest;
-import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.AdoptService;
 import com.project.soshuceapi.utils.StringUtil;
@@ -42,15 +41,15 @@ public class AdoptController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             response.setData(adoptService.getAll());
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -63,15 +62,15 @@ public class AdoptController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty() || !auditorAware.getCurrentAuditor().get().equals(userId)) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             response.setData(adoptService.getAllByUser(userId));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -83,8 +82,7 @@ public class AdoptController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -92,24 +90,26 @@ public class AdoptController {
             boolean roleExists = authorities.stream()
                     .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(Constants.User.KEY_ROLE + role));
             if (!roleExists) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             Map<String, Object> data = adoptService.getById(id);
             if (Objects.equals(role, Constants.User.ROLE_USER)) {
                 String createdBy = ((AdoptDTO) data.get("adopt")).getCreatedBy();
                 if (!auditorAware.getCurrentAuditor().get().equals(createdBy)) {
-                    response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                            ResponseCode.Authentication.PERMISSION_DENIED));
+                    response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
                 }
             }
             response.setData(data);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -120,21 +120,23 @@ public class AdoptController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (bindingResult.hasErrors()) {
-                response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
-                        ResponseCode.Common.INVALID));
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
             request.setCreatedBy(auditorAware.getCurrentAuditor().get());
             response.setData(adoptService.create(request).getId());
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -146,20 +148,23 @@ public class AdoptController {
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (StringUtil.isNullOrBlank(id)) {
-                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
+                response.setMessage(ResponseMessage.Adopt.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
             adoptService.cancel(id, auditorAware.getCurrentAuditor().get());
             response.setData(id);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

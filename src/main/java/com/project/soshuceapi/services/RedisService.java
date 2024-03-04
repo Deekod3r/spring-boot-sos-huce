@@ -2,6 +2,7 @@ package com.project.soshuceapi.services;
 
 import com.project.soshuceapi.services.iservice.IRedisService;
 import io.lettuce.core.RedisException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 public class RedisService implements IRedisService {
 
     private final static String TAG = "REDIS";
@@ -23,7 +25,9 @@ public class RedisService implements IRedisService {
             ValueOperations<String, Object> valueOps = redisTemplate.opsForValue();
             valueOps.set(key, value, expirationTime, timeUnit);
         } catch (Exception e) {
-            throw new RedisException("error.save.data.redis");
+            log.error(TAG + ": error.save.data.redis");
+            log.error(TAG + ": " + e.getMessage());
+            throw new RedisException(e.getMessage());
         }
     }
 
@@ -32,7 +36,9 @@ public class RedisService implements IRedisService {
         try {
             return redisTemplate.opsForValue().get(key);
         } catch (Exception e) {
-            throw new RedisException("error.get.data.redis");
+            log.error(TAG + ": error.get.data.redis");
+            log.error(TAG + ": " + e.getMessage());
+            throw new RedisException(e.getMessage());
         }
     }
 
@@ -41,7 +47,9 @@ public class RedisService implements IRedisService {
         try {
             redisTemplate.delete(key);
         } catch (Exception e) {
-            throw new RedisException("error.delete.data.redis");
+            log.error(TAG + ": error.delete.data.redis");
+            log.error(TAG + ": " + e.getMessage());
+            throw new RedisException(e.getMessage());
         }
     }
 

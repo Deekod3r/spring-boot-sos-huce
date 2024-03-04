@@ -1,9 +1,11 @@
 package com.project.soshuceapi.services;
 
 import com.project.soshuceapi.common.Constants;
+import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.entities.Pet;
 import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.entities.logging.ActionLogDetail;
+import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.exceptions.NotFoundException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.PetDTO;
@@ -15,6 +17,7 @@ import com.project.soshuceapi.repositories.PetRepository;
 import com.project.soshuceapi.services.iservice.IFileService;
 import com.project.soshuceapi.services.iservice.IPetService;
 import com.project.soshuceapi.utils.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +34,7 @@ import static com.project.soshuceapi.utils.StringUtil.uppercaseAllFirstLetters;
 import static com.project.soshuceapi.utils.StringUtil.uppercaseFirstLetter;
 
 @Service
+@Slf4j
 public class PetService implements IPetService {
 
     private final static String TAG = "PET";
@@ -73,6 +77,7 @@ public class PetService implements IPetService {
                     "totalPages", pets.getTotalPages()
             );
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -97,6 +102,7 @@ public class PetService implements IPetService {
             logCreate(pet);
             return petMapper.mapTo(pet, PetDTO.class);
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -132,6 +138,7 @@ public class PetService implements IPetService {
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -140,7 +147,8 @@ public class PetService implements IPetService {
     @Transactional
     public PetDTO updateImage(PetUpdateImageRequest request) {
         try {
-            Pet pet = petRepository.findById(request.getId()).orElseThrow(() -> new NotFoundException("pet.not.found.by.id"));
+            Pet pet = petRepository.findById(request.getId()).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
             String oldImage = pet.getImage();
             Map<String, String> data = fileService.upload(request.getImage());
             String url = data.get("url");
@@ -162,9 +170,10 @@ public class PetService implements IPetService {
                     ))
                     .build());
             return petMapper.mapTo(pet, PetDTO.class);
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -173,7 +182,8 @@ public class PetService implements IPetService {
     @Transactional
     public Boolean deleteSoft(String id, String deletedBy) {
         try {
-            Pet pet = petRepository.findById(id).orElseThrow(() -> new NotFoundException("pet.not.found.by.id"));
+            Pet pet = petRepository.findById(id).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
             pet.setDeletedAt(LocalDateTime.now());
             pet.setDeletedBy(deletedBy);
             pet.setIsDeleted(true);
@@ -193,9 +203,10 @@ public class PetService implements IPetService {
                     ))
                     .build());
             return true;
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (RuntimeException e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -204,10 +215,11 @@ public class PetService implements IPetService {
     public PetDTO getById(String id) {
         try {
             return petRepository.findById(id).map(pet -> petMapper.mapTo(pet, PetDTO.class))
-                    .orElseThrow(() -> new NotFoundException("pet.not.found.by.id"));
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+                    .orElseThrow(() -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -218,10 +230,11 @@ public class PetService implements IPetService {
             return Map.of(
                     "total", petRepository.count(),
                     "adopted", petRepository.countByStatus(1),
-                    "wait", petRepository.countByStatus(3),
-                    "healing", petRepository.countByStatus(2)
+                    "healing", petRepository.countByStatus(2),
+                    "wait", petRepository.countByStatus(3)
             );
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -231,6 +244,7 @@ public class PetService implements IPetService {
             Long seq = petRepository.getSEQ();
             return name.substring(0, 1).toUpperCase() + String.format("%05d", seq);
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -275,6 +289,7 @@ public class PetService implements IPetService {
                     ))
                     .build());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -461,6 +476,7 @@ public class PetService implements IPetService {
                     .build());
         }
         catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }

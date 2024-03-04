@@ -1,5 +1,6 @@
 package com.project.soshuceapi.services;
 
+import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.entities.locations.District;
 import com.project.soshuceapi.entities.locations.Province;
 import com.project.soshuceapi.entities.locations.Ward;
@@ -8,12 +9,14 @@ import com.project.soshuceapi.repositories.ProvinceRepository;
 import com.project.soshuceapi.repositories.WardRepository;
 import com.project.soshuceapi.services.iservice.ILocationService;
 import com.project.soshuceapi.utils.NumberUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class LocationService implements ILocationService {
 
     private final static String TAG = "LOCATION";
@@ -30,7 +33,8 @@ public class LocationService implements ILocationService {
         try {
             return provinceRepository.findAll();
         } catch (Exception e) {
-            throw new RuntimeException("error.get.all.province");
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -42,7 +46,8 @@ public class LocationService implements ILocationService {
             }
             return districtRepository.findAllByProvince(provinceId);
         } catch (Exception e) {
-            throw new RuntimeException("error.get.all.district");
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -54,26 +59,39 @@ public class LocationService implements ILocationService {
             }
             return wardRepository.findAllByDistrict(districtId);
         } catch (Exception e) {
-            throw new RuntimeException("error.get.all.ward");
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
     @Override
     public Province getProvinceById(int id) {
-        return provinceRepository.findById(id).orElseThrow(() ->
-                new RuntimeException("error.get.province.by.id"));
+        try {
+            return provinceRepository.findById(id).orElseThrow(() ->
+                    new RuntimeException(ResponseMessage.Location.GET_INFO_PROVINCE_FAIL));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
     public District getDistrictById(int id) {
-        return districtRepository.findById(id).orElseThrow(() ->
-                new RuntimeException("error.get.district.by.id"));
+        try {
+            return districtRepository.findById(id).orElseThrow(() ->
+                    new RuntimeException(ResponseMessage.Location.GET_INFO_DISTRICT_FAIL));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
     public Ward getWardById(int id) {
-        return wardRepository.findById(id).orElseThrow(() ->
-                new RuntimeException("error.get.ward.by.id"));
+        try {
+            return wardRepository.findById(id).orElseThrow(() ->
+                    new RuntimeException(ResponseMessage.Location.GET_INFO_WARD_FAIL));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
 }

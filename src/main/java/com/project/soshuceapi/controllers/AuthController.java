@@ -1,14 +1,11 @@
 package com.project.soshuceapi.controllers;
 
-import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.exceptions.AuthenticationException;
+import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.requests.LoginRequest;
-import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.IAuthService;
-import com.project.soshuceapi.services.iservice.IRedisService;
-import com.project.soshuceapi.services.iservice.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -29,10 +26,6 @@ public class AuthController {
 
     @Autowired
     private IAuthService authService;
-    @Autowired
-    private IRedisService redisService;
-    @Autowired
-    private IUserService userService;
 
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
@@ -40,20 +33,22 @@ public class AuthController {
         response.setSuccess(false);
         try {
             if (bindingResult.hasErrors()) {
-                response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
-                        ResponseCode.Common.INVALID));
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
             Map<String, Object> data = authService.authenticate(loginRequest);
             response.setData(data);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
-            response.setError(Error.of(ResponseMessage.Authentication.AUTHENTICATION_ERROR,
-                    ResponseCode.Authentication.AUTHENTICATION_ERROR));
+            response.setMessage(ResponseMessage.User.LOGIN_INFO_INCORRECT);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

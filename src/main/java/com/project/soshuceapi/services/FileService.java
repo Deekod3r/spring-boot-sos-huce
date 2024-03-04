@@ -20,8 +20,8 @@ import java.nio.file.Files;
 import java.util.Map;
 import java.util.UUID;
 
-@Slf4j
 @Service
+@Slf4j
 public class FileService implements IFileService {
 
     private final static String TAG = "FILE";
@@ -38,10 +38,11 @@ public class FileService implements IFileService {
             File file = this.convertToFile(multipartFile, fileName);
             String URL = this.uploadFile(file, fileName);
             if(!file.delete()) {
-                log.error("Failed to delete file");
+                log.error(TAG + ": error.delete.file");
             }
             return Map.of("url", URL, "fileName", fileName);
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -60,6 +61,7 @@ public class FileService implements IFileService {
                     URLEncoder.encode(resourceConfig.getFirebaseBucketName(), StandardCharsets.UTF_8),
                     URLEncoder.encode(fileName, StandardCharsets.UTF_8));
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new IOException(e.getMessage());
         }
     }
@@ -69,6 +71,7 @@ public class FileService implements IFileService {
         try (FileOutputStream fos = new FileOutputStream(tempFile)) {
             fos.write(multipartFile.getBytes());
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new IOException(e.getMessage());
         }
         return tempFile;
@@ -78,6 +81,7 @@ public class FileService implements IFileService {
         try {
             return fileName.substring(fileName.lastIndexOf("."));
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }

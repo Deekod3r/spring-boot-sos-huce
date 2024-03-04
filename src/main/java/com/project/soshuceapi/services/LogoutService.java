@@ -3,9 +3,9 @@ package com.project.soshuceapi.services;
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.security.JWTProvider;
 import com.project.soshuceapi.services.iservice.IRedisService;
-import com.project.soshuceapi.services.iservice.IWebSocketService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class LogoutService implements LogoutHandler {
 
     private final static String TAG = "LOGOUT";
@@ -21,8 +22,6 @@ public class LogoutService implements LogoutHandler {
     private IRedisService redisService;
     @Autowired
     private JWTProvider jwtProvider;
-    @Autowired
-    private IWebSocketService webSocketService;
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
@@ -37,7 +36,6 @@ public class LogoutService implements LogoutHandler {
             if (storedToken != null) {
                 redisService.deleteDataFromRedis(key);
                 SecurityContextHolder.clearContext();
-                webSocketService.sendLogoutMessage(jwtProvider.extractEmail(jwt));
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

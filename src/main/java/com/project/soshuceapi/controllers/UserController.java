@@ -1,17 +1,15 @@
 package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.Constants;
-import com.project.soshuceapi.common.ResponseCode;
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.common.enums.security.ERole;
+import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.exceptions.NotFoundException;
-import com.project.soshuceapi.exceptions.UserExistedException;
 import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.requests.UserCreateRequest;
 import com.project.soshuceapi.models.requests.UserResetPasswordRequest;
-import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
-import com.project.soshuceapi.services.AdoptService;
+import com.project.soshuceapi.services.iservice.IAdoptService;
 import com.project.soshuceapi.services.iservice.IEmailService;
 import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
@@ -46,7 +44,7 @@ public class UserController {
     @Autowired
     private IEmailService emailService;
     @Autowired
-    private AdoptService adoptService;
+    private IAdoptService adoptService;
     @Autowired
     private AuditorAware<String> auditorAware;
 
@@ -57,12 +55,11 @@ public class UserController {
         response.setSuccess(false);
         try {
             if (bindingResult.hasErrors()) {
-                response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
-                        ResponseCode.Common.INVALID));
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
             if (userService.isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())) {
-                response.setError(Error.of(ResponseMessage.Common.EXISTED, ResponseCode.Common.EXISTED));
+                response.setMessage(ResponseMessage.User.USER_EXISTED);
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
             String verifyCode = StringUtil.generateRandomString(Constants.Security.VERIFY_CODE_LENGTH);
@@ -74,10 +71,14 @@ public class UserController {
             redisService.saveDataToRedis(request.getPhoneNumber() + key + Constants.User.KEY_REGISTER_CODE, verifyCode,
                     Constants.Security.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
             response.setData(Map.of("id", request.getPhoneNumber() + key));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -88,24 +89,21 @@ public class UserController {
         response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(code)) {
-                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
+                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
                 return ResponseEntity.badRequest().body(response);
             }
             String verifyCode = (String) redisService.getDataFromRedis(id + Constants.User.KEY_REGISTER_CODE);
             if (StringUtil.isNullOrBlank(verifyCode)) {
-                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED,
-                        ResponseCode.Authentication.VERIFY_CODE_EXPIRED));
+                response.setMessage(ResponseMessage.User.VERIFY_CODE_EXPIRED);
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
             if (!verifyCode.equals(code)) {
-                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT,
-                        ResponseCode.Authentication.VERIFY_CODE_INCORRECT));
+                response.setMessage(ResponseMessage.User.VERIFY_CODE_INCORRECT);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             String data = (String) redisService.getDataFromRedis(id + Constants.User.KEY_REGISTER_INFO);
             if (Objects.isNull(data)) {
-                response.setError(Error.of(ResponseMessage.Common.NOT_FOUND,
-                        ResponseCode.Common.NOT_FOUND));
+                response.setMessage(ResponseMessage.User.NOT_FOUND);
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
             UserCreateRequest request = DataUtil.fromJSON(data, UserCreateRequest.class);
@@ -115,12 +113,13 @@ public class UserController {
             redisService.deleteDataFromRedis(id + Constants.User.KEY_REGISTER_CODE);
             redisService.deleteDataFromRedis(id + Constants.User.KEY_REGISTER_INFO);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
-        } catch (UserExistedException e) {
-            response.setError(Error.of(ResponseMessage.Common.EXISTED, ResponseCode.Common.EXISTED));
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -131,19 +130,21 @@ public class UserController {
         response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(account)) {
-                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
+                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
                 return ResponseEntity.badRequest().body(response);
             }
             UserDTO user = userService.getByPhoneNumberOrEmail(account, account);
             response.setData(user.getEmail());
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (NotFoundException e) {
             response.setData("NOT_FOUND");
+            response.setMessage(ResponseMessage.User.NOT_FOUND);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -154,12 +155,12 @@ public class UserController {
         response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(email)) {
-                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
+                response.setMessage(ResponseMessage.User.MISSING_EMAIL);
                 return ResponseEntity.badRequest().body(response);
             }
             UserDTO user = userService.getByEmail(email);
             if (user == null) {
-                response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
+                response.setMessage(ResponseMessage.User.NOT_FOUND);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
             String verifyCode = StringUtil.generateRandomString(Constants.Security.VERIFY_CODE_LENGTH);
@@ -169,10 +170,14 @@ public class UserController {
             redisService.saveDataToRedis(user.getPhoneNumber() + key + Constants.User.KEY_FORGOT_PASSWORD_CODE, verifyCode,
                     Constants.Security.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
             response.setData(Map.of("id", user.getPhoneNumber() + key));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -184,26 +189,28 @@ public class UserController {
         response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(code)) {
-                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
+                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
                 return ResponseEntity.badRequest().body(response);
             }
             String key = id + Constants.User.KEY_FORGOT_PASSWORD_CODE;
             String verifyCode = (String) redisService.getDataFromRedis(key);
             if (StringUtil.isNullOrBlank(verifyCode)) {
-                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED,
-                        ResponseCode.Authentication.VERIFY_CODE_EXPIRED));
+                response.setMessage(ResponseMessage.User.VERIFY_CODE_EXPIRED);
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
             if (!verifyCode.equals(code)) {
-                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT,
-                        ResponseCode.Authentication.VERIFY_CODE_INCORRECT));
+                response.setMessage(ResponseMessage.User.VERIFY_CODE_INCORRECT);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             response.setData(Map.of("code", verifyCode));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -215,29 +222,30 @@ public class UserController {
         response.setSuccess(false);
         try {
             if (bindingResult.hasErrors()) {
-                response.setError(Error.of(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage(),
-                        ResponseCode.Common.INVALID));
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
             String key = request.getId() + Constants.User.KEY_FORGOT_PASSWORD_CODE;
             String verifyCode = (String) redisService.getDataFromRedis(key);
             if (StringUtil.isNullOrBlank(verifyCode)) {
-                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED,
-                        ResponseCode.Authentication.VERIFY_CODE_EXPIRED));
+                response.setMessage(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED);
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
             if (!verifyCode.equals(request.getCode())) {
-                response.setError(Error.of(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT,
-                        ResponseCode.Authentication.VERIFY_CODE_INCORRECT));
+                response.setMessage(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             userService.updatePassword(request.getEmail(), request.getNewPassword(), "SELF");
             redisService.deleteDataFromRedis(key);
             response.setData(true);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -248,13 +256,12 @@ public class UserController {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
-            if (StringUtil.isNullOrBlank(id)) {
-                response.setError(Error.of(ResponseMessage.Common.INVALID_INPUT, ResponseCode.Common.INVALID));
+            if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(role)) {
+                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
                 return ResponseEntity.badRequest().body(response);
             }
             if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.User.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -262,14 +269,12 @@ public class UserController {
             boolean roleExists = authorities.stream()
                     .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(Constants.User.KEY_ROLE + role));
             if (!roleExists) {
-                response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                        ResponseCode.Authentication.PERMISSION_DENIED));
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (Objects.equals(role, Constants.User.ROLE_USER)) {
                 if (!auditorAware.getCurrentAuditor().get().equals(id)) {
-                    response.setError(Error.of(ResponseMessage.Authentication.PERMISSION_DENIED,
-                            ResponseCode.Authentication.PERMISSION_DENIED));
+                    response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
                 }
             }
@@ -280,12 +285,13 @@ public class UserController {
             data.put("statistic", statistic);
             response.setData(data);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
-        } catch (NotFoundException e) {
-            response.setError(Error.of(ResponseMessage.Common.NOT_FOUND, ResponseCode.Common.NOT_FOUND));
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -302,10 +308,14 @@ public class UserController {
         response.setSuccess(false);
         try {
             response.setData(userService.getAll(page, limit, name, email, phoneNumber, role));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
