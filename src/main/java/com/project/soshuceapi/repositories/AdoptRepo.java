@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AdoptRepository extends JpaRepository<Adopt, String> {
+public interface AdoptRepo extends JpaRepository<Adopt, String> {
 
     @NonNull
     @Query("SELECT a FROM Adopt a " +
@@ -30,7 +30,7 @@ public interface AdoptRepository extends JpaRepository<Adopt, String> {
             "AND (cast(:toDate as timestamp) IS NULL OR a.createdAt <= :toDate ) " +
             "AND (:registeredBy = '' OR a.registeredBy.id = :registeredBy) " +
             "AND (:petAdopt = '' OR a.pet.id = :petAdopt) " +
-            "ORDER BY a.status, a.createdAt DESC")
+            "ORDER BY a.status, a.updatedAt DESC, a.createdAt DESC")
     Page<Adopt> findAll(
             @Param("status") Integer status,
             @Param("code") String code,
@@ -41,9 +41,8 @@ public interface AdoptRepository extends JpaRepository<Adopt, String> {
             Pageable pageable
     );
 
-
     @Query(value = "SELECT nextval('adopt_seq')", nativeQuery = true)
-    Long getSEQ();
+    long getSEQ();
 
     @Query("SELECT a FROM Adopt a " +
             "JOIN FETCH a.pet " +
@@ -53,7 +52,7 @@ public interface AdoptRepository extends JpaRepository<Adopt, String> {
             "LEFT JOIN FETCH a.rejectedBy " +
             "WHERE a.isDeleted = false AND a.pet.isDeleted = false " +
             "AND a.registeredBy.id = :userId " +
-            "ORDER BY a.status, a.createdAt DESC")
+            "ORDER BY a.status, a.updatedAt DESC, a.createdAt DESC")
     List<Adopt> findAllByUser(@NonNull @Param("userId") String userId);
 
     @NonNull
@@ -61,14 +60,15 @@ public interface AdoptRepository extends JpaRepository<Adopt, String> {
     Optional<Adopt> findById(@NonNull @Param("id") String id);
 
     @Query(value = "SELECT COUNT(1) FROM Adopt a " +
-            "WHERE a.status = :status " +
+            "WHERE " +
+            "(:status IS NULL OR a.status = :status) " +
             "AND a.isDeleted = false " +
             "AND a.pet.isDeleted = false " +
             "AND (:userId = '' OR a.registeredBy.id = :userId) ")
-    Long countByStatus(Integer status, String userId);
+    long countByStatus(Integer status, String userId);
 
     @Query(value = "SELECT COUNT(1) FROM adopts " +
             "WHERE pet_id = :petId " +
-            "AND registered_by = :userId AND status NOT IN (4, 6) AND is_deleted = false", nativeQuery = true)
-    Long checkDuplicate(String petId, String userId);
+            "AND registered_by = :userId AND status NOT IN (3, 4, 5) AND is_deleted = false", nativeQuery = true)
+    long checkDuplicate(String petId, String userId);
 }

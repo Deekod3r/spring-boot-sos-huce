@@ -26,4 +26,5 @@ public interface IPetService {
 
     PetDTO getById(String id);
 
+    void setAdoptedBy(String userId, String petId, String updatedBy);
 }

@@ -159,7 +159,7 @@ public class UserController {
                 return ResponseEntity.badRequest().body(response);
             }
             UserDTO user = userService.getByEmail(email);
-            if (user == null) {
+            if (Objects.isNull(user)) {
                 response.setMessage(ResponseMessage.User.NOT_FOUND);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }

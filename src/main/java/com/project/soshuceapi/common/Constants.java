@@ -63,7 +63,6 @@ public class Constants {
         public final static Integer REJECT = 3;
         public final static Integer CANCEL = 4;
         public final static Integer COMPLETE = 5;
-        public final static Integer REFUND = 6;
     }
 
     public static class PetStatus {
@@ -80,9 +79,6 @@ public class Constants {
     }
 
     public static class FormatPattern {
-        public final static String DATE = "dd-MM-yyyy";
-        public final static String DATE_TIME = "dd-MM-yyyy HH:mm:ss";
-        public final static String DATE_TIME_WITHOUT_SECOND = "dd-MM-yyyy HH:mm";
         public final static String LOCAL_DATETIME = "yyyy-MM-dd'T'HH:mm:ss";
         public final static String LOCAL_DATE = "yyyy-MM-dd";
     }

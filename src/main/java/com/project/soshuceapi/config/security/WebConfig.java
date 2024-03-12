@@ -1,6 +1,6 @@
 package com.project.soshuceapi.config.security;
 
-import com.project.soshuceapi.repositories.UserRepository;
+import com.project.soshuceapi.repositories.UserRepo;
 import com.project.soshuceapi.security.ApplicationAuditAware;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,11 +19,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class WebConfig {
 
-    private final UserRepository userRepository;
+    private final UserRepo userRepo;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return email -> userRepository.findByEmail(email)
+        return email -> userRepo.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("not.found.user.by.email"));
     }
 

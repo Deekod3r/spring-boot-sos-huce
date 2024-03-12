@@ -96,7 +96,7 @@ public class AdoptController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getAdoptById(@PathVariable(name = "id") String id,
-                                     @RequestParam(name = "role") String role) {
+                                          @RequestParam(name = "role") String role) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -245,6 +245,33 @@ public class AdoptController {
             response.setData(adoptService.update(request).getId());
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
+    public ResponseEntity<?> deleteSoftAdopt(@PathVariable(name = "id") String id) {
+        Response<String> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (StringUtil.isNullOrBlank(id)) {
+                response.setMessage(ResponseMessage.Adopt.MISSING_ID);
+                return ResponseEntity.badRequest().body(response);
+            }
+            response.setSuccess(adoptService.deleteSoft(id, auditorAware.getCurrentAuditor().get()));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setData(id);
             return ResponseEntity.ok(response);
         } catch (BadRequestException e) {
             response.setMessage(e.getMessage());

@@ -11,7 +11,8 @@ import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.mappers.UserMapper;
 import com.project.soshuceapi.models.requests.UserCreateRequest;
 import com.project.soshuceapi.models.requests.UserUpdateRequest;
-import com.project.soshuceapi.repositories.UserRepository;
+import com.project.soshuceapi.repositories.UserRepo;
+import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +33,13 @@ public class UserService implements IUserService {
     private final static String TAG = "USER";
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepo userRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserMapper userMapper;
     @Autowired
-    private ActionLogService actionLogService;
+    private IActionLogService actionLogService;
 
     @Override
     @Transactional
@@ -55,7 +56,7 @@ public class UserService implements IUserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setCreatedAt(LocalDateTime.now());
             user.setRole(request.getRole());
-            user = userRepository.save(user);
+            user = userRepo.save(user);
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.CREATE)
                     .description(Constants.ActionLog.CREATE + "." + TAG)
@@ -122,13 +123,13 @@ public class UserService implements IUserService {
     @Transactional
     public UserDTO updatePassword(String email, String password, String updatedBy) {
         try {
-            User user = userRepository.findByEmail(email).orElseThrow(() ->
+            User user = userRepo.findByEmail(email).orElseThrow(() ->
                     new BadRequestException(ResponseMessage.User.NOT_FOUND));
             String oldPassword = user.getPassword();
             user.setPassword(passwordEncoder.encode(password));
             user.setUpdatedBy(updatedBy);
             user.setUpdatedAt(LocalDateTime.now());
-            userRepository.save(user);
+            userRepo.save(user);
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)
@@ -156,7 +157,7 @@ public class UserService implements IUserService {
     public Map<String, Object> getAll(Integer page, Integer limit, String name,
                                       String email, String phoneNumber, Boolean isActivated, String role) {
         try {
-            Page<User> users = userRepository.getAll(
+            Page<User> users = userRepo.getAll(
                     name.trim(),
                     email.trim(),
                     phoneNumber.trim(),
@@ -182,7 +183,7 @@ public class UserService implements IUserService {
     @Override
     public UserDTO getById(String id) {
         try {
-            User user = userRepository.findById(id).orElseThrow(() ->
+            User user = userRepo.findById(id).orElseThrow(() ->
                     new BadRequestException(ResponseMessage.User.NOT_FOUND));
             return userMapper.mapTo(user, UserDTO.class);
         } catch (BadRequestException e) {
@@ -196,7 +197,7 @@ public class UserService implements IUserService {
     @Override
     public UserDTO getByEmail(String email) {
         try {
-            User user = userRepository.findByEmail(email).orElseThrow(() ->
+            User user = userRepo.findByEmail(email).orElseThrow(() ->
                     new BadRequestException(ResponseMessage.User.NOT_FOUND));
             return userMapper.mapTo(user, UserDTO.class);
         } catch (BadRequestException e) {
@@ -215,7 +216,7 @@ public class UserService implements IUserService {
     @Override
     public UserDTO getByPhoneNumberOrEmail(String phoneNumber, String email) {
         try {
-            return userRepository.findByPhoneNumberOrEmail(phoneNumber, email).map(user ->
+            return userRepo.findByPhoneNumberOrEmail(phoneNumber, email).map(user ->
                     userMapper.mapTo(user, UserDTO.class)).orElseThrow(() ->
                     new NotFoundException(ResponseMessage.User.NOT_FOUND));
         } catch (NotFoundException e) {
@@ -229,7 +230,7 @@ public class UserService implements IUserService {
     @Override
     public Boolean isExistsById(String id) {
         try {
-            return userRepository.existsById(id);
+            return userRepo.existsById(id);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -238,7 +239,7 @@ public class UserService implements IUserService {
     @Override
     public Boolean isExistByPhoneNumberOrEmail(String phoneNumber, String email) {
         try {
-            return userRepository.countByPhoneNumberOrEmail(phoneNumber, email) > 0;
+            return userRepo.countByPhoneNumberOrEmail(phoneNumber, email) > 0;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

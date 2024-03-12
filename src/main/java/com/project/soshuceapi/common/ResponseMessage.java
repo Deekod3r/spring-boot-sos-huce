@@ -80,6 +80,7 @@ public class ResponseMessage {
         public static final String NOT_FOUND = "Thông tin thú cưng không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh thú cưng không khớp";
         public static final String NOT_AVAILABLE_FOR_ADOPT = "Thú cưng không trong trạng thái để nhận nuôi";
+        public static final String NOT_AVAILABLE_FOR_UPDATE = "Thú cưng không trong trạng thái có thể cập nhật";
         public static final String MISSING_INTAKE_DATE = "Thông tin ngày tiếp nhận không được bỏ trống";
         public static final String INVALID_INTAKE_DATE = "Thông tin ngày tiếp nhận không hợp lệ";
 

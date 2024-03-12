@@ -3,8 +3,8 @@ package com.project.soshuceapi.services;
 import com.project.soshuceapi.entities.logging.ActionLog;
 import com.project.soshuceapi.entities.logging.ActionLogDetail;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
-import com.project.soshuceapi.repositories.ActionLogDetailRepository;
-import com.project.soshuceapi.repositories.ActionLogRepository;
+import com.project.soshuceapi.repositories.ActionLogDetailRepo;
+import com.project.soshuceapi.repositories.ActionLogRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.utils.CollectionUtil;
 import com.project.soshuceapi.utils.DataUtil;
@@ -21,9 +21,9 @@ public class ActionLogService implements IActionLogService {
     private final static String TAG = "ACTION_LOG";
 
     @Autowired
-    private ActionLogRepository actionLogRepository;
+    private ActionLogRepo actionLogRepo;
     @Autowired
-    private ActionLogDetailRepository actionLogDetailRepository;
+    private ActionLogDetailRepo actionLogDetailRepo;
 
     @Override
     public void create(ActionLogDTO actionLogDTO) {
@@ -35,7 +35,7 @@ public class ActionLogService implements IActionLogService {
                     .createdBy(actionLogDTO.getCreatedBy())
                     .createdAt(LocalDateTime.now())
                     .build();
-            actionLog = actionLogRepository.save(actionLog);
+            actionLog = actionLogRepo.save(actionLog);
             if (!CollectionUtil.isNullOrEmpty(actionLogDTO.getDetails())) {
                 ActionLog finalActionLog = actionLog;
                 actionLogDTO.getDetails().forEach(detail -> {
@@ -53,7 +53,7 @@ public class ActionLogService implements IActionLogService {
     @Override
     public void createDetail(ActionLogDetail actionLogDetail) {
         try {
-            actionLogDetailRepository.save(actionLogDetail);
+            actionLogDetailRepo.save(actionLogDetail);
         } catch (Exception e) {
             log.error(TAG + ": error.create.action.log.detail");
             log.error(TAG + ": " + e.getMessage());

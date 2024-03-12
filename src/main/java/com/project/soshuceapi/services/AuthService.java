@@ -11,6 +11,7 @@ import com.project.soshuceapi.security.JWTProvider;
 import com.project.soshuceapi.services.iservice.IAuthService;
 import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
+import com.project.soshuceapi.utils.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -69,16 +70,16 @@ public class AuthService implements IAuthService {
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
         try {
             final String authHeader = request.getHeader(Constants.Security.REQUEST_HEADER_AUTH);
-            if (authHeader == null || !authHeader.startsWith(Constants.Security.TOKEN_PREFIX)) {
+            if (StringUtil.isNullOrBlank(authHeader) || !authHeader.startsWith(Constants.Security.TOKEN_PREFIX)) {
                 return;
             }
             String jwtRefresh = authHeader.substring(Constants.Security.TOKEN_PREFIX.length());
             String email = jwtProvider.extractEmail(jwtRefresh);
-            if (email != null) {
+            if (!StringUtil.isNullOrBlank(email)) {
                 User user = userMapper.mapFrom(userService.getByEmail(email));
                 String key = Constants.Security.TOKEN_HEADER_KEY + email;
                 String storedToken = (String) redisService.getDataFromRedis(key);
-                if (storedToken == null && jwtProvider.isTokenValid(jwtRefresh, user)) {
+                if (StringUtil.isNullOrBlank(storedToken) && jwtProvider.isTokenValid(jwtRefresh, user)) {
                     String token = jwtProvider.generateToken(null, user);
                     saveUserToken(user, token);
                     response.setHeader(Constants.Security.REQUEST_HEADER_AUTH, Constants.Security.TOKEN_PREFIX + token);

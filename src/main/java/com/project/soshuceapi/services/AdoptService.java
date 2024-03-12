@@ -16,8 +16,8 @@ import com.project.soshuceapi.models.requests.AdoptCreateRequest;
 import com.project.soshuceapi.models.requests.AdoptSearchRequest;
 import com.project.soshuceapi.models.requests.AdoptUpdateRequest;
 import com.project.soshuceapi.models.requests.AdoptUpdateStatusRequest;
-import com.project.soshuceapi.repositories.AdoptRepository;
-import com.project.soshuceapi.services.iservice.IAdoptService;
+import com.project.soshuceapi.repositories.AdoptRepo;
+import com.project.soshuceapi.services.iservice.*;
 import com.project.soshuceapi.utils.DataUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.annotation.Nullable;
@@ -39,15 +39,15 @@ public class AdoptService implements IAdoptService {
     private final String TAG = "ADOPT";
 
     @Autowired
-    private AdoptRepository adoptRepository;
+    private AdoptRepo adoptRepo;
     @Autowired
-    private ActionLogService actionLogService;
+    private IActionLogService actionLogService;
     @Autowired
-    private LocationService locationService;
+    private ILocationService locationService;
     @Autowired
-    private PetService petService;
+    private IPetService petService;
     @Autowired
-    private UserService userService;
+    private IUserService userService;
     @Autowired
     private PetMapper petMapper;
     @Autowired
@@ -56,7 +56,7 @@ public class AdoptService implements IAdoptService {
     @Override
     public Map<String, Object> getAll(AdoptSearchRequest request) {
         try {
-            Page<Adopt> adopts = adoptRepository.findAll(
+            Page<Adopt> adopts = adoptRepo.findAll(
                     request.getStatus(), request.getCode(),
                     DataUtil.parseLocalDateTime(request.getFromDate()),
                     DataUtil.parseLocalDateTime(request.getToDate()),
@@ -81,12 +81,8 @@ public class AdoptService implements IAdoptService {
     @Override
     public List<AdoptDTO> getAllByUser(String userId) {
         try {
-            List<Adopt> adopts = adoptRepository.findAllByUser(userId);
-            List<AdoptDTO> adoptDTOS = new ArrayList<>();
-            for (Adopt adopt : adopts) {
-                adoptDTOS.add(parseAdoptDTO(adopt));
-            }
-            return adoptDTOS;
+            List<Adopt> adopts = adoptRepo.findAllByUser(userId);
+            return adopts.stream().map(this::parseAdoptDTO).toList();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -96,11 +92,11 @@ public class AdoptService implements IAdoptService {
     @Override
     public Map<String, Object> getById(String id) {
         try {
-            Adopt adopt = adoptRepository.findById(id).orElseThrow(
+            Adopt adopt = adoptRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
             return new HashMap<>() {{
                 put("adopt", parseAdoptDTO(adopt));
-                put("pet", petMapper.mapTo(adopt.getPet(), PetDTO.class));
+                put("pet", petService.getById(adopt.getPet().getId()));
             }};
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -118,7 +114,7 @@ public class AdoptService implements IAdoptService {
             if (!Objects.equals(pet.getStatus(), Constants.PetStatus.WAIT_FOR_ADOPTING)) {
                 throw new BadRequestException(ResponseMessage.Pet.NOT_AVAILABLE_FOR_ADOPT);
             }
-            Long count = adoptRepository.countByStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING, request.getRegisteredBy());
+            long count = adoptRepo.countByStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING, request.getRegisteredBy());
             if (count >= 3) {
                 throw new BadRequestException(ResponseMessage.Adopt.MAX_ADOPTS);
             }
@@ -139,9 +135,9 @@ public class AdoptService implements IAdoptService {
             adopt.setStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING);
             adopt.setIsDeleted(false);
             adopt.setFee(0.0F);
-            adopt = adoptRepository.save(adopt);
+            adopt = adoptRepo.save(adopt);
             logCreate(adopt);
-            return adoptMapper.mapTo(adopt, AdoptDTO.class);
+            return parseAdoptDTO(adopt);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -151,9 +147,10 @@ public class AdoptService implements IAdoptService {
     }
 
     @Override
+    @Transactional
     public AdoptDTO update(AdoptUpdateRequest request) {
         try {
-            Adopt adopt = adoptRepository.findById(request.getId()).orElseThrow(
+            Adopt adopt = adoptRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
             Adopt oldValue = adopt;
             if (!Objects.equals(adopt.getStatus(), Constants.AdoptStatus.WAIT_FOR_PROGRESSING)
@@ -168,9 +165,9 @@ public class AdoptService implements IAdoptService {
             adopt.setFee(request.getFee());
             adopt.setUpdatedAt(LocalDateTime.now());
             adopt.setUpdatedBy(request.getUpdatedBy());
-            adopt = adoptRepository.save(adopt);
+            adopt = adoptRepo.save(adopt);
             logUpdate(adopt, oldValue);
-            return adoptMapper.mapTo(adopt, AdoptDTO.class);
+            return parseAdoptDTO(adopt);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -180,9 +177,10 @@ public class AdoptService implements IAdoptService {
     }
 
     @Override
+    @Transactional
     public Boolean cancel(String id, String userId) {
         try {
-            Adopt adopt = adoptRepository.findById(id).orElseThrow(
+            Adopt adopt = adoptRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
             if (!Objects.equals(adopt.getRegisteredBy().getId(), userId)) {
                 throw new BadRequestException(ResponseMessage.Authentication.PERMISSION_DENIED);
@@ -190,7 +188,7 @@ public class AdoptService implements IAdoptService {
             if (Objects.equals(adopt.getStatus(), Constants.AdoptStatus.WAIT_FOR_PROGRESSING)) {
                 adopt.setStatus(Constants.AdoptStatus.CANCEL);
                 adopt.setUpdatedAt(LocalDateTime.now());
-                adoptRepository.save(adopt);
+                adoptRepo.save(adopt);
                 actionLogService.create(ActionLogDTO.builder()
                         .action(Constants.ActionLog.UPDATE)
                         .description(Constants.ActionLog.UPDATE + "." + TAG)
@@ -217,9 +215,10 @@ public class AdoptService implements IAdoptService {
     }
 
     @Override
+    @Transactional
     public Boolean updateStatus(AdoptUpdateStatusRequest request) {
         try {
-            Adopt adopt = adoptRepository.findById(request.getId()).orElseThrow(
+            Adopt adopt = adoptRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
             if (Objects.equals(adopt.getStatus(), request.getStatus())) {
                 return true;
@@ -232,16 +231,17 @@ public class AdoptService implements IAdoptService {
             adopt.setStatus(request.getStatus());
             adopt.setUpdatedAt(LocalDateTime.now());
             adopt.setUpdatedBy(request.getUpdatedBy());
-            adopt = adoptRepository.save(adopt);
             if (Objects.equals(request.getStatus(), Constants.AdoptStatus.COMPLETE)) {
                 adopt.setConfirmedBy(new User(request.getUpdatedBy()));
                 adopt.setConfirmedAt(LocalDateTime.now());
+                petService.setAdoptedBy(adopt.getRegisteredBy().getId(), adopt.getPet().getId(), request.getUpdatedBy());
             }
             if (Objects.equals(request.getStatus(), Constants.AdoptStatus.REJECT)) {
                 adopt.setRejectedBy(new User(request.getUpdatedBy()));
                 adopt.setRejectedAt(LocalDateTime.now());
                 adopt.setRejectedReason(!StringUtil.isNullOrBlank(request.getMessage()) ? request.getMessage().trim() : request.getMessage());
             }
+            adopt = adoptRepo.save(adopt);
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)
@@ -266,8 +266,36 @@ public class AdoptService implements IAdoptService {
     }
 
     @Override
-    public Boolean deleteSoft(String id) {
-        return true;
+    @Transactional
+    public Boolean deleteSoft(String id, String deletedBy) {
+        try {
+            Adopt adopt = adoptRepo.findById(id).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
+            adopt.setIsDeleted(true);
+            adopt.setDeletedAt(LocalDateTime.now());
+            adopt.setDeletedBy(deletedBy);
+            adoptRepo.save(adopt);
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.DELETE)
+                    .description(Constants.ActionLog.DELETE + "." + TAG)
+                    .createdBy(deletedBy)
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(adopt.getId())
+                                    .columnName("is_deleted")
+                                    .oldValue("false")
+                                    .newValue("true")
+                                    .build()
+                    ))
+                    .build());
+            return true;
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
@@ -276,19 +304,19 @@ public class AdoptService implements IAdoptService {
             if (StringUtil.isNullOrBlank(userId)) {
                 userId = "";
             }
-            Long wait = adoptRepository.countByStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING, userId);
-            Long progress = adoptRepository.countByStatus(Constants.AdoptStatus.IN_PROGRESS, userId);
-            Long reject = adoptRepository.countByStatus(Constants.AdoptStatus.REJECT, userId);
-            Long cancel = adoptRepository.countByStatus(Constants.AdoptStatus.CANCEL, userId);
-            Long complete = adoptRepository.countByStatus(Constants.AdoptStatus.COMPLETE, userId);
-            Long refund = adoptRepository.countByStatus(Constants.AdoptStatus.REFUND, userId);
+            Long wait = adoptRepo.countByStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING, userId);
+            Long progress = adoptRepo.countByStatus(Constants.AdoptStatus.IN_PROGRESS, userId);
+            Long reject = adoptRepo.countByStatus(Constants.AdoptStatus.REJECT, userId);
+            Long cancel = adoptRepo.countByStatus(Constants.AdoptStatus.CANCEL, userId);
+            Long complete = adoptRepo.countByStatus(Constants.AdoptStatus.COMPLETE, userId);
+            Long total = adoptRepo.countByStatus(null, userId);
             return new HashMap<>() {{
                 put("countWaiting", wait);
                 put("countInProgress", progress);
                 put("countReject", reject);
                 put("countCancel", cancel);
                 put("countComplete", complete);
-                put("countRefund", refund);
+                put("total", total);
             }};
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
@@ -296,9 +324,9 @@ public class AdoptService implements IAdoptService {
         }
     }
 
-    private boolean checkDuplicate(String petId, String userId) {
+    private Boolean checkDuplicate(String petId, String userId) {
         try {
-            Long count = adoptRepository.checkDuplicate(petId, userId);
+            long count = adoptRepo.checkDuplicate(petId, userId);
             return count > 0;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -307,7 +335,7 @@ public class AdoptService implements IAdoptService {
 
     private String generateCode() {
         try {
-            Long seq = adoptRepository.getSEQ();
+            Long seq = adoptRepo.getSEQ();
             return "ADT" + String.format("%05d", seq);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
@@ -315,7 +343,8 @@ public class AdoptService implements IAdoptService {
         }
     }
 
-    private void logCreate(Adopt adopt) {
+    @Transactional
+    protected void logCreate(Adopt adopt) {
         try {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.CREATE)
@@ -393,7 +422,8 @@ public class AdoptService implements IAdoptService {
         }
     }
 
-    private void logUpdate(Adopt newValue, Adopt oldValue) {
+    @Transactional
+    protected void logUpdate(Adopt newValue, Adopt oldValue) {
         try {
             List<ActionLogDetail> actionLogDetails = new ArrayList<>();
             if (!Objects.equals(newValue.getWardId(), oldValue.getWardId())) {

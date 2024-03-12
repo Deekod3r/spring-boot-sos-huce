@@ -128,7 +128,7 @@ public class PetController {
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> updatePet(@Valid @RequestBody PetUpdateRequest request, BindingResult bindingResult,
-                                    @PathVariable("id") String id) {
+                                       @PathVariable("id") String id) {
         Response<String> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -160,9 +160,8 @@ public class PetController {
 
     @PutMapping("/update-image/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateImagePet(@Valid @ModelAttribute PetUpdateImageRequest request,
-                                         @PathVariable("id") String id,
-                                         BindingResult bindingResult) {
+    public ResponseEntity<?> updateImagePet(@Valid @ModelAttribute PetUpdateImageRequest request, BindingResult bindingResult,
+                                            @PathVariable("id") String id) {
         Response<String> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -208,6 +207,7 @@ public class PetController {
             }
             response.setSuccess(petService.deleteSoft(id, auditorAware.getCurrentAuditor().get()));
             response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setData(id);
             return ResponseEntity.ok(response);
         } catch (BadRequestException e) {
             response.setMessage(e.getMessage());

@@ -12,7 +12,8 @@ import com.project.soshuceapi.models.mappers.PetMapper;
 import com.project.soshuceapi.models.requests.PetCreateRequest;
 import com.project.soshuceapi.models.requests.PetUpdateImageRequest;
 import com.project.soshuceapi.models.requests.PetUpdateRequest;
-import com.project.soshuceapi.repositories.PetRepository;
+import com.project.soshuceapi.repositories.PetRepo;
+import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IFileService;
 import com.project.soshuceapi.services.iservice.IPetService;
 import com.project.soshuceapi.utils.StringUtil;
@@ -39,13 +40,13 @@ public class PetService implements IPetService {
     private final static String TAG = "PET";
 
     @Autowired
-    private PetRepository petRepository;
+    private PetRepo petRepo;
     @Autowired
     private IFileService fileService;
     @Autowired
-    private PetMapper petMapper;
+    private IActionLogService actionLogService;
     @Autowired
-    private ActionLogService actionLogService;
+    private PetMapper petMapper;
 
 
     @Override
@@ -56,17 +57,10 @@ public class PetService implements IPetService {
             Integer diet, Integer vaccine, Integer sterilization, Integer rabies, String adoptedBy
     ) {
         try {
-            Page<Pet> pets = petRepository.findAll(name.trim(), breed.trim(), color.trim(), code.trim(), type, age, gender,
+            Page<Pet> pets = petRepo.findAll(name.trim(), breed.trim(), color.trim(), code.trim(), type, age, gender,
                     status, diet, vaccine, sterilization, rabies, adoptedBy, Pageable.ofSize(limit).withPage(page - 1));
             List<PetDTO> petDTOs = pets.getContent().stream()
-                    .map(pet -> {
-                        User user = pet.getAdoptedBy();
-                        PetDTO petDTO = petMapper.mapTo(pet, PetDTO.class);
-                        if (Objects.nonNull(user)) {
-                            petDTO.setAdoptedBy(user.getPhoneNumber() + " - " + user.getName());
-                        }
-                        return petDTO;
-                    })
+                    .map(this::parsePetDTO)
                     .toList();
             return Map.of(
                     "pets", petDTOs,
@@ -98,9 +92,9 @@ public class PetService implements IPetService {
             pet.setCreatedBy(request.getCreatedBy());
             pet.setCode(generateCode(pet.getName()));
             pet.setIsDeleted(false);
-            pet = petRepository.save(pet);
+            pet = petRepo.save(pet);
             logCreate(pet);
-            return petMapper.mapTo(pet, PetDTO.class);
+            return parsePetDTO(pet);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -111,8 +105,12 @@ public class PetService implements IPetService {
     @Transactional
     public PetDTO update(PetUpdateRequest request) {
         try {
-            Pet pet = petRepository.findById(request.getId()).orElseThrow(
+            Pet pet = petRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
+            if (pet.getStatus().equals(Constants.PetStatus.ADOPTED)
+                    || pet.getStatus().equals(Constants.PetStatus.DIED)) {
+                throw new BadRequestException(ResponseMessage.Pet.NOT_AVAILABLE_FOR_UPDATE);
+            }
             Pet oldValue = pet;
             pet.setBreed(uppercaseFirstLetter(request.getBreed().trim()));
             pet.setColor(uppercaseFirstLetter(request.getColor().trim()));
@@ -134,9 +132,9 @@ public class PetService implements IPetService {
             pet.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : request.getNote());
             pet.setUpdatedBy(request.getUpdatedBy());
             pet.setUpdatedAt(LocalDateTime.now());
-            pet = petRepository.save(pet);
+            pet = petRepo.save(pet);
             logUpdate(pet, oldValue);
-            return petMapper.mapTo(pet, PetDTO.class);
+            return parsePetDTO(pet);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -149,14 +147,18 @@ public class PetService implements IPetService {
     @Transactional
     public PetDTO updateImage(PetUpdateImageRequest request) {
         try {
-            Pet pet = petRepository.findById(request.getId()).orElseThrow(
+            Pet pet = petRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
+            if (pet.getStatus().equals(Constants.PetStatus.ADOPTED)
+                    || pet.getStatus().equals(Constants.PetStatus.DIED)) {
+                throw new BadRequestException(ResponseMessage.Pet.NOT_AVAILABLE_FOR_UPDATE);
+            }
             String oldImage = pet.getImage();
             Map<String, String> data = fileService.upload(request.getImage());
             String url = data.get("url");
             pet.setImage(url);
             pet.setUpdatedAt(LocalDateTime.now());
-            pet = petRepository.save(pet);
+            pet = petRepo.save(pet);
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)
@@ -171,7 +173,7 @@ public class PetService implements IPetService {
                                     .build()
                     ))
                     .build());
-            return petMapper.mapTo(pet, PetDTO.class);
+            return parsePetDTO(pet);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -184,12 +186,12 @@ public class PetService implements IPetService {
     @Transactional
     public Boolean deleteSoft(String id, String deletedBy) {
         try {
-            Pet pet = petRepository.findById(id).orElseThrow(
+            Pet pet = petRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
             pet.setDeletedAt(LocalDateTime.now());
             pet.setDeletedBy(deletedBy);
             pet.setIsDeleted(true);
-            petRepository.save(pet);
+            petRepo.save(pet);
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.DELETE_SOFT)
                     .description(Constants.ActionLog.DELETE_SOFT + "." + TAG)
@@ -216,7 +218,7 @@ public class PetService implements IPetService {
     @Override
     public PetDTO getById(String id) {
         try {
-            return petRepository.findById(id).map(pet -> petMapper.mapTo(pet, PetDTO.class))
+            return petRepo.findById(id).map(this::parsePetDTO)
                     .orElseThrow(() -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -230,11 +232,56 @@ public class PetService implements IPetService {
     public Map<String, Long> getStatisticCases() {
         try {
             return Map.of(
-                    "total", petRepository.count(),
-                    "adopted", petRepository.countByStatus(2),
-                    "healing", petRepository.countByStatus(3),
-                    "wait", petRepository.countByStatus(4)
+                    "total", petRepo.count(),
+                    "adopted", petRepo.countByStatus(2),
+                    "healing", petRepo.countByStatus(3),
+                    "wait", petRepo.countByStatus(4)
             );
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void setAdoptedBy(String userId, String petId, String updatedBy) {
+        try {
+            Pet pet = petRepo.findById(petId).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
+            pet.setAdoptedBy(new User(userId));
+            pet.setStatus(Constants.PetStatus.ADOPTED);
+            pet.setUpdatedAt(LocalDateTime.now());
+            petRepo.save(pet);
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.UPDATE)
+                    .description(Constants.ActionLog.UPDATE + "." + TAG)
+                    .createdBy(updatedBy)
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(pet.getId())
+                                    .columnName("adopted_by")
+                                    .oldValue("")
+                                    .newValue(userId)
+                                    .build()
+                    ))
+                    .build());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    private PetDTO parsePetDTO(Pet pet) {
+        try {
+            PetDTO dto = petMapper.mapTo(pet, PetDTO.class);
+            if (Objects.nonNull(pet.getAdoptedBy())) {
+                dto.setInfoAdoptedBy(pet.getAdoptedBy().getName() + " - " + pet.getAdoptedBy().getPhoneNumber() + " - " + pet.getAdoptedBy().getEmail());
+            }
+            return dto;
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -243,7 +290,7 @@ public class PetService implements IPetService {
 
     private String generateCode(String name) {
         try {
-            Long seq = petRepository.getSEQ();
+            Long seq = petRepo.getSEQ();
             return name.substring(0, 1).toUpperCase() + String.format("%05d", seq);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
@@ -251,7 +298,8 @@ public class PetService implements IPetService {
         }
     }
 
-    private void logCreate(Pet pet) {
+    @Transactional
+    protected void logCreate(Pet pet) {
         try {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.CREATE)
@@ -301,7 +349,8 @@ public class PetService implements IPetService {
         }
     }
 
-    private void logUpdate(Pet newValue, Pet oldValue) {
+    @Transactional
+    protected void logUpdate(Pet newValue, Pet oldValue) {
         try {
             List<ActionLogDetail> actionLogDetails = new ArrayList<>();
             if (!Objects.equals(newValue.getBreed(), oldValue.getBreed())) {

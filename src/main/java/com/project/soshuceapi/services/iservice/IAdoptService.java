@@ -25,7 +25,7 @@ public interface IAdoptService {
 
     Boolean updateStatus(AdoptUpdateStatusRequest request);
 
-    Boolean deleteSoft(String id);
+    Boolean deleteSoft(String id, String deletedBy);
 
     Map<String, Long> statisticStatus(String userId);
 }

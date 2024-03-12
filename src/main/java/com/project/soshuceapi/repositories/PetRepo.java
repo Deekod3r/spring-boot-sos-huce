@@ -12,29 +12,29 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PetRepository extends JpaRepository<Pet, String> {
+public interface PetRepo extends JpaRepository<Pet, String> {
 
     @Query(value = "SELECT nextval('pet_seq')", nativeQuery = true)
-    Long getSEQ();
+    long getSEQ();
 
     @NonNull
-    @Query(value = "SELECT * FROM pets " +
-            "WHERE is_deleted = false " +
-            "AND (:name = '' OR name ILIKE CONCAT('%', :name, '%')) " +
-            "AND (:breed = '' OR breed ILIKE CONCAT('%', :breed, '%')) " +
-            "AND (:color = '' OR color ILIKE CONCAT('%', :color, '%')) " +
-            "AND (:code = '' OR code ILIKE CONCAT('%', :code, '%')) " +
-            "AND (:type IS NULL OR type = :type) " +
-            "AND (:gender IS NULL OR gender = :gender) " +
-            "AND (:age IS NULL OR age = :age) " +
-            "AND (:status IS NULL OR status = :status) " +
-            "AND (:diet IS NULL OR diet = :diet) " +
-            "AND (:vaccine IS NULL OR vaccine = :vaccine) " +
-            "AND (:sterilization IS NULL OR sterilization = :sterilization) " +
-            "AND (:rabies IS NULL OR rabies = :rabies) " +
-            "AND (:adoptedBy = '' OR adopted_by = :adoptedBy) " +
-            "ORDER BY created_at DESC "
-            , nativeQuery = true)
+    @Query("SELECT p FROM Pet p " +
+            "LEFT JOIN FETCH p.adoptedBy " +
+            "WHERE p.isDeleted = false " +
+            "AND (:name = '' OR p.name ILIKE CONCAT('%', :name, '%')) " +
+            "AND (:breed = '' OR p.breed ILIKE CONCAT('%', :breed, '%')) " +
+            "AND (:color = '' OR p.color ILIKE CONCAT('%', :color, '%')) " +
+            "AND (:code = '' OR p.code ILIKE CONCAT('%', :code, '%')) " +
+            "AND (:type IS NULL OR p.type = :type) " +
+            "AND (:gender IS NULL OR p.gender = :gender) " +
+            "AND (:age IS NULL OR p.age = :age) " +
+            "AND (:status IS NULL OR p.status = :status) " +
+            "AND (:diet IS NULL OR p.diet = :diet) " +
+            "AND (:vaccine IS NULL OR p.vaccine = :vaccine) " +
+            "AND (:sterilization IS NULL OR p.sterilization = :sterilization) " +
+            "AND (:rabies IS NULL OR p.rabies = :rabies) " +
+            "AND (:adoptedBy = '' OR p.adoptedBy.id = :adoptedBy) " +
+            "ORDER BY p.updatedAt DESC, p.createdAt DESC ")
     Page<Pet> findAll(
             @Param("name") String name,
             @Param("breed") String breed,

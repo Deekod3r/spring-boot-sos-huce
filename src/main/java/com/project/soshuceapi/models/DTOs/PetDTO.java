@@ -32,5 +32,5 @@ public class PetDTO {
     Integer friendlyToCats;
     String note;
     String description;
-    String adoptedBy;
+    String infoAdoptedBy;
 }

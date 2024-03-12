@@ -4,9 +4,9 @@ import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.entities.locations.District;
 import com.project.soshuceapi.entities.locations.Province;
 import com.project.soshuceapi.entities.locations.Ward;
-import com.project.soshuceapi.repositories.DistrictRepository;
-import com.project.soshuceapi.repositories.ProvinceRepository;
-import com.project.soshuceapi.repositories.WardRepository;
+import com.project.soshuceapi.repositories.DistrictRepo;
+import com.project.soshuceapi.repositories.ProvinceRepo;
+import com.project.soshuceapi.repositories.WardRepo;
 import com.project.soshuceapi.services.iservice.ILocationService;
 import com.project.soshuceapi.utils.NumberUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -22,16 +22,16 @@ public class LocationService implements ILocationService {
     private final static String TAG = "LOCATION";
 
     @Autowired
-    private DistrictRepository districtRepository;
+    private DistrictRepo districtRepo;
     @Autowired
-    private WardRepository wardRepository;
+    private WardRepo wardRepo;
     @Autowired
-    private ProvinceRepository provinceRepository;
+    private ProvinceRepo provinceRepo;
 
     @Override
     public List<Province> getAllProvinces() {
         try {
-            return provinceRepository.findAll();
+            return provinceRepo.findAll();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -42,9 +42,9 @@ public class LocationService implements ILocationService {
     public List<District> getAllDistricts(int provinceId) {
         try {
             if (NumberUtil.isNullOrZero(provinceId)) {
-                return districtRepository.findAll();
+                return districtRepo.findAll();
             }
-            return districtRepository.findAllByProvince(provinceId);
+            return districtRepo.findAllByProvince(provinceId);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -55,9 +55,9 @@ public class LocationService implements ILocationService {
     public List<Ward> getAllWards(int districtId) {
         try {
             if (NumberUtil.isNullOrZero(districtId)) {
-                return wardRepository.findAll();
+                return wardRepo.findAll();
             }
-            return wardRepository.findAllByDistrict(districtId);
+            return wardRepo.findAllByDistrict(districtId);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -67,7 +67,7 @@ public class LocationService implements ILocationService {
     @Override
     public Province getProvinceById(int id) {
         try {
-            return provinceRepository.findById(id).orElseThrow(() ->
+            return provinceRepo.findById(id).orElseThrow(() ->
                     new RuntimeException(ResponseMessage.Location.GET_INFO_PROVINCE_FAIL));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -77,7 +77,7 @@ public class LocationService implements ILocationService {
     @Override
     public District getDistrictById(int id) {
         try {
-            return districtRepository.findById(id).orElseThrow(() ->
+            return districtRepo.findById(id).orElseThrow(() ->
                     new RuntimeException(ResponseMessage.Location.GET_INFO_DISTRICT_FAIL));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -87,7 +87,7 @@ public class LocationService implements ILocationService {
     @Override
     public Ward getWardById(int id) {
         try {
-            return wardRepository.findById(id).orElseThrow(() ->
+            return wardRepo.findById(id).orElseThrow(() ->
                     new RuntimeException(ResponseMessage.Location.GET_INFO_WARD_FAIL));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
