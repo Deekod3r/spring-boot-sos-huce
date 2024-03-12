@@ -12,6 +12,8 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
@@ -21,6 +23,9 @@ public class PetCreateRequest {
     @Length(min = 2, max = 50, message = ResponseMessage.Pet.INVALID_NAME)
     @Pattern(regexp = Constants.Regex.NAME, message = ResponseMessage.Pet.INVALID_NAME)
     String name;
+    @NotNull(message = ResponseMessage.Pet.MISSING_INTAKE_DATE)
+    @PastOrPresent(message = ResponseMessage.Pet.INVALID_INTAKE_DATE)
+    LocalDate intakeDate;
     @NotNull(message = ResponseMessage.Pet.MISSING_TYPE)
     @Min(value = 1, message = ResponseMessage.Pet.INVALID_TYPE)
     @Max(value = 3, message = ResponseMessage.Pet.INVALID_TYPE)

@@ -1,8 +1,7 @@
 package com.project.soshuceapi.controllers;
 
-import com.project.soshuceapi.common.ResponseCode;
+import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.models.DTOs.FileDTO;
-import com.project.soshuceapi.models.responses.Error;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.IFileService;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +43,7 @@ public class FileController {
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.setError(Error.of(e.getMessage(), ResponseCode.Common.FAIL));
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

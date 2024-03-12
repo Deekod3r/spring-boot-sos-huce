@@ -26,6 +26,7 @@ public interface UserRepository extends JpaRepository<User, String> {
             "WHERE (:name = '' OR name ILIKE CONCAT('%', :name, '%')) " +
             "AND (:email = '' OR email ILIKE CONCAT('%', :email, '%')) " +
             "AND (:phoneNumber = '' OR phone_number ILIKE CONCAT('%', :phoneNumber, '%')) " +
+            "AND (:isActivated IS NULL OR is_activated = :isActivated) " +
             "AND (:role = '' OR role = :role) " +
             "ORDER BY created_at DESC "
             , nativeQuery = true)
@@ -33,6 +34,7 @@ public interface UserRepository extends JpaRepository<User, String> {
             @Param("name") String name,
             @Param("email") String email,
             @Param("phoneNumber") String phoneNumber,
+            @Param("isActivated") Boolean isActivated,
             @Param("role") String role,
             Pageable pageable
     );

@@ -13,13 +13,18 @@ import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.mappers.AdoptMapper;
 import com.project.soshuceapi.models.mappers.PetMapper;
 import com.project.soshuceapi.models.requests.AdoptCreateRequest;
+import com.project.soshuceapi.models.requests.AdoptSearchRequest;
 import com.project.soshuceapi.models.requests.AdoptUpdateRequest;
+import com.project.soshuceapi.models.requests.AdoptUpdateStatusRequest;
 import com.project.soshuceapi.repositories.AdoptRepository;
 import com.project.soshuceapi.services.iservice.IAdoptService;
+import com.project.soshuceapi.utils.DataUtil;
+import com.project.soshuceapi.utils.StringUtil;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,34 +54,24 @@ public class AdoptService implements IAdoptService {
     private AdoptMapper adoptMapper;
 
     @Override
-    public List<AdoptDTO> getAll() {
+    public Map<String, Object> getAll(AdoptSearchRequest request) {
         try {
-            List<Adopt> adopts = adoptRepository.findAll(
-                    Sort.sort(Adopt.class).by(Adopt::getStatus).ascending()
-                    .and(Sort.sort(Adopt.class).by(Adopt::getCreatedAt).descending())
+            Page<Adopt> adopts = adoptRepository.findAll(
+                    request.getStatus(), request.getCode(),
+                    DataUtil.parseLocalDateTime(request.getFromDate()),
+                    DataUtil.parseLocalDateTime(request.getToDate()),
+                    request.getRegisteredBy(), request.getPetAdopt(),
+                    Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
-            List<AdoptDTO> adoptDTOS = new ArrayList<>();
-            for (Adopt adopt : adopts) {
-                AdoptDTO adoptDTO = adoptMapper.mapTo(adopt, AdoptDTO.class);
-                adoptDTO.setPetId(adopt.getPet().getId());
-                adoptDTO.setPetName(adopt.getPet().getCode() + " - " + adopt.getPet().getName());
-                adoptDTO.setCreatedBy(adopt.getCreatedBy().getId());
-                adoptDTO.setNameCreatedBy(adopt.getCreatedBy().getRole() + " - " + adopt.getCreatedBy().getName());
-                adoptDTO.setRegisteredBy(adopt.getRegisteredBy().getId());
-                adoptDTO.setNameRegisteredBy(adopt.getRegisteredBy().getName());
-                adoptDTO.setEmailRegisteredBy(adopt.getRegisteredBy().getEmail());
-                adoptDTO.setPhoneRegisteredBy(adopt.getRegisteredBy().getPhoneNumber());
-                if (Objects.nonNull(adopt.getConfirmedBy())) {
-                    adoptDTO.setConfirmedBy(adopt.getConfirmedBy().getId());
-                    adoptDTO.setNameConfirmedBy(adopt.getConfirmedBy().getName());
-                }
-                if (Objects.nonNull(adopt.getRejectedBy())) {
-                    adoptDTO.setRejectedBy(adopt.getRejectedBy().getId());
-                    adoptDTO.setNameRejectedBy(adopt.getRejectedBy().getName());
-                }
-                adoptDTOS.add(adoptDTO);
-            }
-            return adoptDTOS;
+            List<AdoptDTO> adoptDTOS = adopts.getContent().stream()
+                    .map(this::parseAdoptDTO).toList();
+            return Map.of(
+                    "adopts", adoptDTOS,
+                    "total", adopts.getTotalElements(),
+                    "page", adopts.getNumber() + 1,
+                    "limit", adopts.getSize(),
+                    "totalPages", adopts.getTotalPages()
+            );
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -89,28 +84,7 @@ public class AdoptService implements IAdoptService {
             List<Adopt> adopts = adoptRepository.findAllByUser(userId);
             List<AdoptDTO> adoptDTOS = new ArrayList<>();
             for (Adopt adopt : adopts) {
-                AdoptDTO adoptDTO = adoptMapper.mapTo(adopt, AdoptDTO.class);
-                adoptDTO.setPetId(adopt.getPet().getId());
-                adoptDTO.setPetName(adopt.getPet().getCode() + " - " + adopt.getPet().getName());
-                adoptDTO.setCreatedBy(adopt.getCreatedBy().getId());
-                adoptDTO.setNameCreatedBy(adopt.getCreatedBy().getRole() + " - " + adopt.getCreatedBy().getName());
-                adoptDTO.setRegisteredBy(adopt.getRegisteredBy().getId());
-                adoptDTO.setNameRegisteredBy(adopt.getRegisteredBy().getName());
-                adoptDTO.setEmailRegisteredBy(adopt.getRegisteredBy().getEmail());
-                adoptDTO.setPhoneRegisteredBy(adopt.getRegisteredBy().getPhoneNumber());
-                if (Objects.nonNull(adopt.getConfirmedBy())) {
-                    adoptDTO.setConfirmedBy(adopt.getConfirmedBy().getId());
-                    adoptDTO.setNameConfirmedBy(adopt.getConfirmedBy().getName());
-                }
-                if (Objects.nonNull(adopt.getRejectedBy())) {
-                    adoptDTO.setRejectedBy(adopt.getRejectedBy().getId());
-                    adoptDTO.setNameRejectedBy(adopt.getRejectedBy().getName());
-                }
-                Ward ward = locationService.getWardById(adopt.getWardId());
-                adoptDTO.setWardName(ward.getName());
-                adoptDTO.setDistrictName(ward.getDistrict().getName());
-                adoptDTO.setProvinceName(ward.getDistrict().getProvince().getName());
-                adoptDTOS.add(adoptDTO);
+                adoptDTOS.add(parseAdoptDTO(adopt));
             }
             return adoptDTOS;
         } catch (Exception e) {
@@ -124,29 +98,8 @@ public class AdoptService implements IAdoptService {
         try {
             Adopt adopt = adoptRepository.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
-            AdoptDTO adoptDTO = adoptMapper.mapTo(adopt, AdoptDTO.class);
-            adoptDTO.setPetId(adopt.getPet().getId());
-            adoptDTO.setPetName(adopt.getPet().getCode() + " - " + adopt.getPet().getName());
-            adoptDTO.setCreatedBy(adopt.getCreatedBy().getId());
-            adoptDTO.setNameCreatedBy(adopt.getCreatedBy().getRole() + " - " + adopt.getCreatedBy().getName());
-            adoptDTO.setRegisteredBy(adopt.getRegisteredBy().getId());
-            adoptDTO.setNameRegisteredBy(adopt.getRegisteredBy().getName());
-            adoptDTO.setEmailRegisteredBy(adopt.getRegisteredBy().getEmail());
-            adoptDTO.setPhoneRegisteredBy(adopt.getRegisteredBy().getPhoneNumber());
-            if (Objects.nonNull(adopt.getConfirmedBy())) {
-                adoptDTO.setConfirmedBy(adopt.getConfirmedBy().getId());
-                adoptDTO.setNameConfirmedBy(adopt.getConfirmedBy().getName());
-            }
-            if (Objects.nonNull(adopt.getRejectedBy())) {
-                adoptDTO.setRejectedBy(adopt.getRejectedBy().getId());
-                adoptDTO.setNameRejectedBy(adopt.getRejectedBy().getName());
-            }
-            Ward ward = locationService.getWardById(adopt.getWardId());
-            adoptDTO.setWardName(ward.getName());
-            adoptDTO.setDistrictName(ward.getDistrict().getName());
-            adoptDTO.setProvinceName(ward.getDistrict().getProvince().getName());
             return new HashMap<>() {{
-                put("adopt", adoptDTO);
+                put("adopt", parseAdoptDTO(adopt));
                 put("pet", petMapper.mapTo(adopt.getPet(), PetDTO.class));
             }};
         } catch (BadRequestException e) {
@@ -185,6 +138,7 @@ public class AdoptService implements IAdoptService {
             adopt.setReason(request.getReason().trim());
             adopt.setStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING);
             adopt.setIsDeleted(false);
+            adopt.setFee(0.0F);
             adopt = adoptRepository.save(adopt);
             logCreate(adopt);
             return adoptMapper.mapTo(adopt, AdoptDTO.class);
@@ -198,7 +152,31 @@ public class AdoptService implements IAdoptService {
 
     @Override
     public AdoptDTO update(AdoptUpdateRequest request) {
-        return null;
+        try {
+            Adopt adopt = adoptRepository.findById(request.getId()).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
+            Adopt oldValue = adopt;
+            if (!Objects.equals(adopt.getStatus(), Constants.AdoptStatus.WAIT_FOR_PROGRESSING)
+            && !Objects.equals(adopt.getStatus(), Constants.AdoptStatus.IN_PROGRESS)) {
+                throw new BadRequestException(ResponseMessage.Adopt.NOT_AVAILABLE_FOR_UPDATE);
+            }
+            adopt.setWardId(request.getWardId());
+            adopt.setDistrictId(request.getDistrictId());
+            adopt.setProvinceId(request.getProvinceId());
+            adopt.setAddress(request.getAddress().trim());
+            adopt.setReason(request.getReason().trim());
+            adopt.setFee(request.getFee());
+            adopt.setUpdatedAt(LocalDateTime.now());
+            adopt.setUpdatedBy(request.getUpdatedBy());
+            adopt = adoptRepository.save(adopt);
+            logUpdate(adopt, oldValue);
+            return adoptMapper.mapTo(adopt, AdoptDTO.class);
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
@@ -239,6 +217,55 @@ public class AdoptService implements IAdoptService {
     }
 
     @Override
+    public Boolean updateStatus(AdoptUpdateStatusRequest request) {
+        try {
+            Adopt adopt = adoptRepository.findById(request.getId()).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
+            if (Objects.equals(adopt.getStatus(), request.getStatus())) {
+                return true;
+            }
+            if (!Objects.equals(adopt.getStatus(), Constants.AdoptStatus.WAIT_FOR_PROGRESSING)
+                    && !Objects.equals(adopt.getStatus(), Constants.AdoptStatus.IN_PROGRESS)) {
+                throw new BadRequestException(ResponseMessage.Adopt.NOT_AVAILABLE_FOR_UPDATE);
+            }
+            Adopt oldValue = adopt;
+            adopt.setStatus(request.getStatus());
+            adopt.setUpdatedAt(LocalDateTime.now());
+            adopt.setUpdatedBy(request.getUpdatedBy());
+            adopt = adoptRepository.save(adopt);
+            if (Objects.equals(request.getStatus(), Constants.AdoptStatus.COMPLETE)) {
+                adopt.setConfirmedBy(new User(request.getUpdatedBy()));
+                adopt.setConfirmedAt(LocalDateTime.now());
+            }
+            if (Objects.equals(request.getStatus(), Constants.AdoptStatus.REJECT)) {
+                adopt.setRejectedBy(new User(request.getUpdatedBy()));
+                adopt.setRejectedAt(LocalDateTime.now());
+                adopt.setRejectedReason(!StringUtil.isNullOrBlank(request.getMessage()) ? request.getMessage().trim() : request.getMessage());
+            }
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.UPDATE)
+                    .description(Constants.ActionLog.UPDATE + "." + TAG)
+                    .createdBy(request.getUpdatedBy())
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(adopt.getId())
+                                    .columnName("status")
+                                    .oldValue(String.valueOf(oldValue.getStatus()))
+                                    .newValue(String.valueOf(adopt.getStatus()))
+                                    .build()
+                    ))
+                    .build());
+            return true;
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
     public Boolean deleteSoft(String id) {
         return true;
     }
@@ -246,7 +273,7 @@ public class AdoptService implements IAdoptService {
     @Override
     public Map<String, Long> statisticStatus(@Nullable String userId) {
         try {
-            if (userId == null) {
+            if (StringUtil.isNullOrBlank(userId)) {
                 userId = "";
             }
             Long wait = adoptRepository.countByStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING, userId);
@@ -350,6 +377,13 @@ public class AdoptService implements IAdoptService {
                                     .columnName("status")
                                     .oldValue("")
                                     .newValue(String.valueOf(adopt.getStatus()))
+                                    .build(),
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(adopt.getId())
+                                    .columnName("fee")
+                                    .oldValue("")
+                                    .newValue(String.valueOf(adopt.getFee()))
                                     .build()
                     ))
                     .build());
@@ -360,6 +394,101 @@ public class AdoptService implements IAdoptService {
     }
 
     private void logUpdate(Adopt newValue, Adopt oldValue) {
+        try {
+            List<ActionLogDetail> actionLogDetails = new ArrayList<>();
+            if (!Objects.equals(newValue.getWardId(), oldValue.getWardId())) {
+                actionLogDetails.add(ActionLogDetail.builder()
+                        .tableName(TAG)
+                        .rowId(newValue.getId())
+                        .columnName("ward_id")
+                        .oldValue(String.valueOf(oldValue.getWardId()))
+                        .newValue(String.valueOf(newValue.getWardId()))
+                        .build());
+            }
+            if (!Objects.equals(newValue.getDistrictId(), oldValue.getDistrictId())) {
+                actionLogDetails.add(ActionLogDetail.builder()
+                        .tableName(TAG)
+                        .rowId(newValue.getId())
+                        .columnName("district_id")
+                        .oldValue(String.valueOf(oldValue.getDistrictId()))
+                        .newValue(String.valueOf(newValue.getDistrictId()))
+                        .build());
+            }
+            if (!Objects.equals(newValue.getProvinceId(), oldValue.getProvinceId())) {
+                actionLogDetails.add(ActionLogDetail.builder()
+                        .tableName(TAG)
+                        .rowId(newValue.getId())
+                        .columnName("province_id")
+                        .oldValue(String.valueOf(oldValue.getProvinceId()))
+                        .newValue(String.valueOf(newValue.getProvinceId()))
+                        .build());
+            }
+            if (!Objects.equals(newValue.getAddress(), oldValue.getAddress())) {
+                actionLogDetails.add(ActionLogDetail.builder()
+                        .tableName(TAG)
+                        .rowId(newValue.getId())
+                        .columnName("address")
+                        .oldValue(oldValue.getAddress())
+                        .newValue(newValue.getAddress())
+                        .build());
+            }
+            if (!Objects.equals(newValue.getReason(), oldValue.getReason())) {
+                actionLogDetails.add(ActionLogDetail.builder()
+                        .tableName(TAG)
+                        .rowId(newValue.getId())
+                        .columnName("reason")
+                        .oldValue(oldValue.getReason())
+                        .newValue(newValue.getReason())
+                        .build());
+            }
+            if (!Objects.equals(newValue.getFee(), oldValue.getFee())) {
+                actionLogDetails.add(ActionLogDetail.builder()
+                        .tableName(TAG)
+                        .rowId(newValue.getId())
+                        .columnName("fee")
+                        .oldValue(String.valueOf(oldValue.getFee()))
+                        .newValue(String.valueOf(newValue.getFee()))
+                        .build());
+            }
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.UPDATE)
+                    .description(Constants.ActionLog.UPDATE + "." + TAG)
+                    .createdBy(newValue.getUpdatedBy())
+                    .details(actionLogDetails)
+                    .build());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
+    private AdoptDTO parseAdoptDTO(Adopt adopt) {
+        try {
+            AdoptDTO adoptDTO = adoptMapper.mapTo(adopt, AdoptDTO.class);
+            adoptDTO.setPetId(adopt.getPet().getId());
+            adoptDTO.setPetName(adopt.getPet().getCode() + " - " + adopt.getPet().getName());
+            adoptDTO.setCreatedBy(adopt.getCreatedBy().getId());
+            adoptDTO.setNameCreatedBy(adopt.getCreatedBy().getRole() + " - " + adopt.getCreatedBy().getName());
+            adoptDTO.setRegisteredBy(adopt.getRegisteredBy().getId());
+            adoptDTO.setNameRegisteredBy(adopt.getRegisteredBy().getName());
+            adoptDTO.setEmailRegisteredBy(adopt.getRegisteredBy().getEmail());
+            adoptDTO.setPhoneRegisteredBy(adopt.getRegisteredBy().getPhoneNumber());
+            if (Objects.nonNull(adopt.getConfirmedBy())) {
+                adoptDTO.setConfirmedBy(adopt.getConfirmedBy().getId());
+                adoptDTO.setNameConfirmedBy(adopt.getConfirmedBy().getName());
+            }
+            if (Objects.nonNull(adopt.getRejectedBy())) {
+                adoptDTO.setRejectedBy(adopt.getRejectedBy().getId());
+                adoptDTO.setNameRejectedBy(adopt.getRejectedBy().getName());
+            }
+            Ward ward = locationService.getWardById(adopt.getWardId());
+            adoptDTO.setWardName(ward.getName());
+            adoptDTO.setDistrictName(ward.getDistrict().getName());
+            adoptDTO.setProvinceName(ward.getDistrict().getProvince().getName());
+            return adoptDTO;
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

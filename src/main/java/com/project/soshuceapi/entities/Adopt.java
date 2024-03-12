@@ -40,10 +40,13 @@ public class Adopt {
     private LocalDateTime rejectedAt;
     @Column(name = "rejected_reason", columnDefinition = "VARCHAR(255)")
     private String rejectedReason;
+    @Column(name = "fee", columnDefinition = "FLOAT", nullable = false)
+    private Float fee;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
     private Boolean isDeleted;
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;

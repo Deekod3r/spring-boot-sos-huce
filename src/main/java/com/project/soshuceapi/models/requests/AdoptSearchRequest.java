@@ -1,4 +1,4 @@
-package com.project.soshuceapi.models.responses;
+package com.project.soshuceapi.models.requests;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,13 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Response<T> {
-    T data;
-    boolean success;
-    String message;
+public class AdoptSearchRequest {
+    String code;
+    String fromDate;
+    String toDate;
+    Integer status;
+    String registeredBy;
+    String petAdopt;
+    Integer page;
+    Integer limit;
 }

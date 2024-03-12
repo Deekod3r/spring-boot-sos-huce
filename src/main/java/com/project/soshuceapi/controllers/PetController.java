@@ -32,8 +32,8 @@ public class PetController {
 
     @GetMapping
     public ResponseEntity<?> getPets(
-            @RequestParam(value = "page", defaultValue = "1") Integer page,
-            @RequestParam(value = "limit", defaultValue = "5") Integer limit,
+            @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
+            @RequestParam(value = "limit", defaultValue = "1000000", required = false) Integer limit,
             @RequestParam(value = "name", defaultValue = "", required = false) String name,
             @RequestParam(value = "breed", defaultValue = "", required = false) String breed,
             @RequestParam(value = "color", defaultValue = "", required = false) String color,
@@ -127,9 +127,8 @@ public class PetController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updatePet(@Valid @ModelAttribute PetUpdateRequest request,
-                                    @PathVariable("id") String id,
-                                    BindingResult bindingResult) {
+    public ResponseEntity<?> updatePet(@Valid @RequestBody PetUpdateRequest request, BindingResult bindingResult,
+                                    @PathVariable("id") String id) {
         Response<String> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -142,7 +141,7 @@ public class PetController {
                 return ResponseEntity.badRequest().body(response);
             }
             if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
-                response.setMessage(ResponseMessage.Common.NOT_MATCH);
+                response.setMessage(ResponseMessage.Pet.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());

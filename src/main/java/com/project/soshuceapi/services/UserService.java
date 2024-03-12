@@ -154,12 +154,13 @@ public class UserService implements IUserService {
 
     @Override
     public Map<String, Object> getAll(Integer page, Integer limit, String name,
-                                      String email, String phoneNumber, String role) {
+                                      String email, String phoneNumber, Boolean isActivated, String role) {
         try {
             Page<User> users = userRepository.getAll(
                     name.trim(),
                     email.trim(),
                     phoneNumber.trim(),
+                    isActivated,
                     role.trim(),
                     PageRequest.ofSize(limit).withPage(page - 1)
             );

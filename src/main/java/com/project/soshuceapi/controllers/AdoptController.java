@@ -5,8 +5,12 @@ import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.AdoptDTO;
 import com.project.soshuceapi.models.requests.AdoptCreateRequest;
+import com.project.soshuceapi.models.requests.AdoptSearchRequest;
+import com.project.soshuceapi.models.requests.AdoptUpdateRequest;
+import com.project.soshuceapi.models.requests.AdoptUpdateStatusRequest;
 import com.project.soshuceapi.models.responses.Response;
-import com.project.soshuceapi.services.AdoptService;
+import com.project.soshuceapi.services.iservice.IAdoptService;
+import com.project.soshuceapi.utils.DataUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,21 +34,36 @@ import java.util.Objects;
 public class AdoptController {
 
     @Autowired
-    private AdoptService adoptService;
+    private IAdoptService adoptService;
     @Autowired
     private AuditorAware<String> auditorAware;
 
     @GetMapping
     @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
-    public ResponseEntity<?> getAdopts() {
-        Response<List<AdoptDTO>> response = new Response<>();
+    public ResponseEntity<?> getAdopts(@RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
+                                       @RequestParam(value = "limit", defaultValue = "1000000", required = false) Integer limit,
+                                       @RequestParam(value = "status", defaultValue = "", required = false) Integer status,
+                                       @RequestParam(value = "code", defaultValue = "", required = false) String code,
+                                       @RequestParam(value = "registeredBy", defaultValue = "", required = false) String registeredBy,
+                                       @RequestParam(value = "petAdopt", defaultValue = "", required = false) String petAdopt,
+                                       @RequestParam(value = "fromDate", defaultValue = "", required = false) String fromDate,
+                                       @RequestParam(value = "toDate", defaultValue = "", required = false) String toDate) {
+        Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
-            response.setData(adoptService.getAll());
+            if (!StringUtil.isNullOrBlank(fromDate) && !DataUtil.isDate(fromDate, Constants.FormatPattern.LOCAL_DATETIME)) {
+                response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (!StringUtil.isNullOrBlank(toDate) && !DataUtil.isDate(toDate, Constants.FormatPattern.LOCAL_DATETIME)) {
+                response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
+                return ResponseEntity.badRequest().body(response);
+            }
+            response.setData(adoptService.getAll(AdoptSearchRequest.of(code, fromDate, toDate, status, registeredBy, petAdopt, page, limit)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
@@ -95,8 +114,8 @@ public class AdoptController {
             }
             Map<String, Object> data = adoptService.getById(id);
             if (Objects.equals(role, Constants.User.ROLE_USER)) {
-                String createdBy = ((AdoptDTO) data.get("adopt")).getCreatedBy();
-                if (!auditorAware.getCurrentAuditor().get().equals(createdBy)) {
+                String registeredBy = ((AdoptDTO) data.get("adopt")).getRegisteredBy();
+                if (!auditorAware.getCurrentAuditor().get().equals(registeredBy)) {
                     response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
                 }
@@ -169,4 +188,70 @@ public class AdoptController {
         }
     }
 
+    @PutMapping("update-status/{id}")
+    @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
+    public ResponseEntity<?> updateStatusAdopt(@Valid @RequestBody AdoptUpdateStatusRequest request, BindingResult bindingResult,
+                                               @PathVariable(name = "id") String id) {
+        Response<String> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+                response.setMessage(ResponseMessage.Adopt.NOT_MATCH);
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
+            adoptService.updateStatus(request);
+            response.setData(id);
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("update/{id}")
+    @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
+    public ResponseEntity<?> updateAdopt(@RequestBody @Valid AdoptUpdateRequest request, BindingResult bindingResult,
+                                         @PathVariable(name = "id") String id) {
+        Response<String> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+                response.setMessage(ResponseMessage.Adopt.NOT_MATCH);
+                return ResponseEntity.badRequest().body(response);
+            }
+            request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
+            response.setData(adoptService.update(request).getId());
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 }

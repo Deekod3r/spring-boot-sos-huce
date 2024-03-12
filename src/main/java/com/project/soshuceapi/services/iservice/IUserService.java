@@ -14,7 +14,7 @@ public interface IUserService {
 
     UserDTO updatePassword (String email, String password, String updatedBy);
 
-    Map<String, Object> getAll(Integer page, Integer limit, String name, String email, String phoneNumber, String role);
+    Map<String, Object> getAll(Integer page, Integer limit, String name, String email, String phoneNumber, Boolean isActivated, String role);
 
     UserDTO getById(String id);
 

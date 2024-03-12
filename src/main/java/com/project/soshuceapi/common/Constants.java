@@ -78,4 +78,12 @@ public class Constants {
         public final static String TREATMENT = "TREATMENT";
         public final static String ADOPT = "ADOPT";
     }
+
+    public static class FormatPattern {
+        public final static String DATE = "dd-MM-yyyy";
+        public final static String DATE_TIME = "dd-MM-yyyy HH:mm:ss";
+        public final static String DATE_TIME_WITHOUT_SECOND = "dd-MM-yyyy HH:mm";
+        public final static String LOCAL_DATETIME = "yyyy-MM-dd'T'HH:mm:ss";
+        public final static String LOCAL_DATE = "yyyy-MM-dd";
+    }
 }

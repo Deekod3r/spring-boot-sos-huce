@@ -20,6 +20,7 @@ public class AdoptDTO implements Serializable {
     String districtName;
     Integer provinceId;
     String provinceName;
+    Float fee;
     String address;
     Integer status;
     String reason;

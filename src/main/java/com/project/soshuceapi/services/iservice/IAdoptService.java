@@ -2,14 +2,16 @@ package com.project.soshuceapi.services.iservice;
 
 import com.project.soshuceapi.models.DTOs.AdoptDTO;
 import com.project.soshuceapi.models.requests.AdoptCreateRequest;
+import com.project.soshuceapi.models.requests.AdoptSearchRequest;
 import com.project.soshuceapi.models.requests.AdoptUpdateRequest;
+import com.project.soshuceapi.models.requests.AdoptUpdateStatusRequest;
 
 import java.util.List;
 import java.util.Map;
 
 public interface IAdoptService {
 
-    List<AdoptDTO> getAll();
+    Map<String, Object> getAll(AdoptSearchRequest request);
 
     List<AdoptDTO> getAllByUser(String userId);
 
@@ -20,6 +22,8 @@ public interface IAdoptService {
     AdoptDTO update(AdoptUpdateRequest request);
 
     Boolean cancel(String id, String userId);
+
+    Boolean updateStatus(AdoptUpdateStatusRequest request);
 
     Boolean deleteSoft(String id);
 

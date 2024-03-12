@@ -6,9 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +19,6 @@ import java.util.Set;
 @Table(name = "pets")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
-@SQLRestriction("is_deleted = false")
 public class Pet {
     @Id
     @UuidGenerator
@@ -29,6 +28,8 @@ public class Pet {
     private String code;
     @Column(name = "name", columnDefinition = "VARCHAR(50)", nullable = false)
     private String name;
+    @Column(name = "intake_date", columnDefinition = "DATE", nullable = false)
+    private LocalDate intakeDate;
     @Column(name = "type", columnDefinition = "INTEGER", nullable = false)
     private Integer type; // '1-dog; 2-cat; 3-other'
     @Column(name = "breed", columnDefinition = "VARCHAR(100)", nullable = false)
@@ -42,7 +43,7 @@ public class Pet {
     @Column(name = "image", columnDefinition = "TEXT", nullable = false)
     private String image;
     @Column(name = "status", columnDefinition = "INTEGER", nullable = false)
-    private Integer status; // '1-died; 2-adopted; 3-healing; 4-wait for adopting'
+    private Integer status; // '1-dead; 2-adopted; 3-healing; 4-wait for adopting'
     @Column(name = "weight", columnDefinition = "FLOAT", nullable = false)
     private Float weight;
     @Column(name = "vaccine", columnDefinition = "INTEGER", nullable = false)

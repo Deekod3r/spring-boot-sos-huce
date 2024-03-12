@@ -298,16 +298,33 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getUsers(@RequestParam(value = "page", defaultValue = "0") Integer page,
-                                      @RequestParam(value = "size", defaultValue = "10") Integer limit,
-                                      @RequestParam(value = "name", defaultValue = "") String name,
-                                      @RequestParam(value = "email", defaultValue = "") String email,
-                                      @RequestParam(value = "phoneNumber", defaultValue = "") String phoneNumber,
-                                      @RequestParam(value = "role", defaultValue = "") String role) {
+    public ResponseEntity<?> getUsers(@RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
+                                      @RequestParam(value = "size", defaultValue = "1000000", required = false) Integer limit,
+                                      @RequestParam(value = "name", defaultValue = "", required = false) String name,
+                                      @RequestParam(value = "email", defaultValue = "", required = false) String email,
+                                      @RequestParam(value = "phoneNumber", defaultValue = "", required = false) String phoneNumber,
+                                      @RequestParam(value = "isActivated", defaultValue = "", required = false) Boolean isActivated,
+                                      @RequestParam(value = "role", defaultValue = "USER", required = false) String role,
+                                      @RequestParam(value = "roleRequest", defaultValue = "", required = false) String roleRequest) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
-            response.setData(userService.getAll(page, limit, name, email, phoneNumber, role));
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.User.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            boolean roleExists = authorities.stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(Constants.User.KEY_ROLE + roleRequest));
+            if (!roleExists) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (Objects.equals(roleRequest, Constants.User.ROLE_ADMIN)) {
+                role = Constants.User.ROLE_USER;
+            }
+            response.setData(userService.getAll(page, limit, name, email, phoneNumber, isActivated, role));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

@@ -6,7 +6,6 @@ import com.project.soshuceapi.entities.Pet;
 import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.entities.logging.ActionLogDetail;
 import com.project.soshuceapi.exceptions.BadRequestException;
-import com.project.soshuceapi.exceptions.NotFoundException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.mappers.PetMapper;
@@ -92,12 +91,13 @@ public class PetService implements IPetService {
             request.setColor(uppercaseFirstLetter(request.getColor().trim()));
             request.setName(uppercaseAllFirstLetters(request.getName().trim()));
             request.setDescription(request.getDescription().trim());
-            request.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : null);
+            request.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : request.getNote());
             Pet pet = petMapper.mapFrom(request);
             pet.setImage(url);
             pet.setCreatedAt(LocalDateTime.now());
             pet.setCreatedBy(request.getCreatedBy());
             pet.setCode(generateCode(pet.getName()));
+            pet.setIsDeleted(false);
             pet = petRepository.save(pet);
             logCreate(pet);
             return petMapper.mapTo(pet, PetDTO.class);
@@ -111,12 +111,14 @@ public class PetService implements IPetService {
     @Transactional
     public PetDTO update(PetUpdateRequest request) {
         try {
-            Pet pet = petRepository.findById(request.getId()).orElseThrow(() -> new NotFoundException("pet.not.found.by.id"));
+            Pet pet = petRepository.findById(request.getId()).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
             Pet oldValue = pet;
             pet.setBreed(uppercaseFirstLetter(request.getBreed().trim()));
             pet.setColor(uppercaseFirstLetter(request.getColor().trim()));
             pet.setName(uppercaseAllFirstLetters(request.getName().trim()));
             pet.setAge(request.getAge());
+            pet.setIntakeDate(request.getIntakeDate());
             pet.setGender(request.getGender());
             pet.setStatus(request.getStatus());
             pet.setWeight(request.getWeight());
@@ -128,15 +130,15 @@ public class PetService implements IPetService {
             pet.setFriendlyToHuman(request.getFriendlyToHuman());
             pet.setFriendlyToDogs(request.getFriendlyToDogs());
             pet.setFriendlyToCats(request.getFriendlyToCats());
-            pet.setDescription(!StringUtil.isNullOrBlank(request.getDescription()) ? request.getDescription().trim() : null);
-            pet.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : null);
+            pet.setDescription(!StringUtil.isNullOrBlank(request.getDescription()) ? request.getDescription().trim() : request.getDescription());
+            pet.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : request.getNote());
             pet.setUpdatedBy(request.getUpdatedBy());
             pet.setUpdatedAt(LocalDateTime.now());
             pet = petRepository.save(pet);
             logUpdate(pet, oldValue);
             return petMapper.mapTo(pet, PetDTO.class);
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -260,30 +262,35 @@ public class PetService implements IPetService {
                                     .tableName(TAG)
                                     .rowId(pet.getId())
                                     .columnName("name")
+                                    .oldValue("")
                                     .newValue(pet.getName().trim())
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(pet.getId())
                                     .columnName("type")
+                                    .oldValue("")
                                     .newValue(String.valueOf(pet.getType()))
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(pet.getId())
                                     .columnName("gender")
+                                    .oldValue("")
                                     .newValue(String.valueOf(pet.getGender()))
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(pet.getId())
                                     .columnName("status")
+                                    .oldValue("")
                                     .newValue(String.valueOf(pet.getStatus()))
                                     .build(),
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(pet.getId())
                                     .columnName("image")
+                                    .oldValue("")
                                     .newValue(pet.getImage())
                                     .build()
                     ))

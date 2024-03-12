@@ -5,10 +5,6 @@ public class ResponseMessage {
     public static class Common {
         public static final String SERVER_ERROR = "Hệ thống đang gặp sự cố, vui lòng thử lại sau";
         public static final String SUCCESS = "Thành công";
-        public static final String NOT_FOUND = "%.not.found";
-        public static final String EXISTED = "%.existed";
-        public static final String NOT_MATCH = "Thông tin định danh không khớp";
-        public static final String INVALID_INPUT = "%.invalid.input";
     }
 
     public static class Authentication {
@@ -84,6 +80,8 @@ public class ResponseMessage {
         public static final String NOT_FOUND = "Thông tin thú cưng không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh thú cưng không khớp";
         public static final String NOT_AVAILABLE_FOR_ADOPT = "Thú cưng không trong trạng thái để nhận nuôi";
+        public static final String MISSING_INTAKE_DATE = "Thông tin ngày tiếp nhận không được bỏ trống";
+        public static final String INVALID_INTAKE_DATE = "Thông tin ngày tiếp nhận không hợp lệ";
 
     }
 
@@ -102,7 +100,12 @@ public class ResponseMessage {
         public static final String MAX_ADOPTS = "Số lượng đơn nhận nuôi đã đạt tối đa";
         public static final String DUPLICATE_ADOPT = "Đã có đơn nhận nuôi cho thú cưng này";
         public static final String MISSING_ID = "Thông tin định danh đơn nhận nuôi không được bỏ trống";
-
+        public static final String MISSING_STATUS = "Thông tin trạng thái đơn nhận nuôi không được bỏ trống";
+        public static final String INVALID_STATUS = "Thông tin trạng thái đơn nhận nuôi không hợp lệ";
+        public static final String INVALID_SEARCH_DATE = "Thông tin thời gian không hợp lệ";
+        public static final String NOT_AVAILABLE_FOR_UPDATE = "Đơn nhận nuôi không trong trạng thái có thể cập nhật";
+        public static final String MISSING_FEE = "Thông tin tiền vía nhận nuôi không được bỏ trống";
+        public static final String INVALID_FEE = "Thông tin tiền vía nhận nuôi không hợp lệ";
     }
 
     public static class Location {

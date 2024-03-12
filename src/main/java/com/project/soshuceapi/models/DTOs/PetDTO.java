@@ -3,6 +3,8 @@ package com.project.soshuceapi.models.DTOs;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
@@ -11,6 +13,7 @@ public class PetDTO {
     String id;
     String code;
     String name;
+    LocalDate intakeDate;
     Integer type;
     String breed;
     String color;
