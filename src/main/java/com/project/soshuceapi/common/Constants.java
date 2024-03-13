@@ -17,16 +17,19 @@ public class Constants {
         public final static String KEY_REGISTER_INFO = "-REGISTER-INFO";
         public final static String KEY_REGISTER_CODE = "-REGISTER-CODE";
         public final static String KEY_FORGOT_PASSWORD_CODE = "-FORGOT-PASSWORD-CODE";
+        public final static String KEY_UPDATE_EMAIL_INFO = "-UPDATE-EMAIL-INFO";
+        public final static String KEY_UPDATE_EMAIL_CODE = "-UPDATE-EMAIL-CODE";
         public final static String KEY_ROLE = "ROLE_";
         public final static String ROLE_ADMIN = "ADMIN";
         public final static String ROLE_MANAGER = "MANAGER";
         public final static String ROLE_USER = "USER";
+        public final static String ROLE_GUEST = "GUEST";
     }
 
     //regex register
     public static class Regex {
         public final static String PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_])[A-Za-z\\d\\W_]{8,}$";
-        public final static String NAME = "^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưỂỄỆẾỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệếỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ ]{2,}$";
+        public final static String NAME = "^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưỂỄỆẾỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪẹễệếỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ ]{2,}$";
         public final static String PHONE_NUMBER = "^\\d+$";
     }
 

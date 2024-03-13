@@ -4,6 +4,7 @@ import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.requests.PetCreateRequest;
+import com.project.soshuceapi.models.requests.PetSearchRequest;
 import com.project.soshuceapi.models.requests.PetUpdateImageRequest;
 import com.project.soshuceapi.models.requests.PetUpdateRequest;
 import com.project.soshuceapi.models.responses.Response;
@@ -51,9 +52,8 @@ public class PetController {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
-            response.setData(petService.getAll(page, limit,
-                    name, breed, color, code, type, age, gender,
-                    status, diet, vaccine, sterilization, rabies, adoptedBy));
+            response.setData(petService.getAll(PetSearchRequest.of(page, limit, name, breed, color, code, type, age,
+                    gender, status, diet, vaccine, sterilization, rabies, adoptedBy)));
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
@@ -103,7 +103,7 @@ public class PetController {
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> createPet(@Valid @ModelAttribute PetCreateRequest request, BindingResult bindingResult) {
-        Response<String> response = new Response<>();
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
@@ -115,7 +115,8 @@ public class PetController {
                 return ResponseEntity.badRequest().body(response);
             }
             request.setCreatedBy(auditorAware.getCurrentAuditor().get());
-            response.setData(petService.create(request).getId());
+            petService.create(request);
+            response.setData(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
@@ -129,7 +130,7 @@ public class PetController {
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> updatePet(@Valid @RequestBody PetUpdateRequest request, BindingResult bindingResult,
                                        @PathVariable("id") String id) {
-        Response<String> response = new Response<>();
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
@@ -145,7 +146,8 @@ public class PetController {
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
-            response.setData(petService.update(request).getId());
+            petService.update(request);
+            response.setData(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
@@ -162,7 +164,7 @@ public class PetController {
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> updateImagePet(@Valid @ModelAttribute PetUpdateImageRequest request, BindingResult bindingResult,
                                             @PathVariable("id") String id) {
-        Response<String> response = new Response<>();
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
@@ -178,7 +180,8 @@ public class PetController {
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
-            response.setData(petService.updateImage(request).getId());
+            petService.updateImage(request);
+            response.setData(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
@@ -194,7 +197,7 @@ public class PetController {
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> deleteSoftPet(@PathVariable("id") String id) {
-        Response<String> response = new Response<>();
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
@@ -205,9 +208,10 @@ public class PetController {
                 response.setMessage(ResponseMessage.Pet.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            response.setSuccess(petService.deleteSoft(id, auditorAware.getCurrentAuditor().get()));
+            petService.deleteSoft(id, auditorAware.getCurrentAuditor().get());
+            response.setData(true);
+            response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
-            response.setData(id);
             return ResponseEntity.ok(response);
         } catch (BadRequestException e) {
             response.setMessage(e.getMessage());

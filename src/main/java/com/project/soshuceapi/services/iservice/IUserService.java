@@ -1,20 +1,27 @@
 package com.project.soshuceapi.services.iservice;
 
 import com.project.soshuceapi.models.DTOs.UserDTO;
-import com.project.soshuceapi.models.requests.UserCreateRequest;
-import com.project.soshuceapi.models.requests.UserUpdateRequest;
+import com.project.soshuceapi.models.requests.*;
 
 import java.util.Map;
 
 public interface IUserService {
 
-    UserDTO create (UserCreateRequest request);
+    void create(UserCreateRequest request);
 
-    UserDTO update (UserUpdateRequest request);
+    void update(UserUpdateNameRequest request);
 
-    UserDTO updatePassword (String email, String password, String updatedBy);
+    void resetPassword(UserResetPasswordRequest request);
 
-    Map<String, Object> getAll(Integer page, Integer limit, String name, String email, String phoneNumber, Boolean isActivated, String role);
+    void updateName(UserUpdateNameRequest request);
+
+    void updatePhone(UserUpdatePhoneRequest request);
+
+    void updateEmail(UserUpdateEmailRequest request);
+
+    void updatePassword(UserUpdatePasswordRequest request);
+
+    Map<String, Object> getAll(UserSearchRequest request);
 
     UserDTO getById(String id);
 
@@ -27,5 +34,7 @@ public interface IUserService {
     Boolean isExistsById(String id);
 
     Boolean isExistByPhoneNumberOrEmail(String phoneNumber, String email);
+
+    Boolean checkPassword(String id, String password);
 
 }

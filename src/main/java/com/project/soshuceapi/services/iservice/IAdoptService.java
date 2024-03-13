@@ -17,15 +17,15 @@ public interface IAdoptService {
 
     Map<String, Object> getById(String id);
 
-    AdoptDTO create(AdoptCreateRequest request);
+    void create(AdoptCreateRequest request);
 
-    AdoptDTO update(AdoptUpdateRequest request);
+    void update(AdoptUpdateRequest request);
 
-    Boolean cancel(String id, String userId);
+    void cancel(String id, String userId);
 
-    Boolean updateStatus(AdoptUpdateStatusRequest request);
+    void updateStatus(AdoptUpdateStatusRequest request);
 
-    Boolean deleteSoft(String id, String deletedBy);
+    void deleteSoft(String id, String deletedBy);
 
     Map<String, Long> statisticStatus(String userId);
 }

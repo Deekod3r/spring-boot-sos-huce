@@ -5,12 +5,10 @@ import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.entities.logging.ActionLogDetail;
 import com.project.soshuceapi.exceptions.BadRequestException;
-import com.project.soshuceapi.exceptions.NotFoundException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.mappers.UserMapper;
-import com.project.soshuceapi.models.requests.UserCreateRequest;
-import com.project.soshuceapi.models.requests.UserUpdateRequest;
+import com.project.soshuceapi.models.requests.*;
 import com.project.soshuceapi.repositories.UserRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IUserService;
@@ -43,7 +41,7 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public UserDTO create(UserCreateRequest request) {
+    public void create(UserCreateRequest request) {
         try {
             if (isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())) {
                 throw new BadRequestException(ResponseMessage.User.USER_EXISTED);
@@ -93,7 +91,6 @@ public class UserService implements IUserService {
 
                     ))
                     .build());
-            return userMapper.mapTo(user, UserDTO.class);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -104,13 +101,11 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public UserDTO update(UserUpdateRequest request) {
+    public void update(UserUpdateNameRequest request) {
         try {
            if (!isExistsById(request.getId())) {
                throw new BadRequestException(ResponseMessage.User.NOT_FOUND);
            }
-            User user = userMapper.mapFrom(request);
-            return userMapper.mapTo(user, UserDTO.class);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -121,30 +116,29 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public UserDTO updatePassword(String email, String password, String updatedBy) {
+    public void resetPassword(UserResetPasswordRequest request) {
         try {
-            User user = userRepo.findByEmail(email).orElseThrow(() ->
+            User user = userRepo.findByEmail(request.getEmail()).orElseThrow(() ->
                     new BadRequestException(ResponseMessage.User.NOT_FOUND));
             String oldPassword = user.getPassword();
-            user.setPassword(passwordEncoder.encode(password));
-            user.setUpdatedBy(updatedBy);
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            user.setUpdatedBy(request.getUpdatedBy());
             user.setUpdatedAt(LocalDateTime.now());
             userRepo.save(user);
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)
-                    .createdBy(updatedBy)
+                    .createdBy(request.getUpdatedBy())
                     .details(List.of(
                             ActionLogDetail.builder()
                                     .tableName(TAG)
                                     .rowId(user.getId())
                                     .columnName("password")
                                     .oldValue(oldPassword)
-                                    .newValue(passwordEncoder.encode(password))
+                                    .newValue(passwordEncoder.encode(request.getNewPassword()))
                                     .build()
                     ))
                     .build());
-            return userMapper.mapTo(user, UserDTO.class);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -154,16 +148,165 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Map<String, Object> getAll(Integer page, Integer limit, String name,
-                                      String email, String phoneNumber, Boolean isActivated, String role) {
+    @Transactional
+    public void updateName(UserUpdateNameRequest request) {
+        try {
+            User user = userRepo.findById(request.getId()).orElseThrow(() ->
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new BadRequestException(ResponseMessage.User.INVALID_PASSWORD);
+            }
+            String oldName = user.getName();
+            user.setName(request.getName().trim());
+            user.setUpdatedBy(request.getUpdatedBy());
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepo.save(user);
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.UPDATE)
+                    .description(Constants.ActionLog.UPDATE + "." + TAG)
+                    .createdBy(request.getUpdatedBy())
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(user.getId())
+                                    .columnName("name")
+                                    .oldValue(oldName)
+                                    .newValue(user.getName().trim())
+                                    .build()
+                    ))
+                    .build());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updatePhone(UserUpdatePhoneRequest request) {
+        try {
+            User user = userRepo.findById(request.getId()).orElseThrow(() ->
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new BadRequestException(ResponseMessage.User.INVALID_PASSWORD);
+            }
+            String oldPhoneNumber = user.getPhoneNumber();
+            user.setPhoneNumber(request.getPhoneNumber().trim());
+            user.setUpdatedBy(request.getUpdatedBy());
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepo.save(user);
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.UPDATE)
+                    .description(Constants.ActionLog.UPDATE + "." + TAG)
+                    .createdBy(request.getUpdatedBy())
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(user.getId())
+                                    .columnName("phone_number")
+                                    .oldValue(oldPhoneNumber)
+                                    .newValue(user.getPhoneNumber().trim())
+                                    .build()
+                    ))
+                    .build());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateEmail(UserUpdateEmailRequest request) {
+        try {
+            User user = userRepo.findById(request.getId()).orElseThrow(() ->
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new BadRequestException(ResponseMessage.User.INVALID_PASSWORD);
+            }
+            String oldEmail = user.getEmail();
+            user.setEmail(request.getEmail().trim());
+            user.setUpdatedBy(request.getUpdatedBy());
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepo.save(user);
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.UPDATE)
+                    .description(Constants.ActionLog.UPDATE + "." + TAG)
+                    .createdBy(request.getUpdatedBy())
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(user.getId())
+                                    .columnName("email")
+                                    .oldValue(oldEmail)
+                                    .newValue(user.getEmail().trim())
+                                    .build()
+                    ))
+                    .build());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(UserUpdatePasswordRequest request) {
+        try {
+            User user = userRepo.findById(request.getId()).orElseThrow(() ->
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
+            if (!passwordEncoder.matches(request.getCurrentPassword(),user.getPassword())) {
+                throw new BadRequestException(ResponseMessage.User.INVALID_OLD_PASSWORD);
+            }
+            if (request.getNewPassword().equals(request.getCurrentPassword())) {
+                throw new BadRequestException(ResponseMessage.User.PASSWORD_DUPLICATE);
+            }
+            if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+                throw new BadRequestException(ResponseMessage.User.INVALID_CONFIRM_PASSWORD);
+            }
+            String oldPassword = user.getPassword();
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            user.setUpdatedBy(request.getUpdatedBy());
+            user.setUpdatedAt(LocalDateTime.now());
+            user = userRepo.save(user);
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.UPDATE)
+                    .description(Constants.ActionLog.UPDATE + "." + TAG)
+                    .createdBy(request.getUpdatedBy())
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(user.getId())
+                                    .columnName("password")
+                                    .oldValue(oldPassword)
+                                    .newValue(user.getPassword())
+                                    .build()
+                    ))
+                    .build());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Map<String, Object> getAll(UserSearchRequest request) {
         try {
             Page<User> users = userRepo.getAll(
-                    name.trim(),
-                    email.trim(),
-                    phoneNumber.trim(),
-                    isActivated,
-                    role.trim(),
-                    PageRequest.ofSize(limit).withPage(page - 1)
+                    request.getName().trim(),
+                    request.getEmail().trim(),
+                    request.getPhoneNumber().trim(),
+                    request.getIsActivated(),
+                    request.getRole().trim(),
+                    PageRequest.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             List<UserDTO> userDTOs = users.getContent().stream().map(user ->
                     userMapper.mapTo(user, UserDTO.class)).toList();
@@ -197,11 +340,8 @@ public class UserService implements IUserService {
     @Override
     public UserDTO getByEmail(String email) {
         try {
-            User user = userRepo.findByEmail(email).orElseThrow(() ->
-                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
-            return userMapper.mapTo(user, UserDTO.class);
-        } catch (BadRequestException e) {
-            throw new BadRequestException(e.getMessage());
+            return userRepo.findByEmail(email).map(user ->
+                    userMapper.mapTo(user, UserDTO.class)).orElse(null);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -210,17 +350,20 @@ public class UserService implements IUserService {
 
     @Override
     public UserDTO getByPhoneNumber(String phoneNumber) {
-        return null;
+        try {
+            return userRepo.findByPhoneNumber(phoneNumber).map(user ->
+                    userMapper.mapTo(user, UserDTO.class)).orElse(null);
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
     public UserDTO getByPhoneNumberOrEmail(String phoneNumber, String email) {
         try {
             return userRepo.findByPhoneNumberOrEmail(phoneNumber, email).map(user ->
-                    userMapper.mapTo(user, UserDTO.class)).orElseThrow(() ->
-                    new NotFoundException(ResponseMessage.User.NOT_FOUND));
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
+                    userMapper.mapTo(user, UserDTO.class)).orElse(null);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -241,6 +384,20 @@ public class UserService implements IUserService {
         try {
             return userRepo.countByPhoneNumberOrEmail(phoneNumber, email) > 0;
         } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Boolean checkPassword(String id, String password) {
+        try {
+            User user = userRepo.findById(id).orElseThrow(() ->
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
+            return passwordEncoder.matches(password, user.getPassword());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }

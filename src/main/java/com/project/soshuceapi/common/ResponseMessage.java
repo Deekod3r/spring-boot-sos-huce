@@ -39,6 +39,11 @@ public class ResponseMessage {
         public static final String PERMISSION_DENIED = "Không có quyền truy cập";
         public static final String LOGIN_INFO_INCORRECT = "Thông tin đăng nhập không chính xác";
         public static final String NOT_MATCH = "Thông tin định danh người dùng không khớp";
+        public static final String NOT_AVAILABLE_FOR_UPDATE = "Người dùng không trong trạng thái có thể cập nhật";
+        public static final String MISSING_OLD_PASSWORD = "Thông tin mật khẩu cũ không được bỏ trống";
+        public static final String INVALID_OLD_PASSWORD = "Thông tin mật khẩu cũ không hợp lệ";
+        public static final String PASSWORD_DUPLICATE = "Mật khẩu mới không được trùng với mật khẩu cũ";
+
     }
 
     public static class Pet {

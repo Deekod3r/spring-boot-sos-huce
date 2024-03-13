@@ -4,10 +4,8 @@ import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.common.enums.security.ERole;
 import com.project.soshuceapi.exceptions.BadRequestException;
-import com.project.soshuceapi.exceptions.NotFoundException;
 import com.project.soshuceapi.models.DTOs.UserDTO;
-import com.project.soshuceapi.models.requests.UserCreateRequest;
-import com.project.soshuceapi.models.requests.UserResetPasswordRequest;
+import com.project.soshuceapi.models.requests.*;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.IAdoptService;
 import com.project.soshuceapi.services.iservice.IEmailService;
@@ -85,7 +83,7 @@ public class UserController {
 
     @GetMapping("/verify-register/{id}")
     public ResponseEntity<?> verifyRegister(@PathVariable("id") String id, @RequestParam("code") String code) {
-        Response<UserDTO> response = new Response<>();
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(code)) {
@@ -109,7 +107,8 @@ public class UserController {
             UserCreateRequest request = DataUtil.fromJSON(data, UserCreateRequest.class);
             request.setRole(ERole.USER);
             request.setCreatedBy("SELF");
-            response.setData(userService.create(request));
+            userService.create(request);
+            response.setData(true);
             redisService.deleteDataFromRedis(id + Constants.User.KEY_REGISTER_CODE);
             redisService.deleteDataFromRedis(id + Constants.User.KEY_REGISTER_INFO);
             response.setSuccess(true);
@@ -134,13 +133,14 @@ public class UserController {
                 return ResponseEntity.badRequest().body(response);
             }
             UserDTO user = userService.getByPhoneNumberOrEmail(account, account);
+            if (Objects.isNull(user)) {
+                response.setData("NOT_FOUND");
+                response.setMessage(ResponseMessage.User.NOT_FOUND);
+                response.setSuccess(true);
+                return ResponseEntity.ok(response);
+            }
             response.setData(user.getEmail());
             response.setMessage(ResponseMessage.Common.SUCCESS);
-            response.setSuccess(true);
-            return ResponseEntity.ok(response);
-        } catch (NotFoundException e) {
-            response.setData("NOT_FOUND");
-            response.setMessage(ResponseMessage.User.NOT_FOUND);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -173,9 +173,6 @@ public class UserController {
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
-        } catch (BadRequestException e) {
-            response.setMessage(e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -235,7 +232,8 @@ public class UserController {
                 response.setMessage(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
-            userService.updatePassword(request.getEmail(), request.getNewPassword(), "SELF");
+            request.setUpdatedBy("SELF");
+            userService.resetPassword(request);
             redisService.deleteDataFromRedis(key);
             response.setData(true);
             response.setSuccess(true);
@@ -256,13 +254,13 @@ public class UserController {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
             if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(role)) {
                 response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
                 return ResponseEntity.badRequest().body(response);
-            }
-            if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setMessage(ResponseMessage.User.PERMISSION_DENIED);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -324,7 +322,7 @@ public class UserController {
             if (Objects.equals(roleRequest, Constants.User.ROLE_ADMIN)) {
                 role = Constants.User.ROLE_USER;
             }
-            response.setData(userService.getAll(page, limit, name, email, phoneNumber, isActivated, role));
+            response.setData(userService.getAll(UserSearchRequest.of(name, email, phoneNumber, role, isActivated, page, limit)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
@@ -337,4 +335,206 @@ public class UserController {
         }
     }
 
+    @PutMapping("/update/name/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> updateName(@PathVariable(value = "id") String id,
+                                        @Valid @RequestBody UserUpdateNameRequest request,
+                                        BindingResult bindingResult) {
+        Response<Boolean> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (!auditorAware.getCurrentAuditor().get().equals(id)) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            request.setUpdatedBy(id);
+            userService.updateName(request);
+            response.setData(true);
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/update/phone/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> updatePhone(@PathVariable(value = "id") String id,
+                                         @Valid @RequestBody UserUpdatePhoneRequest request,
+                                         BindingResult bindingResult) {
+        Response<Boolean> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (!auditorAware.getCurrentAuditor().get().equals(id)) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            request.setUpdatedBy(id);
+            userService.updatePhone(request);
+            response.setData(true);
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/update/email/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> updateEmail(@PathVariable(value = "id") String id,
+                                         @Valid @RequestBody UserUpdateEmailRequest request,
+                                         BindingResult bindingResult) {
+        Response<Map<String, String>> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (!auditorAware.getCurrentAuditor().get().equals(id)) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            UserDTO user = userService.getByEmail(request.getEmail());
+            if (Objects.nonNull(user) && !user.getId().equals(id)) {
+                response.setMessage(ResponseMessage.User.USER_EXISTED);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+            if (!userService.checkPassword(id, request.getCurrentPassword())) {
+                response.setMessage(ResponseMessage.User.INVALID_PASSWORD);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+            String verifyCode = StringUtil.generateRandomString(Constants.Security.VERIFY_CODE_LENGTH);
+            String key = String.valueOf(System.currentTimeMillis());
+            emailService.sendMail(request.getEmail().trim(), String.format(Constants.Mail.SUBJECT, "Email Verification"),
+                    String.format(Constants.Mail.VERIFY_BODY, request.getEmail().trim(), "đổi email", verifyCode));
+            redisService.saveDataToRedis(request.getId() + key + Constants.User.KEY_UPDATE_EMAIL_INFO, DataUtil.toJSON(request),
+                    Constants.Security.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
+            redisService.saveDataToRedis(request.getId() + key + Constants.User.KEY_UPDATE_EMAIL_CODE, verifyCode,
+                    Constants.Security.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
+            response.setData(Map.of("id", request.getId() + key));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/update/verify-email/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> verifyUpdateEmail(@PathVariable(value = "id") String id,
+                                               @RequestParam(value = "code") String code) {
+        Response<Boolean> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.User.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(code)) {
+                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
+                return ResponseEntity.badRequest().body(response);
+            }
+            String key = id + Constants.User.KEY_UPDATE_EMAIL_CODE;
+            String verifyCode = (String) redisService.getDataFromRedis(key);
+            if (StringUtil.isNullOrBlank(verifyCode)) {
+                response.setMessage(ResponseMessage.User.VERIFY_CODE_EXPIRED);
+                return ResponseEntity.status(HttpStatus.GONE).body(response);
+            }
+            if (!verifyCode.equals(code)) {
+                response.setMessage(ResponseMessage.User.VERIFY_CODE_INCORRECT);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            String data = (String) redisService.getDataFromRedis(id + Constants.User.KEY_UPDATE_EMAIL_INFO);
+            if (Objects.isNull(data)) {
+                response.setMessage(ResponseMessage.User.NOT_FOUND);
+                return ResponseEntity.status(HttpStatus.GONE).body(response);
+            }
+            UserUpdateEmailRequest request = DataUtil.fromJSON(data, UserUpdateEmailRequest.class);
+            request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
+            userService.updateEmail(request);
+            redisService.deleteDataFromRedis(key);
+            redisService.deleteDataFromRedis(id + Constants.User.KEY_UPDATE_EMAIL_INFO);
+            response.setData(true);
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/update/password/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> updatePassword(@PathVariable(value = "id") String id,
+                                            @Valid @RequestBody UserUpdatePasswordRequest request,
+                                            BindingResult bindingResult) {
+        Response<Boolean> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (!auditorAware.getCurrentAuditor().get().equals(id)) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            request.setUpdatedBy(id);
+            userService.updatePassword(request);
+            response.setData(true);
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 }

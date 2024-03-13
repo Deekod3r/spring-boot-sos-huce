@@ -108,7 +108,7 @@ public class AdoptService implements IAdoptService {
 
     @Override
     @Transactional
-    public AdoptDTO create(AdoptCreateRequest request) {
+    public void create(AdoptCreateRequest request) {
         try {
             PetDTO pet = petService.getById(request.getPetId());
             if (!Objects.equals(pet.getStatus(), Constants.PetStatus.WAIT_FOR_ADOPTING)) {
@@ -137,7 +137,6 @@ public class AdoptService implements IAdoptService {
             adopt.setFee(0.0F);
             adopt = adoptRepo.save(adopt);
             logCreate(adopt);
-            return parseAdoptDTO(adopt);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -148,7 +147,7 @@ public class AdoptService implements IAdoptService {
 
     @Override
     @Transactional
-    public AdoptDTO update(AdoptUpdateRequest request) {
+    public void update(AdoptUpdateRequest request) {
         try {
             Adopt adopt = adoptRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
@@ -167,7 +166,6 @@ public class AdoptService implements IAdoptService {
             adopt.setUpdatedBy(request.getUpdatedBy());
             adopt = adoptRepo.save(adopt);
             logUpdate(adopt, oldValue);
-            return parseAdoptDTO(adopt);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -178,7 +176,7 @@ public class AdoptService implements IAdoptService {
 
     @Override
     @Transactional
-    public Boolean cancel(String id, String userId) {
+    public void cancel(String id, String userId) {
         try {
             Adopt adopt = adoptRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
@@ -203,9 +201,9 @@ public class AdoptService implements IAdoptService {
                                         .build()
                         ))
                         .build());
-                return true;
+            } else {
+                throw new BadRequestException(ResponseMessage.Adopt.NOT_AVAILABLE_FOR_CANCEL);
             }
-            throw new BadRequestException(ResponseMessage.Adopt.NOT_AVAILABLE_FOR_CANCEL);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -216,12 +214,12 @@ public class AdoptService implements IAdoptService {
 
     @Override
     @Transactional
-    public Boolean updateStatus(AdoptUpdateStatusRequest request) {
+    public void updateStatus(AdoptUpdateStatusRequest request) {
         try {
             Adopt adopt = adoptRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
             if (Objects.equals(adopt.getStatus(), request.getStatus())) {
-                return true;
+                return;
             }
             if (!Objects.equals(adopt.getStatus(), Constants.AdoptStatus.WAIT_FOR_PROGRESSING)
                     && !Objects.equals(adopt.getStatus(), Constants.AdoptStatus.IN_PROGRESS)) {
@@ -256,7 +254,6 @@ public class AdoptService implements IAdoptService {
                                     .build()
                     ))
                     .build());
-            return true;
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -267,7 +264,7 @@ public class AdoptService implements IAdoptService {
 
     @Override
     @Transactional
-    public Boolean deleteSoft(String id, String deletedBy) {
+    public void deleteSoft(String id, String deletedBy) {
         try {
             Adopt adopt = adoptRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
@@ -289,7 +286,6 @@ public class AdoptService implements IAdoptService {
                                     .build()
                     ))
                     .build());
-            return true;
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {

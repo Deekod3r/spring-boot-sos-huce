@@ -35,6 +35,6 @@ public class PetCareLog {
     private String createdBy;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "pet_id", nullable = false)
-    private Pet pet;
+    @JoinColumn(name = "adopt_id", nullable = false)
+    private Adopt adopt;
 }

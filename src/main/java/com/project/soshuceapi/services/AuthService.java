@@ -1,6 +1,7 @@
 package com.project.soshuceapi.services;
 
 import com.project.soshuceapi.common.Constants;
+import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.exceptions.AuthenticationException;
 import com.project.soshuceapi.exceptions.BadRequestException;
@@ -22,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -77,6 +79,9 @@ public class AuthService implements IAuthService {
             String email = jwtProvider.extractEmail(jwtRefresh);
             if (!StringUtil.isNullOrBlank(email)) {
                 User user = userMapper.mapFrom(userService.getByEmail(email));
+                if (Objects.isNull(user)) {
+                    throw new BadRequestException(ResponseMessage.User.NOT_FOUND);
+                }
                 String key = Constants.Security.TOKEN_HEADER_KEY + email;
                 String storedToken = (String) redisService.getDataFromRedis(key);
                 if (StringUtil.isNullOrBlank(storedToken) && jwtProvider.isTokenValid(jwtRefresh, user)) {

@@ -135,7 +135,7 @@ public class AdoptController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createAdopt(@RequestBody @Valid AdoptCreateRequest request, BindingResult bindingResult) {
-        Response<String> response = new Response<>();
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
@@ -147,9 +147,10 @@ public class AdoptController {
                 return ResponseEntity.badRequest().body(response);
             }
             request.setCreatedBy(auditorAware.getCurrentAuditor().get());
-            response.setData(adoptService.create(request).getId());
-            response.setMessage(ResponseMessage.Common.SUCCESS);
+            adoptService.create(request);
+            response.setData(true);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
         } catch (BadRequestException e) {
             response.setMessage(e.getMessage());
@@ -163,7 +164,7 @@ public class AdoptController {
     @PutMapping("cancel/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> cancelAdopt(@PathVariable(name = "id") String id) {
-        Response<String> response = new Response<>();
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
@@ -175,7 +176,7 @@ public class AdoptController {
                 return ResponseEntity.badRequest().body(response);
             }
             adoptService.cancel(id, auditorAware.getCurrentAuditor().get());
-            response.setData(id);
+            response.setData(true);
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
@@ -226,7 +227,7 @@ public class AdoptController {
     @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
     public ResponseEntity<?> updateAdopt(@RequestBody @Valid AdoptUpdateRequest request, BindingResult bindingResult,
                                          @PathVariable(name = "id") String id) {
-        Response<String> response = new Response<>();
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
@@ -242,7 +243,8 @@ public class AdoptController {
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
-            response.setData(adoptService.update(request).getId());
+            adoptService.update(request);
+            response.setData(true);
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
@@ -258,7 +260,7 @@ public class AdoptController {
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
     public ResponseEntity<?> deleteSoftAdopt(@PathVariable(name = "id") String id) {
-        Response<String> response = new Response<>();
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
@@ -269,9 +271,10 @@ public class AdoptController {
                 response.setMessage(ResponseMessage.Adopt.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            response.setSuccess(adoptService.deleteSoft(id, auditorAware.getCurrentAuditor().get()));
+            adoptService.deleteSoft(id, auditorAware.getCurrentAuditor().get());
+            response.setData(true);
+            response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
-            response.setData(id);
             return ResponseEntity.ok(response);
         } catch (BadRequestException e) {
             response.setMessage(e.getMessage());

@@ -10,6 +10,7 @@ import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.mappers.PetMapper;
 import com.project.soshuceapi.models.requests.PetCreateRequest;
+import com.project.soshuceapi.models.requests.PetSearchRequest;
 import com.project.soshuceapi.models.requests.PetUpdateImageRequest;
 import com.project.soshuceapi.models.requests.PetUpdateRequest;
 import com.project.soshuceapi.repositories.PetRepo;
@@ -50,15 +51,13 @@ public class PetService implements IPetService {
 
 
     @Override
-    public Map<String, Object> getAll(
-            Integer page, Integer limit,
-            String name, String breed, String color, String code,
-            Integer type, Integer age, Integer gender, Integer status,
-            Integer diet, Integer vaccine, Integer sterilization, Integer rabies, String adoptedBy
-    ) {
+    public Map<String, Object> getAll(PetSearchRequest request) {
         try {
-            Page<Pet> pets = petRepo.findAll(name.trim(), breed.trim(), color.trim(), code.trim(), type, age, gender,
-                    status, diet, vaccine, sterilization, rabies, adoptedBy, Pageable.ofSize(limit).withPage(page - 1));
+            Page<Pet> pets = petRepo.findAll(request.getName().trim(), request.getBreed().trim(), request.getColor().trim(),
+                    request.getCode().trim(), request.getType(), request.getAge(), request.getGender(),
+                    request.getStatus(), request.getDiet(), request.getVaccine(), request.getSterilization(),
+                    request.getRabies(), request.getAdoptedBy(),
+                    Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1));
             List<PetDTO> petDTOs = pets.getContent().stream()
                     .map(this::parsePetDTO)
                     .toList();
@@ -77,7 +76,7 @@ public class PetService implements IPetService {
 
     @Override
     @Transactional
-    public PetDTO create(PetCreateRequest request) {
+    public void create(PetCreateRequest request) {
         try {
             Map<String, String> data = fileService.upload(request.getImage());
             String url = data.get("url");
@@ -94,7 +93,6 @@ public class PetService implements IPetService {
             pet.setIsDeleted(false);
             pet = petRepo.save(pet);
             logCreate(pet);
-            return parsePetDTO(pet);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -103,7 +101,7 @@ public class PetService implements IPetService {
 
     @Override
     @Transactional
-    public PetDTO update(PetUpdateRequest request) {
+    public void update(PetUpdateRequest request) {
         try {
             Pet pet = petRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
@@ -134,7 +132,6 @@ public class PetService implements IPetService {
             pet.setUpdatedAt(LocalDateTime.now());
             pet = petRepo.save(pet);
             logUpdate(pet, oldValue);
-            return parsePetDTO(pet);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -145,7 +142,7 @@ public class PetService implements IPetService {
 
     @Override
     @Transactional
-    public PetDTO updateImage(PetUpdateImageRequest request) {
+    public void updateImage(PetUpdateImageRequest request) {
         try {
             Pet pet = petRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
@@ -173,7 +170,6 @@ public class PetService implements IPetService {
                                     .build()
                     ))
                     .build());
-            return parsePetDTO(pet);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -184,7 +180,7 @@ public class PetService implements IPetService {
 
     @Override
     @Transactional
-    public Boolean deleteSoft(String id, String deletedBy) {
+    public void deleteSoft(String id, String deletedBy) {
         try {
             Pet pet = petRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
@@ -206,7 +202,6 @@ public class PetService implements IPetService {
                                     .build()
                     ))
                     .build());
-            return true;
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (RuntimeException e) {
