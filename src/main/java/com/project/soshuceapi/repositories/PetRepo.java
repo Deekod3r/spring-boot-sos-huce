@@ -34,7 +34,7 @@ public interface PetRepo extends JpaRepository<Pet, String> {
             "AND (:sterilization IS NULL OR p.sterilization = :sterilization) " +
             "AND (:rabies IS NULL OR p.rabies = :rabies) " +
             "AND (:adoptedBy = '' OR p.adoptedBy.id = :adoptedBy) " +
-            "ORDER BY p.updatedAt DESC, p.createdAt DESC ")
+            "ORDER BY p.status DESC, p.updatedAt DESC, p.createdAt DESC ")
     Page<Pet> findAll(
             @Param("name") String name,
             @Param("breed") String breed,

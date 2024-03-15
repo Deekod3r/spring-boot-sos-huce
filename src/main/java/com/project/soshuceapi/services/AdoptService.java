@@ -47,8 +47,6 @@ public class AdoptService implements IAdoptService {
     @Autowired
     private IPetService petService;
     @Autowired
-    private IUserService userService;
-    @Autowired
     private PetMapper petMapper;
     @Autowired
     private AdoptMapper adoptMapper;
@@ -123,8 +121,12 @@ public class AdoptService implements IAdoptService {
             }
             Adopt adopt = new Adopt();
             adopt.setPet(petMapper.mapFrom(pet));
-            adopt.setCreatedBy(new User(userService.getById(request.getCreatedBy()).getId()));
-            adopt.setRegisteredBy(new User(userService.getById(request.getRegisteredBy()).getId()));
+            adopt.setCreatedBy(User.builder()
+                    .id(request.getCreatedBy())
+                    .build());
+            adopt.setRegisteredBy(User.builder()
+                    .id(request.getRegisteredBy())
+                    .build());
             adopt.setCode(generateCode());
             adopt.setCreatedAt(LocalDateTime.now());
             adopt.setWardId(request.getWardId());
@@ -230,12 +232,16 @@ public class AdoptService implements IAdoptService {
             adopt.setUpdatedAt(LocalDateTime.now());
             adopt.setUpdatedBy(request.getUpdatedBy());
             if (Objects.equals(request.getStatus(), Constants.AdoptStatus.COMPLETE)) {
-                adopt.setConfirmedBy(new User(request.getUpdatedBy()));
+                adopt.setConfirmedBy(User.builder()
+                        .id(request.getUpdatedBy())
+                        .build());
                 adopt.setConfirmedAt(LocalDateTime.now());
                 petService.setAdoptedBy(adopt.getRegisteredBy().getId(), adopt.getPet().getId(), request.getUpdatedBy());
             }
             if (Objects.equals(request.getStatus(), Constants.AdoptStatus.REJECT)) {
-                adopt.setRejectedBy(new User(request.getUpdatedBy()));
+                adopt.setRejectedBy(User.builder()
+                        .id(request.getUpdatedBy())
+                        .build());
                 adopt.setRejectedAt(LocalDateTime.now());
                 adopt.setRejectedReason(!StringUtil.isNullOrBlank(request.getMessage()) ? request.getMessage().trim() : request.getMessage());
             }

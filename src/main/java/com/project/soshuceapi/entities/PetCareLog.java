@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -21,7 +22,7 @@ public class PetCareLog {
     @Column(name = "id", columnDefinition = "VARCHAR(36)")
     private String id;
     @Column(name = "date", columnDefinition = "DATE", nullable = false)
-    private String date;
+    private LocalDate date;
     @Column(name = "note", columnDefinition = "TEXT", nullable = false)
     private String note;
 

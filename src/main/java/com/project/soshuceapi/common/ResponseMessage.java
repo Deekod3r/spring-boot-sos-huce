@@ -114,6 +114,17 @@ public class ResponseMessage {
         public static final String INVALID_FEE = "Thông tin tiền vía nhận nuôi không hợp lệ";
     }
 
+    public static class PetCareLog {
+        public static final String MISSING_DATE = "Thông tin ngày kiểm tra không được bỏ trống";
+        public static final String INVALID_DATE = "Thông tin ngày kiểm tra không hợp lệ";
+        public static final String MISSING_NOTE = "Thông tin ghi chú không được bỏ trống";
+        public static final String INVALID_NOTE = "Thông tin ghi chú không hợp lệ";
+        public static final String MISSING_ADOPT_ID = "Thông tin định danh đơn nhận nuôi không được bỏ trống";
+        public static final String NOT_FOUND = "Thông tin nhật ký không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh nhật ký không khớp";
+        public static final String MISSING_ID = "Thông tin định danh nhật ký không được bỏ trống";
+    }
+
     public static class Location {
         public static final String GET_INFO_PROVINCE_FAIL = "Lấy thông tin tỉnh/thành phố thất bại";
         public static final String GET_INFO_DISTRICT_FAIL = "Lấy thông tin quận/huyện thất bại";

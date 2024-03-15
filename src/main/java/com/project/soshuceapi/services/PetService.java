@@ -244,7 +244,9 @@ public class PetService implements IPetService {
         try {
             Pet pet = petRepo.findById(petId).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
-            pet.setAdoptedBy(new User(userId));
+            pet.setAdoptedBy(User.builder()
+                    .id(userId)
+                    .build());
             pet.setStatus(Constants.PetStatus.ADOPTED);
             pet.setUpdatedAt(LocalDateTime.now());
             petRepo.save(pet);

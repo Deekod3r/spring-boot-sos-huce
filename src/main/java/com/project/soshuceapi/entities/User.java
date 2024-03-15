@@ -3,10 +3,7 @@ package com.project.soshuceapi.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.soshuceapi.common.enums.security.ERole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +19,7 @@ import java.util.Set;
 @Table(name = "users")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
+@Builder
 public class User implements UserDetails {
     @Id
     @UuidGenerator
@@ -94,7 +92,4 @@ public class User implements UserDetails {
         return isActivated;
     }
 
-    public User (String id) {
-        this.id = id;
-    }
 }

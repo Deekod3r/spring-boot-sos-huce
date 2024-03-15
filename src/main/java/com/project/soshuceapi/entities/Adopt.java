@@ -1,10 +1,7 @@
 package com.project.soshuceapi.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "adopts")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
+@Builder
 public class Adopt {
     @Id
     @UuidGenerator
@@ -31,7 +29,7 @@ public class Adopt {
     @Column(name = "address", columnDefinition = "VARCHAR(255)", nullable = false)
     private String address;
     @Column(name = "status", columnDefinition = "INTEGER", nullable = false)
-    private Integer status; // '1-wait for progressing; 2-in progress; 3-reject; 4-cancel; 5-complete; 6-return'
+    private Integer status; // '1-wait for progressing; 2-in progress; 3-reject; 4-cancel; 5-complete'
     @Column(name = "reason", columnDefinition = "VARCHAR(255)")
     private String reason;
     @Column(name = "confirmed_at", columnDefinition = "TIMESTAMP")
