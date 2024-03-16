@@ -17,6 +17,6 @@ public interface IPetCareLogService {
 
     void delete(String id);
 
-    void getById(String id);
+    PetCareLogDTO getById(String id);
 
 }

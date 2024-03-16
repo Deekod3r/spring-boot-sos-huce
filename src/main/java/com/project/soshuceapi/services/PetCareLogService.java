@@ -46,14 +46,7 @@ public class PetCareLogService implements IPetCareLogService {
                     request.getFromDate(),
                     request.getToDate()
             );
-            return petCareLogs.stream().map((element) -> PetCareLogDTO.builder()
-                    .id(element.getId())
-                    .note(element.getNote())
-                    .date(element.getDate())
-                    .adoptId(element.getAdopt().getId())
-                    .adoptCode(element.getAdopt().getCode())
-                    .petName(element.getAdopt().getPet().getCode() + " - " + element.getAdopt().getPet().getName())
-                    .build()).collect(Collectors.toList());
+            return petCareLogs.stream().map(this::parsePetCareLogDTO).collect(Collectors.toList());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -107,13 +100,46 @@ public class PetCareLogService implements IPetCareLogService {
     @Override
     @Transactional
     public void delete(String id) {
-
+        try {
+            PetCareLog petCareLog = petCareLogRepo.findById(id).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.PetCareLog.NOT_FOUND));
+            petCareLogRepo.delete(petCareLog);
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
     @Transactional
-    public void getById(String id) {
+    public PetCareLogDTO getById(String id) {
+        try {
+            return petCareLogRepo.findById(id).map(this::parsePetCareLogDTO).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.PetCareLog.NOT_FOUND));
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
+    private PetCareLogDTO parsePetCareLogDTO(PetCareLog petCareLog) {
+        try {
+            return PetCareLogDTO.builder()
+                    .id(petCareLog.getId())
+                    .adoptId(petCareLog.getAdopt().getId())
+                    .adoptCode(petCareLog.getAdopt().getCode())
+                    .petName(petCareLog.getAdopt().getPet().getCode() + " - " + petCareLog.getAdopt().getPet().getName())
+                    .date(petCareLog.getDate())
+                    .note(petCareLog.getNote())
+                    .build();
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Transactional

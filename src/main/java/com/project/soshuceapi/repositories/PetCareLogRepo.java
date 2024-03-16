@@ -12,11 +12,12 @@ import java.util.List;
 @Repository
 public interface PetCareLogRepo extends JpaRepository<PetCareLog, String> {
 
-    @Query("SELECT p FROM PetCareLog p JOIN FETCH p.adopt " +
-            "WHERE p.adopt.id = :adoptId " +
-            "AND p.adopt.isDeleted = false " +
-            "AND (:fromDate IS NULL OR p.date >= :fromDate) " +
-            "AND (:toDate IS NULL OR p.date <= :toDate) " +
+    @Query("SELECT p FROM PetCareLog p " +
+            "JOIN FETCH p.adopt " +
+            "WHERE p.adopt.isDeleted = false " +
+            "AND (:adoptId = '' OR p.adopt.id = :adoptId) " +
+            "AND (cast(:fromDate as date) IS NULL OR p.date >= :fromDate) " +
+            "AND (cast(:toDate as date) IS NULL OR p.date <= :toDate) " +
             "ORDER BY p.date DESC, p.updatedAt DESC, p.createdAt DESC")
     List<PetCareLog> findAll(
             @Param("adoptId") String adoptId,
