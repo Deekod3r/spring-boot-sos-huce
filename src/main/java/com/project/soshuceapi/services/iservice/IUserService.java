@@ -2,6 +2,7 @@ package com.project.soshuceapi.services.iservice;
 
 import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.requests.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -20,6 +21,9 @@ public interface IUserService {
     void updateEmail(UserUpdateEmailRequest request);
 
     void updatePassword(UserUpdatePasswordRequest request);
+
+    @Transactional
+    void updateStatus(UserUpdateStatusRequest request);
 
     Map<String, Object> getAll(UserSearchRequest request);
 

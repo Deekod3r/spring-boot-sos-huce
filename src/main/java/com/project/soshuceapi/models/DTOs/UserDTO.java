@@ -16,5 +16,6 @@ public class UserDTO {
     String phoneNumber;
     String name;
     String email;
+    Boolean isActivated;
     ERole role;
 }

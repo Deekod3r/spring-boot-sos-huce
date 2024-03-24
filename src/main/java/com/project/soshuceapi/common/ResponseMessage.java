@@ -43,6 +43,10 @@ public class ResponseMessage {
         public static final String MISSING_OLD_PASSWORD = "Thông tin mật khẩu cũ không được bỏ trống";
         public static final String INVALID_OLD_PASSWORD = "Thông tin mật khẩu cũ không hợp lệ";
         public static final String PASSWORD_DUPLICATE = "Mật khẩu mới không được trùng với mật khẩu cũ";
+        public static final String MISSING_STATUS = "Thông tin trạng thái người dùng không được bỏ trống";
+        public static final String INVALID_STATUS = "Thông tin trạng thái người dùng không hợp lệ";
+        public static final String MISSING_ADDRESS = "Thông tin địa chỉ người dùng không được bỏ trống";
+
 
     }
 

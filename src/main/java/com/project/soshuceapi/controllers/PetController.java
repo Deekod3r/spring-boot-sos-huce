@@ -34,7 +34,7 @@ public class PetController {
     @GetMapping
     public ResponseEntity<?> getPets(
             @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-            @RequestParam(value = "limit", defaultValue = "1000000", required = false) Integer limit,
+            @RequestParam(value = "limit", defaultValue = "10000000", required = false) Integer limit,
             @RequestParam(value = "name", defaultValue = "", required = false) String name,
             @RequestParam(value = "breed", defaultValue = "", required = false) String breed,
             @RequestParam(value = "color", defaultValue = "", required = false) String color,

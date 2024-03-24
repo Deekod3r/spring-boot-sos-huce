@@ -302,7 +302,7 @@ public class UserController {
                                       @RequestParam(value = "email", defaultValue = "", required = false) String email,
                                       @RequestParam(value = "phoneNumber", defaultValue = "", required = false) String phoneNumber,
                                       @RequestParam(value = "isActivated", defaultValue = "", required = false) Boolean isActivated,
-                                      @RequestParam(value = "role", defaultValue = "USER", required = false) String role,
+                                      @RequestParam(value = "role", defaultValue = "", required = false) String role,
                                       @RequestParam(value = "roleRequest", defaultValue = "", required = false) String roleRequest) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
@@ -537,4 +537,40 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @PutMapping("update/status/{id}")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+    public ResponseEntity<?> updateStatus(@PathVariable(value = "id") String id,
+                                          @Valid @RequestBody UserUpdateStatusRequest request,
+                                          BindingResult bindingResult) {
+        Response<Boolean> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
+                return ResponseEntity.badRequest().body(response);
+            }
+            request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
+            userService.updateStatus(request);
+            response.setData(true);
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 }

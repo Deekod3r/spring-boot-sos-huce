@@ -298,6 +298,44 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
+    public void updateStatus(UserUpdateStatusRequest request) {
+        try {
+            User user = userRepo.findById(request.getId()).orElseThrow(() ->
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
+            if (!user.getRole().name().equals(Constants.User.ROLE_USER)) {
+                throw new BadRequestException(ResponseMessage.User.NOT_AVAILABLE_FOR_UPDATE);
+            }
+            if (user.getIsActivated().equals(request.getStatus())) {
+                return;
+            }
+            user.setIsActivated(request.getStatus());
+            user.setUpdatedBy(request.getUpdatedBy());
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepo.save(user);
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.UPDATE)
+                    .description(Constants.ActionLog.UPDATE + "." + TAG)
+                    .createdBy(request.getUpdatedBy())
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(user.getId())
+                                    .columnName("is_activated")
+                                    .oldValue(String.valueOf(!request.getStatus()))
+                                    .newValue(String.valueOf(request.getStatus()))
+                                    .build()
+                    ))
+                    .build());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
     public Map<String, Object> getAll(UserSearchRequest request) {
         try {
             Page<User> users = userRepo.getAll(
