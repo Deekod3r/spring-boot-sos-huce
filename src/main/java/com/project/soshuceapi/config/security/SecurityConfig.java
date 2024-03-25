@@ -44,6 +44,7 @@ public class SecurityConfig {
             "/pets",
             "/pets/{id}",
             "/pets/statistic-cases",
+            "/gallerias"
     };
 
     @Bean

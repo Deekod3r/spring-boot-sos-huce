@@ -129,6 +129,22 @@ public class ResponseMessage {
         public static final String MISSING_ID = "Thông tin định danh nhật ký không được bỏ trống";
     }
 
+    public static class Galleria {
+        public static final String MISSING_TITLE = "Thông tin tiêu đề không được bỏ trống";
+        public static final String INVALID_TITLE = "Thông tin tiêu đề không hợp lệ";
+        public static final String MISSING_DESCRIPTION = "Thông tin mô tả không được bỏ trống";
+        public static final String INVALID_DESCRIPTION = "Thông tin mô tả không hợp lệ";
+        public static final String MISSING_IMAGE = "Thông tin hình ảnh không được bỏ trống";
+        public static final String MISSING_STATUS = "Thông tin trạng thái không được bỏ trống";
+        public static final String INVALID_STATUS = "Thông tin trạng thái không hợp lệ";
+        public static final String NOT_FOUND = "Thông tin bộ sưu tập không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh bộ sưu tập không khớp";
+        public static final String MISSING_ID = "Thông tin định danh bộ sưu tập không được bỏ trống";
+        public static final String MISSING_LINK = "Thông tin liên kết không được bỏ trống";
+        public static final String MISSING_INDEX = "Thông tin thứ tự không được bỏ trống";
+        public static final String NOT_AVAILABLE_FOR_UPDATE = "Bộ sưu tập không trong trạng thái có thể cập nhật";
+    }
+
     public static class Location {
         public static final String GET_INFO_PROVINCE_FAIL = "Lấy thông tin tỉnh/thành phố thất bại";
         public static final String GET_INFO_DISTRICT_FAIL = "Lấy thông tin quận/huyện thất bại";

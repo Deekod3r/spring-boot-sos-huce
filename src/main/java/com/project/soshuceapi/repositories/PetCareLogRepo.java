@@ -25,5 +25,4 @@ public interface PetCareLogRepo extends JpaRepository<PetCareLog, String> {
             @Param("toDate") LocalDate toDate
     );
 
-
 }

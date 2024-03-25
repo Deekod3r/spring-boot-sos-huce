@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ActionLog {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
     @Column(name = "action", columnDefinition = "VARCHAR(100)", nullable = false)
     private String action;

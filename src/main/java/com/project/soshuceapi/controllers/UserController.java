@@ -7,7 +7,6 @@ import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.requests.*;
 import com.project.soshuceapi.models.responses.Response;
-import com.project.soshuceapi.services.iservice.IAdoptService;
 import com.project.soshuceapi.services.iservice.IEmailService;
 import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
@@ -26,7 +25,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -41,8 +39,6 @@ public class UserController {
     private IRedisService redisService;
     @Autowired
     private IEmailService emailService;
-    @Autowired
-    private IAdoptService adoptService;
     @Autowired
     private AuditorAware<String> auditorAware;
 
@@ -251,7 +247,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable(value = "id") String id,
                                          @RequestParam(value = "role") String role) {
-        Response<Map<String, Object>> response = new Response<>();
+        Response<UserDTO> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
@@ -276,12 +272,8 @@ public class UserController {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
                 }
             }
-            Map<String, Object> data = new HashMap<>();
             UserDTO user = userService.getById(id);
-            Map<String, Long> statistic = adoptService.statisticStatus(id);
-            data.put("user", user);
-            data.put("statistic", statistic);
-            response.setData(data);
+            response.setData(user);
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
@@ -558,8 +550,113 @@ public class UserController {
                 response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
                 return ResponseEntity.badRequest().body(response);
             }
+            if (!request.getRole().equals(Constants.User.ROLE_USER)) {
+                response.setMessage(ResponseMessage.User.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
             userService.updateStatus(request);
+            response.setData(true);
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/create/admin")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<?> createAdmin(@Valid @RequestBody UserCreateRequest request,
+                                         BindingResult bindingResult) {
+        Response<Boolean> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            request.setRole(ERole.ADMIN);
+            request.setCreatedBy(auditorAware.getCurrentAuditor().get());
+            userService.create(request);
+            response.setData(true);
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/update/admin/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<?> updateAdmin(@PathVariable(value = "id") String id,
+                                         @Valid @RequestBody AdminUpdateRequest request,
+                                         BindingResult bindingResult) {
+        Response<Boolean> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
+                return ResponseEntity.badRequest().body(response);
+            }
+            request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
+            userService.update(request);
+            response.setData(true);
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/update/password/admin/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<?> updateAdminPassword(@PathVariable(value = "id") String id,
+                                                 @Valid @RequestBody AdminUpdatePasswordRequest request,
+                                                 BindingResult bindingResult) {
+        Response<Boolean> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
+                return ResponseEntity.badRequest().body(response);
+            }
+            request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
+            userService.updatePasswordAdmin(request);
             response.setData(true);
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);

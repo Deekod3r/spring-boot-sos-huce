@@ -11,4 +11,5 @@ public interface IAuthService {
     Map<String, Object> authenticate(LoginRequest loginRequest);
 
     void refreshToken(HttpServletRequest request, HttpServletResponse response);
+
 }

@@ -101,11 +101,54 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public void update(UserUpdateNameRequest request) {
+    public void update(AdminUpdateRequest request) {
         try {
-           if (!isExistsById(request.getId())) {
-               throw new BadRequestException(ResponseMessage.User.NOT_FOUND);
-           }
+            User user = userRepo.findByEmail(request.getEmail()).orElseThrow(() ->
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
+            User oldUser = user;
+            user.setName(request.getName().trim());
+            user.setPhoneNumber(request.getPhoneNumber().trim());
+            user.setEmail(request.getEmail().trim());
+            user.setIsActivated(request.getStatus());
+            user.setUpdatedBy(request.getUpdatedBy());
+            user.setUpdatedAt(LocalDateTime.now());
+            user = userRepo.save(user);
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.CREATE)
+                    .description(Constants.ActionLog.CREATE + "." + TAG)
+                    .createdBy(user.getId())
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(user.getId())
+                                    .columnName("email")
+                                    .oldValue(oldUser.getEmail())
+                                    .newValue(user.getEmail().trim())
+                                    .build(),
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(user.getId())
+                                    .columnName("name")
+                                    .oldValue(oldUser.getName())
+                                    .newValue(user.getName().trim())
+                                    .build(),
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(user.getId())
+                                    .columnName("phone_number")
+                                    .oldValue(oldUser.getPhoneNumber())
+                                    .newValue(user.getPhoneNumber().trim())
+                                    .build(),
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(user.getId())
+                                    .columnName("is_activated")
+                                    .oldValue(oldUser.getIsActivated().toString())
+                                    .newValue(user.getIsActivated().toString())
+                                    .build()
+
+                    ))
+                    .build());
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -272,6 +315,46 @@ public class UserService implements IUserService {
             }
             String oldPassword = user.getPassword();
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            user.setUpdatedBy(request.getUpdatedBy());
+            user.setUpdatedAt(LocalDateTime.now());
+            user = userRepo.save(user);
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.UPDATE)
+                    .description(Constants.ActionLog.UPDATE + "." + TAG)
+                    .createdBy(request.getUpdatedBy())
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(user.getId())
+                                    .columnName("password")
+                                    .oldValue(oldPassword)
+                                    .newValue(user.getPassword())
+                                    .build()
+                    ))
+                    .build());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updatePasswordAdmin(AdminUpdatePasswordRequest request) {
+        try {
+            User user = userRepo.findById(request.getId()).orElseThrow(() ->
+                    new BadRequestException(ResponseMessage.User.NOT_FOUND));
+            if(!user.getRole().name().equals(Constants.User.ROLE_ADMIN)
+            && !user.getRole().name().equals(Constants.User.ROLE_MANAGER)) {
+                throw new BadRequestException(ResponseMessage.User.NOT_AVAILABLE_FOR_UPDATE);
+            }
+            if (passwordEncoder.matches(request.getPassword(),user.getPassword())) {
+                throw new BadRequestException(ResponseMessage.User.PASSWORD_DUPLICATE);
+            }
+            String oldPassword = user.getPassword();
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setUpdatedBy(request.getUpdatedBy());
             user.setUpdatedAt(LocalDateTime.now());
             user = userRepo.save(user);

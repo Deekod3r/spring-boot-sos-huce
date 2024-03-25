@@ -71,4 +71,5 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "WHERE pet_id = :petId " +
             "AND registered_by = :userId AND status NOT IN (3, 4, 5) AND is_deleted = false", nativeQuery = true)
     long checkDuplicate(String petId, String userId);
+
 }

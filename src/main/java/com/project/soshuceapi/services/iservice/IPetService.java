@@ -14,6 +14,8 @@ public interface IPetService {
 
     Map<String, Long> getStatisticCases();
 
+    PetDTO getById(String id);
+
     void create(PetCreateRequest petCreateRequest);
 
     void update(PetUpdateRequest petUpdateRequest);
@@ -22,7 +24,6 @@ public interface IPetService {
 
     void deleteSoft(String id, String deletedBy);
 
-    PetDTO getById(String id);
-
     void setAdoptedBy(String userId, String petId, String updatedBy);
+
 }

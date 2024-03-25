@@ -11,14 +11,18 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "configs")
+@Table(name = "config_values")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
-public class Config {
+public class ConfigValue {
     @Id
     private Long id;
-    @Column(name = "key", columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
-    private String key;
+    @Column(name = "config_id", columnDefinition = "INTEGER", nullable = false)
+    private Integer configId;
+    @Column(name = "key_cv", columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
+    private String keyCV;
+    @Column(name = "value", columnDefinition = "TEXT", nullable = false)
+    private String value;
     @Column(name = "description", columnDefinition = "VARCHAR(255)", nullable = false)
     private String description;
 

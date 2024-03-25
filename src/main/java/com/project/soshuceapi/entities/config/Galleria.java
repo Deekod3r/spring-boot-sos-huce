@@ -31,6 +31,10 @@ public class Galleria {
     private String description;
     @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
     private Boolean status;
+    @Column(name = "index", columnDefinition = "INTEGER", nullable = false)
+    private Integer index;
+    @Column(name = "link", columnDefinition = "TEXT", nullable = false)
+    private String link;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;

@@ -284,4 +284,33 @@ public class AdoptController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @GetMapping("statistic")
+    public ResponseEntity<?> getAdoptStatistic(@RequestParam(value = "fromDate", defaultValue = "", required = false) String fromDate,
+                                               @RequestParam(value = "toDate", defaultValue = "", required = false) String toDate,
+                                               @RequestParam(value = "user", defaultValue = "", required = false) String user) {
+        Response<Map<String, Long>> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (!StringUtil.isNullOrBlank(fromDate) && !DataUtil.isDate(fromDate, Constants.FormatPattern.LOCAL_DATE)) {
+                response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (!StringUtil.isNullOrBlank(toDate) && !DataUtil.isDate(toDate, Constants.FormatPattern.LOCAL_DATE)) {
+                response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
+                return ResponseEntity.badRequest().body(response);
+            }
+            response.setData(adoptService.statisticStatus(user));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 }

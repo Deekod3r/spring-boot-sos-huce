@@ -12,4 +12,5 @@ import java.util.List;
 public interface WardRepo extends JpaRepository<Ward, Integer> {
     @Query(value = "SELECT * FROM wards where district_id = :id", nativeQuery = true)
     List<Ward> findAllByDistrict(@Param("id") int id);
+
 }

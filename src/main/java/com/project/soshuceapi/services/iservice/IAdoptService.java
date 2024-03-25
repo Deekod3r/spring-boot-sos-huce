@@ -28,4 +28,5 @@ public interface IAdoptService {
     void deleteSoft(String id, String deletedBy);
 
     Map<String, Long> statisticStatus(String userId);
+
 }
