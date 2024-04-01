@@ -80,7 +80,8 @@ public class AdoptController {
         Response<List<AdoptDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
-            if (auditorAware.getCurrentAuditor().isEmpty() || !auditorAware.getCurrentAuditor().get().equals(userId)) {
+            if (auditorAware.getCurrentAuditor().isEmpty()
+                    || !Objects.equals(auditorAware.getCurrentAuditor().get(), userId)) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
@@ -107,7 +108,8 @@ public class AdoptController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             boolean roleExists = authorities.stream()
-                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(Constants.User.KEY_ROLE + role));
+                    .anyMatch(grantedAuthority
+                            -> Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + role));
             if (!roleExists) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
@@ -115,7 +117,7 @@ public class AdoptController {
             Map<String, Object> data = adoptService.getById(id);
             if (Objects.equals(role, Constants.User.ROLE_USER)) {
                 String registeredBy = ((AdoptDTO) data.get("adopt")).getRegisteredBy();
-                if (!auditorAware.getCurrentAuditor().get().equals(registeredBy)) {
+                if (!Objects.equals(auditorAware.getCurrentAuditor().get(), registeredBy)) {
                     response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
                 }
@@ -200,7 +202,7 @@ public class AdoptController {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.Adopt.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -238,7 +240,7 @@ public class AdoptController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.Adopt.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -259,7 +261,7 @@ public class AdoptController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
-    public ResponseEntity<?> deleteSoftAdopt(@PathVariable(name = "id") String id) {
+    public ResponseEntity<?> deleteAdopt(@PathVariable(name = "id") String id) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -271,7 +273,7 @@ public class AdoptController {
                 response.setMessage(ResponseMessage.Adopt.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            adoptService.deleteSoft(id, auditorAware.getCurrentAuditor().get());
+            adoptService.delete(id, auditorAware.getCurrentAuditor().get());
             response.setData(true);
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);

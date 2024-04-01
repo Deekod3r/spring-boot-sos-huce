@@ -150,4 +150,65 @@ public class ResponseMessage {
         public static final String GET_INFO_DISTRICT_FAIL = "Lấy thông tin quận/huyện thất bại";
         public static final String GET_INFO_WARD_FAIL = "Lấy thông tin phường/xã thất bại";
     }
+
+    public static class Config {
+        public static final String MISSING_KEY = "Thông tin khóa cấu hình không được bỏ trống";
+        public static final String INVALID_KEY = "Thông tin khóa cấu hình không hợp lệ";
+        public static final String MISSING_DESCRIPTION = "Thông tin mô tả cấu hình không được bỏ trống";
+        public static final String INVALID_DESCRIPTION = "Thông tin mô tả cấu hình không hợp lệ";
+        public static final String MISSING_VALUE = "Thông tin giá trị cấu hình không được bỏ trống";
+        public static final String INVALID_VALUE = "Thông tin giá trị cấu hình không hợp lệ";
+        public static final String NOT_FOUND = "Thông tin cấu hình không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh cấu hình không khớp";
+        public static final String MISSING_CONFIG_ID = "Thông tin định danh cấu hình không được bỏ trống";
+        public static final String MISSING_CONFIG_VALUE_ID = "Thông tin định danh giá trị cấu hình không được bỏ trống";
+        public static final String NOT_AVAILABLE_FOR_UPDATE = "Cấu hình không trong trạng thái có thể cập nhật";
+        public static final String INVALID_CONFIG_ID = "Thông tin định danh cấu hình không hợp lệ";
+    }
+
+    public static class Bank {
+        public static final String MISSING_NAME = "Thông tin tên tài khoản nhận hỗ trợ không được bỏ trống";
+        public static final String INVALID_NAME = "Thông tin tên tài khoản nhận hỗ trợ không hợp lệ";
+        public static final String MISSING_ACCOUNT_NUMBER = "Thông tin số tài khoản không được bỏ trống";
+        public static final String INVALID_ACCOUNT_NUMBER = "Thông tin số tài khoản không hợp lệ";
+        public static final String MISSING_OWNER = "Thông tin chủ sở hữu không được bỏ trống";
+        public static final String INVALID_OWNER = "Thông tin chủ sở hữu không hợp lệ";
+        public static final String MISSING_LOGO = "Thông tin logo không được bỏ trống";
+        public static final String MISSING_ID = "Thông tin định danh tài khoản nhận hỗ trợ không được bỏ trống";
+        public static final String NOT_FOUND = "Thông tin tài khoản nhận hỗ trợ không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh tài khoản nhận hỗ trợ không khớp";
+        public static final String NOT_AVAILABLE_FOR_UPDATE = "Tài khoản nhận hỗ trợ không trong trạng thái có thể cập nhật";
+        public static final String MAX_QUANTITY = "Số lượng tài khoản nhận hỗ trợ đã đạt tối đa";
+        public static final String NAME_EXISTED = "Tên tài khoản nhận hỗ trợ đã tồn tại";
+    }
+
+    public static class News {
+        public static final String MISSING_TITLE = "Thông tin tiêu đề tin tức không được bỏ trống";
+        public static final String INVALID_TITLE = "Thông tin tiêu đề tin tức không hợp lệ";
+        public static final String MISSING_CONTENT = "Thông tin nội dung tin tức không được bỏ trống";
+        public static final String INVALID_CONTENT = "Thông tin nội dung tin tức không hợp lệ";
+        public static final String MISSING_IMAGE = "Thông tin hình ảnh tin tức không được bỏ trống";
+        public static final String MISSING_CATEGORY = "Thông tin danh mục tin tức không được bỏ trống";
+        public static final String NOT_FOUND = "Thông tin tin tức không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh tin tức không khớp";
+        public static final String NOT_AVAILABLE_FOR_UPDATE = "Tin tức không trong trạng thái có thể cập nhật";
+        public static final String MISSING_ID = "Thông tin định danh tin tức không được bỏ trống";
+        public static final String MISSING_STATUS = "Thông tin trạng thái tin tức không được bỏ trống";
+        public static final String INVALID_STATUS = "Thông tin trạng thái tin tức không hợp lệ";
+        public static final String TITLE_EXISTED = "Tiêu đề tin tức đã tồn tại";
+    }
+
+    public static class NewsCategory {
+        public static final String MISSING_NAME = "Thông tin tên danh mục tin tức không được bỏ trống";
+        public static final String INVALID_NAME = "Thông tin tên danh mục tin tức không hợp lệ";
+        public static final String MISSING_DESCRIPTION = "Thông tin mô tả danh mục tin tức không được bỏ trống";
+        public static final String NOT_FOUND = "Thông tin danh mục tin tức không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh danh mục tin tức không khớp";
+        public static final String NOT_AVAILABLE_FOR_UPDATE = "Danh mục tin tức không trong trạng thái có thể cập nhật";
+        public static final String MISSING_ID = "Thông tin định danh danh mục tin tức không được bỏ trống";
+        public static final String MISSING_STATUS = "Thông tin trạng thái danh mục tin tức không được bỏ trống";
+        public static final String INVALID_STATUS = "Thông tin trạng thái danh mục tin tức không hợp lệ";
+        public static final String NAME_EXISTED = "Tên danh mục tin tức đã tồn tại";
+    }
+
 }

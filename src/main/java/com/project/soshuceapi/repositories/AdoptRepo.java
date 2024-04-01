@@ -30,7 +30,7 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "AND (cast(:toDate as timestamp) IS NULL OR a.createdAt <= :toDate ) " +
             "AND (:registeredBy = '' OR a.registeredBy.id = :registeredBy) " +
             "AND (:petAdopt = '' OR a.pet.id = :petAdopt) " +
-            "ORDER BY a.status, a.updatedAt DESC, a.createdAt DESC")
+            "ORDER BY a.status, a.createdAt DESC, a.updatedAt DESC")
     Page<Adopt> findAll(
             @Param("status") Integer status,
             @Param("code") String code,
@@ -40,9 +40,6 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             @Param("petAdopt") String petAdopt,
             Pageable pageable
     );
-
-    @Query(value = "SELECT nextval('adopt_seq')", nativeQuery = true)
-    long getSEQ();
 
     @Query("SELECT a FROM Adopt a " +
             "JOIN FETCH a.pet " +
@@ -56,12 +53,11 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
     List<Adopt> findAllByUser(@NonNull @Param("userId") String userId);
 
     @NonNull
-    @Query(value = "SELECT * FROM adopts WHERE is_deleted = false AND id = :id", nativeQuery = true)
+    @Query(value = "SELECT a FROM Adopt a WHERE a.isDeleted = false AND a.pet.isDeleted = false AND a.id = :id")
     Optional<Adopt> findById(@NonNull @Param("id") String id);
 
     @Query(value = "SELECT COUNT(1) FROM Adopt a " +
-            "WHERE " +
-            "(:status IS NULL OR a.status = :status) " +
+            "WHERE (:status IS NULL OR a.status = :status) " +
             "AND a.isDeleted = false " +
             "AND a.pet.isDeleted = false " +
             "AND (:userId = '' OR a.registeredBy.id = :userId) ")
@@ -69,7 +65,12 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
 
     @Query(value = "SELECT COUNT(1) FROM adopts " +
             "WHERE pet_id = :petId " +
-            "AND registered_by = :userId AND status NOT IN (3, 4, 5) AND is_deleted = false", nativeQuery = true)
+            "AND registered_by = :userId " +
+            "AND status NOT IN (3, 4, 5) " +
+            "AND is_deleted = false", nativeQuery = true)
     long checkDuplicate(String petId, String userId);
+
+    @Query(value = "SELECT nextval('adopt_seq')", nativeQuery = true)
+    long getSEQ();
 
 }

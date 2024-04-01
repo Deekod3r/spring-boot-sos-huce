@@ -141,7 +141,7 @@ public class PetController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.Pet.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -175,7 +175,7 @@ public class PetController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.Pet.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -196,7 +196,7 @@ public class PetController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deleteSoftPet(@PathVariable("id") String id) {
+    public ResponseEntity<?> deletePet(@PathVariable("id") String id) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -208,7 +208,7 @@ public class PetController {
                 response.setMessage(ResponseMessage.Pet.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            petService.deleteSoft(id, auditorAware.getCurrentAuditor().get());
+            petService.delete(id, auditorAware.getCurrentAuditor().get());
             response.setData(true);
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);

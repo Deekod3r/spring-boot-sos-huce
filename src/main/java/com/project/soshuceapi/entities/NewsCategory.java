@@ -2,14 +2,11 @@ package com.project.soshuceapi.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -29,9 +26,9 @@ public class NewsCategory {
     private String description;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
-    private String createdAt;
+    private LocalDateTime createdAt;
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
-    private String updatedAt;
+    private LocalDateTime updatedAt;
     @Column(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
     private String createdBy;
     @Column(name = "updated_by", columnDefinition = "VARCHAR(36)")

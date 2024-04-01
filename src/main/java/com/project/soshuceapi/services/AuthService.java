@@ -5,10 +5,12 @@ import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.exceptions.AuthenticationException;
 import com.project.soshuceapi.exceptions.BadRequestException;
+import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.mappers.UserMapper;
 import com.project.soshuceapi.models.requests.LoginRequest;
 import com.project.soshuceapi.security.JWTProvider;
+import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IAuthService;
 import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
@@ -42,6 +44,8 @@ public class AuthService implements IAuthService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private IActionLogService actionLogService;
 
     @Override
     public Map<String, Object> authenticate(LoginRequest loginRequest) {
@@ -55,6 +59,13 @@ public class AuthService implements IAuthService {
                 String refreshToken = jwtProvider.generateRefreshToken(null, user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, token);
+                actionLogService.create(
+                        ActionLogDTO.builder()
+                                .action(Constants.ActionLog.LOGIN)
+                                .description("User " + user.getEmail() + " logged in")
+                                .createdBy(user.getId())
+                                .build()
+                );
                 return Map.of("token",token,"refreshToken",refreshToken,"user", userMapper.mapTo(user, UserDTO.class));
             }
             return null;
@@ -99,21 +110,12 @@ public class AuthService implements IAuthService {
     }
 
     private void saveUserToken(User user, String jwtToken) {
-        try {
-            redisService.saveDataToRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail(), jwtToken, Constants.Security.TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
+        redisService.saveDataToRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail(),
+                jwtToken, Constants.Security.TOKEN_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
     }
 
     private void revokeAllUserTokens(User user) {
-        try {
-            redisService.deleteDataFromRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail());
-        } catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
+        redisService.deleteDataFromRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail());
     }
 
 }

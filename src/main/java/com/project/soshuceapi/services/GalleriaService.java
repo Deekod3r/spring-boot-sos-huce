@@ -36,7 +36,6 @@ public class GalleriaService implements IGalleriaService {
     @Override
     public List<GalleriaDTO> getAll(Boolean status) {
         try {
-            List<Galleria> gallerias = galleriaRepo.findAll(status);
             return galleriaRepo.findAll(status).stream().map(entity -> {
                         GalleriaDTO dto = new GalleriaDTO();
                         dto.setId(entity.getId());
@@ -96,55 +95,49 @@ public class GalleriaService implements IGalleriaService {
         log.info("Delete Galleria");
     }
 
-    @Transactional
-    protected void logCreate(Galleria galleria) {
-        try {
-            actionLogService.create(ActionLogDTO.builder()
-                    .action(Constants.ActionLog.CREATE)
-                    .description(Constants.ActionLog.CREATE + "." + TAG)
-                    .createdBy(galleria.getCreatedBy())
-                    .details(List.of(
-                            ActionLogDetail.builder()
-                                    .tableName(TAG)
-                                    .rowId(galleria.getId())
-                                    .columnName("title")
-                                    .oldValue("")
-                                    .newValue(galleria.getTitle())
-                                    .build(),
-                            ActionLogDetail.builder()
-                                    .tableName(TAG)
-                                    .rowId(galleria.getId())
-                                    .columnName("description")
-                                    .oldValue("")
-                                    .newValue(galleria.getDescription())
-                                    .build(),
-                            ActionLogDetail.builder()
-                                    .tableName(TAG)
-                                    .rowId(galleria.getId())
-                                    .columnName("status")
-                                    .oldValue("")
-                                    .newValue(galleria.getStatus().toString())
-                                    .build(),
-                            ActionLogDetail.builder()
-                                    .tableName(TAG)
-                                    .rowId(galleria.getId())
-                                    .columnName("link")
-                                    .oldValue("")
-                                    .newValue(galleria.getLink())
-                                    .build(),
-                            ActionLogDetail.builder()
-                                    .tableName(TAG)
-                                    .rowId(galleria.getId())
-                                    .columnName("image")
-                                    .oldValue("")
-                                    .newValue(galleria.getImage())
-                                    .build()
-                    ))
-                    .build());
-        } catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
+    private void logCreate(Galleria galleria) {
+        actionLogService.create(ActionLogDTO.builder()
+                .action(Constants.ActionLog.CREATE)
+                .description(Constants.ActionLog.CREATE + "." + TAG)
+                .createdBy(galleria.getCreatedBy())
+                .details(List.of(
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(galleria.getId())
+                                .columnName("title")
+                                .oldValue("")
+                                .newValue(galleria.getTitle().trim())
+                                .build(),
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(galleria.getId())
+                                .columnName("description")
+                                .oldValue("")
+                                .newValue(galleria.getDescription().trim())
+                                .build(),
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(galleria.getId())
+                                .columnName("status")
+                                .oldValue("")
+                                .newValue(galleria.getStatus().toString())
+                                .build(),
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(galleria.getId())
+                                .columnName("link")
+                                .oldValue("")
+                                .newValue(galleria.getLink())
+                                .build(),
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(galleria.getId())
+                                .columnName("image")
+                                .oldValue("")
+                                .newValue(galleria.getImage())
+                                .build()
+                ))
+                .build());
     }
 
 }

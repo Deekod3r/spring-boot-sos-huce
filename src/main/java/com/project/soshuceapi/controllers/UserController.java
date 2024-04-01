@@ -91,7 +91,7 @@ public class UserController {
                 response.setMessage(ResponseMessage.User.VERIFY_CODE_EXPIRED);
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
-            if (!verifyCode.equals(code)) {
+            if (!Objects.equals(verifyCode, code)) {
                 response.setMessage(ResponseMessage.User.VERIFY_CODE_INCORRECT);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
@@ -162,7 +162,7 @@ public class UserController {
             String verifyCode = StringUtil.generateRandomString(Constants.Security.VERIFY_CODE_LENGTH);
             String key = String.valueOf(System.currentTimeMillis());
             emailService.sendMail(user.getEmail(), String.format(Constants.Mail.SUBJECT, "Password Reset"),
-                    String.format(Constants.Mail.VERIFY_BODY, user.getEmail(), "đặt lại mật khẩu", verifyCode));
+                    String.format(Constants.Mail.FORGOT_PASSWORD_BODY, user.getEmail(), "đặt lại mật khẩu", verifyCode));
             redisService.saveDataToRedis(user.getPhoneNumber() + key + Constants.User.KEY_FORGOT_PASSWORD_CODE, verifyCode,
                     Constants.Security.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
             response.setData(Map.of("id", user.getPhoneNumber() + key));
@@ -191,7 +191,7 @@ public class UserController {
                 response.setMessage(ResponseMessage.User.VERIFY_CODE_EXPIRED);
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
-            if (!verifyCode.equals(code)) {
+            if (!Objects.equals(verifyCode, code)) {
                 response.setMessage(ResponseMessage.User.VERIFY_CODE_INCORRECT);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
@@ -224,7 +224,7 @@ public class UserController {
                 response.setMessage(ResponseMessage.Authentication.VERIFY_CODE_EXPIRED);
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
-            if (!verifyCode.equals(request.getCode())) {
+            if (!Objects.equals(verifyCode, request.getCode())) {
                 response.setMessage(ResponseMessage.Authentication.VERIFY_CODE_INCORRECT);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
@@ -261,13 +261,14 @@ public class UserController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             boolean roleExists = authorities.stream()
-                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(Constants.User.KEY_ROLE + role));
+                    .anyMatch(grantedAuthority
+                            -> Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + role));
             if (!roleExists) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (Objects.equals(role, Constants.User.ROLE_USER)) {
-                if (!auditorAware.getCurrentAuditor().get().equals(id)) {
+                if (!Objects.equals(auditorAware.getCurrentAuditor().get(), id)) {
                     response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
                 }
@@ -306,7 +307,8 @@ public class UserController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             boolean roleExists = authorities.stream()
-                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(Constants.User.KEY_ROLE + roleRequest));
+                    .anyMatch(grantedAuthority
+                            -> Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + roleRequest));
             if (!roleExists) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
@@ -343,7 +345,7 @@ public class UserController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (!auditorAware.getCurrentAuditor().get().equals(id)) {
+            if (!Objects.equals(auditorAware.getCurrentAuditor().get(), id)) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
@@ -378,7 +380,7 @@ public class UserController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (!auditorAware.getCurrentAuditor().get().equals(id)) {
+            if (!Objects.equals(auditorAware.getCurrentAuditor().get(), id)) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
@@ -413,12 +415,12 @@ public class UserController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (!auditorAware.getCurrentAuditor().get().equals(id)) {
+            if (!Objects.equals(auditorAware.getCurrentAuditor().get(), id)) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             UserDTO user = userService.getByEmail(request.getEmail());
-            if (Objects.nonNull(user) && !user.getId().equals(id)) {
+            if (Objects.nonNull(user) && !Objects.equals(user.getId(), id)) {
                 response.setMessage(ResponseMessage.User.USER_EXISTED);
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
@@ -429,7 +431,7 @@ public class UserController {
             String verifyCode = StringUtil.generateRandomString(Constants.Security.VERIFY_CODE_LENGTH);
             String key = String.valueOf(System.currentTimeMillis());
             emailService.sendMail(request.getEmail().trim(), String.format(Constants.Mail.SUBJECT, "Email Verification"),
-                    String.format(Constants.Mail.VERIFY_BODY, request.getEmail().trim(), "đổi email", verifyCode));
+                    String.format(Constants.Mail.UPDATE_EMAIL_BODY, request.getEmail().trim(), "đổi email", verifyCode));
             redisService.saveDataToRedis(request.getId() + key + Constants.User.KEY_UPDATE_EMAIL_INFO, DataUtil.toJSON(request),
                     Constants.Security.VERIFICATION_EXPIRATION_TIME, TimeUnit.SECONDS);
             redisService.saveDataToRedis(request.getId() + key + Constants.User.KEY_UPDATE_EMAIL_CODE, verifyCode,
@@ -468,7 +470,7 @@ public class UserController {
                 response.setMessage(ResponseMessage.User.VERIFY_CODE_EXPIRED);
                 return ResponseEntity.status(HttpStatus.GONE).body(response);
             }
-            if (!verifyCode.equals(code)) {
+            if (!Objects.equals(verifyCode, code)) {
                 response.setMessage(ResponseMessage.User.VERIFY_CODE_INCORRECT);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
@@ -511,7 +513,7 @@ public class UserController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (!auditorAware.getCurrentAuditor().get().equals(id)) {
+            if (!Objects.equals(auditorAware.getCurrentAuditor().get(), id)) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
@@ -546,11 +548,11 @@ public class UserController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
                 return ResponseEntity.badRequest().body(response);
             }
-            if (!request.getRole().equals(Constants.User.ROLE_USER)) {
+            if (!Objects.equals(request.getRole(), Constants.User.ROLE_USER)) {
                 response.setMessage(ResponseMessage.User.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
@@ -616,7 +618,7 @@ public class UserController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
+            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
                 return ResponseEntity.badRequest().body(response);
             }

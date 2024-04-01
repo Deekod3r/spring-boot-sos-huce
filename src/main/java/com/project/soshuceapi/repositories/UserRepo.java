@@ -14,10 +14,10 @@ import java.util.Optional;
 public interface UserRepo extends JpaRepository<User, String> {
 
     @Query(value = "SELECT * FROM users WHERE lower(email) = lower(:email)", nativeQuery = true)
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmail(@Param("email") String email);
 
     @Query(value = "SELECT * FROM users WHERE phone_number = :phoneNumber", nativeQuery = true)
-    Optional<User> findByPhoneNumber(String phoneNumber);
+    Optional<User> findByPhoneNumber(@Param("phoneNumber") String phoneNumber);
 
     @Query(value = "SELECT COUNT(id) FROM users WHERE phone_number = :phoneNumber OR lower(email) = lower(:email)", nativeQuery = true)
     Long countByPhoneNumberOrEmail(@Param("phoneNumber") String phoneNumber, @Param("email") String email);

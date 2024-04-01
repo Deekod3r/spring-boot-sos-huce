@@ -26,15 +26,14 @@ public class Constants {
         public final static String ROLE_GUEST = "GUEST";
     }
 
-    //regex register
     public static class Regex {
         public final static String PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_])[A-Za-z\\d\\W_]{8,}$";
         public final static String NAME = "^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưỂỄỆẾỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪẹễệếỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ ]{2,}$";
         public final static String PHONE_NUMBER = "^\\d+$";
     }
 
-    // mail
     public static class Mail {
+        public final static String SUBJECT = "[SOS HUCE] %s";
         public final static String VERIFY_BODY = """
             <html>
                 <div class="container" style="max-width: 600px; margin: 50px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
@@ -48,7 +47,67 @@ public class Constants {
                 </div>
             </html>
             """;
-        public final static String SUBJECT = "[SOS HUCE] %s";
+        public final static String FORGOT_PASSWORD_BODY = """
+            <html>
+                <div class="container" style="max-width: 600px; margin: 50px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                    <h2 style="color: #14B8A6;">Forgot Password</h2>
+                    <p style="color: #666;">Dear %s,</p>
+                    <p style="color: #666;">Bạn đã yêu cầu đặt lại mật khẩu tài khoản HUCE Pet. Dưới đây là mã xác thực <b style="color: #14B8A6;">%s</b>:</p>
+                    <div class="verification-code" style="background-color: #14B8A6; color: #fff; padding: 10px; font-size: 18px; border-radius: 4px; margin: 20px 0; display: inline-block;">%s</div>
+                    <p style="color: #666;">Mã xác thực sẽ có hiệu lực trong vòng 5 phút kể từ thời điểm bạn nhận được email.</p>
+                    <p style="color: #666;">Hãy sử dụng để hoàn thành quá trình đặt lại mật khẩu.</p>
+                    <p style="color: #666;">Nếu không phải bạn thực hiện, vui lòng bỏ qua email này.</p>
+                </div>
+            </html>
+            """;
+        public final static String UPDATE_EMAIL_BODY = """
+            <html>
+                <div class="container" style="max-width: 600px; margin: 50px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                    <h2 style="color: #14B8A6;">Update Email</h2>
+                    <p style="color: #666;">Dear %s,</p>
+                    <p style="color: #666;">Bạn đã yêu cầu cập nhật email cho tài khoản HUCE Pet. Dưới đây là mã xác thực <b style="color: #14B8A6;">%s</b>:</p>
+                    <div class="verification-code" style="background-color: #14B8A6; color: #fff; padding: 10px; font-size: 18px; border-radius: 4px; margin: 20px 0; display: inline-block;">%s</div>
+                    <p style="color: #666;">Mã xác thực sẽ có hiệu lực trong vòng 5 phút kể từ thời điểm bạn nhận được email.</p>
+                    <p style="color: #666;">Hãy sử dụng để hoàn thành quá trình cập nhật email.</p>
+                    <p style="color: #666;">Nếu không phải bạn thực hiện, vui lòng bỏ qua email này.</p>
+                </div>
+            </html>
+            """;
+        public final static String RESET_PASSWORD_BODY = """
+            <html>
+                <div class="container" style="max-width: 600px; margin: 50px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                    <h2 style="color: #14B8A6;">Reset Password</h2>
+                    <p style="color: #666;">Dear %s,</p>
+                    <p style="color: #666;">Mật khẩu của tài khoản HUCE Pet đã được đặt lại.</p>
+                    <p style="color: #666;">Nếu không phải bạn thực hiện, vui lòng liên hệ với chúng tôi ngay.</p>
+                </div>
+            </html>
+            """;
+        public final static String REGISTER_ADOPT_SUCCESS = """
+            <html>
+                <div class="container" style="max-width: 600px; margin: 50px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                    <h2 style="color: #14B8A6;">Adopt Success</h2>
+                    <p style="color: #666;">Dear %s,</p>
+                    <p style="color: #666;">Bạn đã đăng ký nhận nuôi thành công. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.</p>
+                    <p style="color: #666;">Cảm ơn bạn đã tham gia cộng đồng HUCE Pet.</p>
+                </div>
+            </html>
+            """;
+        public final static String HEADER = """
+            <html>
+                <div class="container" style="max-width: 600px; margin: 50px auto; background-color: #14B8A6; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                    <h1 style="color: #fff;">SOS HUCE</h1>
+                </div>
+            </html>
+            """;
+        public final static String FOOTER = """
+            <html>
+                <div class="container" style="max-width: 600px; margin: 50px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                    <p style="color: #666;">Trân trọng,</p>
+                    <p style="color: #666;">HUCE Pet</p>
+                </div>
+            </html>
+            """;
     }
 
     public static class ActionLog {
@@ -58,6 +117,7 @@ public class Constants {
         public final static String DELETE_SOFT = "DELETE_SOFT";
         public final static String LOCK = "LOCK";
         public final static String UNLOCK = "UNLOCK";
+        public final static String LOGIN = "LOGIN";
     }
 
     public static class AdoptStatus {
@@ -85,4 +145,9 @@ public class Constants {
         public final static String LOCAL_DATETIME = "yyyy-MM-dd'T'HH:mm:ss";
         public final static String LOCAL_DATE = "yyyy-MM-dd";
     }
+
+    public static class Bank {
+        public final static int MAX_QUANTITY = 4;
+    }
+
 }

@@ -12,6 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 public class ActionLogDetail {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "action_log_id", columnDefinition = "BIGINT", nullable = false)
     private Long actionLogId;

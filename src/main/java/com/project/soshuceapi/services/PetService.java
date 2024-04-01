@@ -17,6 +17,7 @@ import com.project.soshuceapi.repositories.PetRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IFileService;
 import com.project.soshuceapi.services.iservice.IPetService;
+import com.project.soshuceapi.utils.CollectionUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,15 +106,16 @@ public class PetService implements IPetService {
         try {
             Pet pet = petRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
-            if (pet.getStatus().equals(Constants.PetStatus.ADOPTED)
-                    || pet.getStatus().equals(Constants.PetStatus.DIED)) {
+            if (Objects.equals(pet.getStatus(), Constants.PetStatus.ADOPTED)
+                    || Objects.equals(pet.getStatus(), Constants.PetStatus.DIED)) {
                 throw new BadRequestException(ResponseMessage.Pet.NOT_AVAILABLE_FOR_UPDATE);
             }
-            Pet oldValue = pet;
+            logUpdate(pet, request);
             pet.setBreed(uppercaseFirstLetter(request.getBreed().trim()));
             pet.setColor(uppercaseFirstLetter(request.getColor().trim()));
             pet.setName(uppercaseAllFirstLetters(request.getName().trim()));
             pet.setAge(request.getAge());
+            pet.setType(request.getType());
             pet.setIntakeDate(request.getIntakeDate());
             pet.setGender(request.getGender());
             pet.setStatus(request.getStatus());
@@ -130,8 +132,7 @@ public class PetService implements IPetService {
             pet.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : request.getNote());
             pet.setUpdatedBy(request.getUpdatedBy());
             pet.setUpdatedAt(LocalDateTime.now());
-            pet = petRepo.save(pet);
-            logUpdate(pet, oldValue);
+            petRepo.save(pet);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -146,16 +147,12 @@ public class PetService implements IPetService {
         try {
             Pet pet = petRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
-            if (pet.getStatus().equals(Constants.PetStatus.ADOPTED)
-                    || pet.getStatus().equals(Constants.PetStatus.DIED)) {
+            if (Objects.equals(pet.getStatus(), Constants.PetStatus.ADOPTED)
+                    || Objects.equals(pet.getStatus(), Constants.PetStatus.DIED)) {
                 throw new BadRequestException(ResponseMessage.Pet.NOT_AVAILABLE_FOR_UPDATE);
             }
-            String oldImage = pet.getImage();
             Map<String, String> data = fileService.upload(request.getImage());
             String url = data.get("url");
-            pet.setImage(url);
-            pet.setUpdatedAt(LocalDateTime.now());
-            pet = petRepo.save(pet);
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)
@@ -165,11 +162,14 @@ public class PetService implements IPetService {
                                     .tableName(TAG)
                                     .rowId(pet.getId())
                                     .columnName("image")
-                                    .oldValue(oldImage)
+                                    .oldValue(pet.getImage())
                                     .newValue(url)
                                     .build()
                     ))
                     .build());
+            pet.setImage(url);
+            pet.setUpdatedAt(LocalDateTime.now());
+            petRepo.save(pet);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -180,14 +180,10 @@ public class PetService implements IPetService {
 
     @Override
     @Transactional
-    public void deleteSoft(String id, String deletedBy) {
+    public void delete(String id, String deletedBy) {
         try {
             Pet pet = petRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
-            pet.setDeletedAt(LocalDateTime.now());
-            pet.setDeletedBy(deletedBy);
-            pet.setIsDeleted(true);
-            petRepo.save(pet);
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.DELETE_SOFT)
                     .description(Constants.ActionLog.DELETE_SOFT + "." + TAG)
@@ -202,6 +198,10 @@ public class PetService implements IPetService {
                                     .build()
                     ))
                     .build());
+            pet.setDeletedAt(LocalDateTime.now());
+            pet.setDeletedBy(deletedBy);
+            pet.setIsDeleted(true);
+            petRepo.save(pet);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (RuntimeException e) {
@@ -244,12 +244,6 @@ public class PetService implements IPetService {
         try {
             Pet pet = petRepo.findById(petId).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
-            pet.setAdoptedBy(User.builder()
-                    .id(userId)
-                    .build());
-            pet.setStatus(Constants.PetStatus.ADOPTED);
-            pet.setUpdatedAt(LocalDateTime.now());
-            petRepo.save(pet);
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)
@@ -264,6 +258,12 @@ public class PetService implements IPetService {
                                     .build()
                     ))
                     .build());
+            pet.setAdoptedBy(User.builder()
+                    .id(userId)
+                    .build());
+            pet.setStatus(Constants.PetStatus.ADOPTED);
+            pet.setUpdatedAt(LocalDateTime.now());
+            petRepo.save(pet);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -273,264 +273,236 @@ public class PetService implements IPetService {
     }
 
     private PetDTO parsePetDTO(Pet pet) {
-        try {
-            PetDTO dto = petMapper.mapTo(pet, PetDTO.class);
-            if (Objects.nonNull(pet.getAdoptedBy())) {
-                dto.setInfoAdoptedBy(pet.getAdoptedBy().getName() + " - " + pet.getAdoptedBy().getPhoneNumber() + " - " + pet.getAdoptedBy().getEmail());
-            }
-            return dto;
-        } catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+        PetDTO dto = petMapper.mapTo(pet, PetDTO.class);
+        if (Objects.nonNull(pet.getAdoptedBy())) {
+            dto.setInfoAdoptedBy(pet.getAdoptedBy().getName()
+                    + " - " + pet.getAdoptedBy().getPhoneNumber()
+                    + " - " + pet.getAdoptedBy().getEmail());
         }
+        return dto;
     }
 
     private String generateCode(String name) {
-        try {
-            Long seq = petRepo.getSEQ();
-            return name.substring(0, 1).toUpperCase() + String.format("%05d", seq);
-        } catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
+        Long seq = petRepo.getSEQ();
+        return name.substring(0, 1).toUpperCase() + String.format("%05d", seq);
     }
 
-    @Transactional
-    protected void logCreate(Pet pet) {
-        try {
-            actionLogService.create(ActionLogDTO.builder()
-                    .action(Constants.ActionLog.CREATE)
-                    .description(Constants.ActionLog.CREATE + "." + TAG)
-                    .createdBy(pet.getCreatedBy())
-                    .details(List.of(
-                            ActionLogDetail.builder()
-                                    .tableName(TAG)
-                                    .rowId(pet.getId())
-                                    .columnName("name")
-                                    .oldValue("")
-                                    .newValue(pet.getName().trim())
-                                    .build(),
-                            ActionLogDetail.builder()
-                                    .tableName(TAG)
-                                    .rowId(pet.getId())
-                                    .columnName("type")
-                                    .oldValue("")
-                                    .newValue(String.valueOf(pet.getType()))
-                                    .build(),
-                            ActionLogDetail.builder()
-                                    .tableName(TAG)
-                                    .rowId(pet.getId())
-                                    .columnName("gender")
-                                    .oldValue("")
-                                    .newValue(String.valueOf(pet.getGender()))
-                                    .build(),
-                            ActionLogDetail.builder()
-                                    .tableName(TAG)
-                                    .rowId(pet.getId())
-                                    .columnName("status")
-                                    .oldValue("")
-                                    .newValue(String.valueOf(pet.getStatus()))
-                                    .build(),
-                            ActionLogDetail.builder()
-                                    .tableName(TAG)
-                                    .rowId(pet.getId())
-                                    .columnName("image")
-                                    .oldValue("")
-                                    .newValue(pet.getImage())
-                                    .build()
-                    ))
+    private void logCreate(Pet pet) {
+        actionLogService.create(ActionLogDTO.builder()
+                .action(Constants.ActionLog.CREATE)
+                .description(Constants.ActionLog.CREATE + "." + TAG)
+                .createdBy(pet.getCreatedBy())
+                .details(List.of(
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(pet.getId())
+                                .columnName("name")
+                                .oldValue("")
+                                .newValue(pet.getName().trim())
+                                .build(),
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(pet.getId())
+                                .columnName("type")
+                                .oldValue("")
+                                .newValue(String.valueOf(pet.getType()))
+                                .build(),
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(pet.getId())
+                                .columnName("gender")
+                                .oldValue("")
+                                .newValue(String.valueOf(pet.getGender()))
+                                .build(),
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(pet.getId())
+                                .columnName("status")
+                                .oldValue("")
+                                .newValue(String.valueOf(pet.getStatus()))
+                                .build(),
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(pet.getId())
+                                .columnName("image")
+                                .oldValue("")
+                                .newValue(pet.getImage())
+                                .build()
+                ))
+                .build());
+    }
+
+    private void logUpdate(Pet oldValue, PetUpdateRequest newValue) {
+        List<ActionLogDetail> details = new ArrayList<>();
+        if (!Objects.equals(newValue.getBreed().trim(), oldValue.getBreed())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("breed")
+                    .oldValue(oldValue.getBreed())
+                    .newValue(newValue.getBreed().trim())
                     .build());
-        } catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
         }
-    }
-
-    @Transactional
-    protected void logUpdate(Pet newValue, Pet oldValue) {
-        try {
-            List<ActionLogDetail> actionLogDetails = new ArrayList<>();
-            if (!Objects.equals(newValue.getBreed(), oldValue.getBreed())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("breed")
-                        .oldValue(oldValue.getBreed())
-                        .newValue(newValue.getBreed().trim())
-                        .build());
-            }
-            if (!Objects.equals(newValue.getColor(), oldValue.getColor())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("color")
-                        .oldValue(oldValue.getColor())
-                        .newValue(newValue.getColor().trim())
-                        .build());
-            }
-            if (!Objects.equals(newValue.getName(), oldValue.getName())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("name")
-                        .oldValue(oldValue.getName())
-                        .newValue(newValue.getName().trim())
-                        .build());
-            }
-            if (!Objects.equals(newValue.getAge(), oldValue.getAge())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("age")
-                        .oldValue(String.valueOf(oldValue.getAge()))
-                        .newValue(String.valueOf(newValue.getAge()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getGender(), oldValue.getGender())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("gender")
-                        .oldValue(String.valueOf(oldValue.getGender()))
-                        .newValue(String.valueOf(newValue.getGender()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getType(), oldValue.getType())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("type")
-                        .oldValue(String.valueOf(oldValue.getType()))
-                        .newValue(String.valueOf(newValue.getType()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getStatus(), oldValue.getStatus())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("status")
-                        .oldValue(String.valueOf(oldValue.getStatus()))
-                        .newValue(String.valueOf(newValue.getStatus()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getWeight(), oldValue.getWeight())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("weight")
-                        .oldValue(String.valueOf(oldValue.getWeight()))
-                        .newValue(String.valueOf(newValue.getWeight()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getVaccine(), oldValue.getVaccine())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("vaccine")
-                        .oldValue(String.valueOf(oldValue.getVaccine()))
-                        .newValue(String.valueOf(newValue.getVaccine()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getSterilization(), oldValue.getSterilization())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("sterilization")
-                        .oldValue(String.valueOf(oldValue.getSterilization()))
-                        .newValue(String.valueOf(newValue.getSterilization()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getDiet(), oldValue.getDiet())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("diet")
-                        .oldValue(String.valueOf(oldValue.getDiet()))
-                        .newValue(String.valueOf(newValue.getDiet()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getRabies(), oldValue.getRabies())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("rabies")
-                        .oldValue(String.valueOf(oldValue.getRabies()))
-                        .newValue(String.valueOf(newValue.getRabies()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getToilet(), oldValue.getToilet())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("toilet")
-                        .oldValue(String.valueOf(oldValue.getToilet()))
-                        .newValue(String.valueOf(newValue.getToilet()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getFriendlyToHuman(), oldValue.getFriendlyToHuman())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("friendly_to_human")
-                        .oldValue(String.valueOf(oldValue.getFriendlyToHuman()))
-                        .newValue(String.valueOf(newValue.getFriendlyToHuman()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getFriendlyToDogs(), oldValue.getFriendlyToDogs())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("friendly_to_dogs")
-                        .oldValue(String.valueOf(oldValue.getFriendlyToDogs()))
-                        .newValue(String.valueOf(newValue.getFriendlyToDogs()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getFriendlyToCats(), oldValue.getFriendlyToCats())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("friendly_to_cats")
-                        .oldValue(String.valueOf(oldValue.getFriendlyToCats()))
-                        .newValue(String.valueOf(newValue.getFriendlyToCats()))
-                        .build());
-            }
-            if (!Objects.equals(newValue.getDescription(), oldValue.getDescription())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("description")
-                        .oldValue(oldValue.getDescription())
-                        .newValue(!StringUtil.isNullOrBlank(newValue.getDescription()) ? newValue.getDescription().trim() : null)
-                        .build());
-            }
-            if (!Objects.equals(newValue.getNote(), oldValue.getNote())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("note")
-                        .oldValue(oldValue.getNote())
-                        .newValue(!StringUtil.isNullOrBlank(newValue.getNote()) ? newValue.getNote().trim() : null)
-                        .build());
-            }
-            if (!Objects.equals(newValue.getImage(), oldValue.getImage())) {
-                actionLogDetails.add(ActionLogDetail.builder()
-                        .tableName(TAG)
-                        .rowId(newValue.getId())
-                        .columnName("image")
-                        .oldValue(oldValue.getImage())
-                        .newValue(newValue.getImage())
-                        .build());
-            }
+        if (!Objects.equals(newValue.getColor().trim(), oldValue.getColor())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("color")
+                    .oldValue(oldValue.getColor())
+                    .newValue(newValue.getColor().trim())
+                    .build());
+        }
+        if (!Objects.equals(newValue.getName().trim(), oldValue.getName())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("name")
+                    .oldValue(oldValue.getName())
+                    .newValue(newValue.getName().trim())
+                    .build());
+        }
+        if (!Objects.equals(newValue.getAge(), oldValue.getAge())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("age")
+                    .oldValue(String.valueOf(oldValue.getAge()))
+                    .newValue(String.valueOf(newValue.getAge()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getGender(), oldValue.getGender())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("gender")
+                    .oldValue(String.valueOf(oldValue.getGender()))
+                    .newValue(String.valueOf(newValue.getGender()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getType(), oldValue.getType())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("type")
+                    .oldValue(String.valueOf(oldValue.getType()))
+                    .newValue(String.valueOf(newValue.getType()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getStatus(), oldValue.getStatus())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("status")
+                    .oldValue(String.valueOf(oldValue.getStatus()))
+                    .newValue(String.valueOf(newValue.getStatus()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getWeight(), oldValue.getWeight())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("weight")
+                    .oldValue(String.valueOf(oldValue.getWeight()))
+                    .newValue(String.valueOf(newValue.getWeight()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getVaccine(), oldValue.getVaccine())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("vaccine")
+                    .oldValue(String.valueOf(oldValue.getVaccine()))
+                    .newValue(String.valueOf(newValue.getVaccine()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getSterilization(), oldValue.getSterilization())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("sterilization")
+                    .oldValue(String.valueOf(oldValue.getSterilization()))
+                    .newValue(String.valueOf(newValue.getSterilization()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getDiet(), oldValue.getDiet())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("diet")
+                    .oldValue(String.valueOf(oldValue.getDiet()))
+                    .newValue(String.valueOf(newValue.getDiet()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getRabies(), oldValue.getRabies())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("rabies")
+                    .oldValue(String.valueOf(oldValue.getRabies()))
+                    .newValue(String.valueOf(newValue.getRabies()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getToilet(), oldValue.getToilet())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("toilet")
+                    .oldValue(String.valueOf(oldValue.getToilet()))
+                    .newValue(String.valueOf(newValue.getToilet()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getFriendlyToHuman(), oldValue.getFriendlyToHuman())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("friendly_to_human")
+                    .oldValue(String.valueOf(oldValue.getFriendlyToHuman()))
+                    .newValue(String.valueOf(newValue.getFriendlyToHuman()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getFriendlyToDogs(), oldValue.getFriendlyToDogs())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("friendly_to_dogs")
+                    .oldValue(String.valueOf(oldValue.getFriendlyToDogs()))
+                    .newValue(String.valueOf(newValue.getFriendlyToDogs()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getFriendlyToCats(), oldValue.getFriendlyToCats())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("friendly_to_cats")
+                    .oldValue(String.valueOf(oldValue.getFriendlyToCats()))
+                    .newValue(String.valueOf(newValue.getFriendlyToCats()))
+                    .build());
+        }
+        if (!Objects.equals(newValue.getDescription().trim(), oldValue.getDescription())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("description")
+                    .oldValue(oldValue.getDescription())
+                    .newValue(newValue.getDescription().trim())
+                    .build());
+        }
+        if (!Objects.equals(newValue.getNote().trim(), oldValue.getNote())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("note")
+                    .oldValue(oldValue.getNote())
+                    .newValue(!StringUtil.isNullOrBlank(newValue.getNote()) ? newValue.getNote().trim() : null)
+                    .build());
+        }
+        if (!CollectionUtil.isNullOrEmpty(details)) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)
                     .createdBy(newValue.getUpdatedBy())
-                    .details(actionLogDetails)
+                    .details(details)
                     .build());
-        }
-        catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
         }
     }
 }

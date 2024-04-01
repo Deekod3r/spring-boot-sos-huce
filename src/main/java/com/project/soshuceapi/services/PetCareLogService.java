@@ -16,13 +16,16 @@ import com.project.soshuceapi.repositories.PetCareLogRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IAdoptService;
 import com.project.soshuceapi.services.iservice.IPetCareLogService;
+import com.project.soshuceapi.utils.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,7 +66,7 @@ public class PetCareLogService implements IPetCareLogService {
                     .id(adopt.getId())
                     .build());
             petCareLog.setDate(request.getDate());
-            petCareLog.setNote(request.getNote());
+            petCareLog.setNote(request.getNote().trim());
             petCareLog.setCreatedAt(LocalDateTime.now());
             petCareLog.setCreatedBy(request.getCreatedBy());
             petCareLog = petCareLogRepo.save(petCareLog);
@@ -82,13 +85,12 @@ public class PetCareLogService implements IPetCareLogService {
         try {
             PetCareLog petCareLog = petCareLogRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.PetCareLog.NOT_FOUND));
-            PetCareLog oldPetCareLog = petCareLog;
+            logUpdate(petCareLog, request);
             petCareLog.setDate(request.getDate());
-            petCareLog.setNote(request.getNote());
+            petCareLog.setNote(request.getNote().trim());
             petCareLog.setUpdatedAt(LocalDateTime.now());
             petCareLog.setUpdatedBy(request.getUpdatedBy());
-            petCareLog = petCareLogRepo.save(petCareLog);
-            logUpdate(petCareLog, oldPetCareLog);
+            petCareLogRepo.save(petCareLog);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -127,92 +129,75 @@ public class PetCareLogService implements IPetCareLogService {
     }
 
     private PetCareLogDTO parsePetCareLogDTO(PetCareLog petCareLog) {
-        try {
-            return PetCareLogDTO.builder()
-                    .id(petCareLog.getId())
-                    .adoptId(petCareLog.getAdopt().getId())
-                    .adoptCode(petCareLog.getAdopt().getCode())
-                    .petName(petCareLog.getAdopt().getPet().getCode() + " - " + petCareLog.getAdopt().getPet().getName())
-                    .date(petCareLog.getDate())
-                    .note(petCareLog.getNote())
-                    .build();
-        } catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
+        return PetCareLogDTO.builder()
+                .id(petCareLog.getId())
+                .adoptId(petCareLog.getAdopt().getId())
+                .adoptCode(petCareLog.getAdopt().getCode())
+                .petName(petCareLog.getAdopt().getPet().getCode() + " - " + petCareLog.getAdopt().getPet().getName())
+                .date(petCareLog.getDate())
+                .note(petCareLog.getNote())
+                .build();
     }
 
-    @Transactional
-    protected void logCreate(PetCareLog petCareLog) {
-        try {
-            actionLogService.create(ActionLogDTO.builder()
-                    .action(Constants.ActionLog.CREATE)
-                    .description(Constants.ActionLog.CREATE + "." + TAG)
-                    .createdBy(petCareLog.getCreatedBy())
-                    .details(List.of(
-                            ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(petCareLog.getId())
-                                .columnName("adopt_id")
-                                .oldValue("")
-                                .newValue(petCareLog.getAdopt().getId())
-                                .build(),
-                            ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(petCareLog.getId())
-                                .columnName("date")
-                                .oldValue("")
-                                .newValue(petCareLog.getDate().toString())
-                                .build(),
-                            ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(petCareLog.getId())
-                                .columnName("note")
-                                .oldValue("")
-                                .newValue(petCareLog.getNote())
-                                .build()
-                    ))
+    private void logCreate(PetCareLog petCareLog) {
+        actionLogService.create(ActionLogDTO.builder()
+                .action(Constants.ActionLog.CREATE)
+                .description(Constants.ActionLog.CREATE + "." + TAG)
+                .createdBy(petCareLog.getCreatedBy())
+                .details(List.of(
+                        ActionLogDetail.builder()
+                            .tableName(TAG)
+                            .rowId(petCareLog.getId())
+                            .columnName("adopt_id")
+                            .oldValue("")
+                            .newValue(petCareLog.getAdopt().getId())
+                            .build(),
+                        ActionLogDetail.builder()
+                            .tableName(TAG)
+                            .rowId(petCareLog.getId())
+                            .columnName("date")
+                            .oldValue("")
+                            .newValue(petCareLog.getDate().toString())
+                            .build(),
+                        ActionLogDetail.builder()
+                            .tableName(TAG)
+                            .rowId(petCareLog.getId())
+                            .columnName("note")
+                            .oldValue("")
+                            .newValue(petCareLog.getNote())
+                            .build()
+                ))
+                .build());
+    }
+
+    private void logUpdate(PetCareLog oldValue, PetCareLogUpdateRequest newValue) {
+        List<ActionLogDetail> details = new ArrayList<>();
+        if (!Objects.equals(oldValue.getDate(), newValue.getDate())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("date")
+                    .oldValue(oldValue.getDate().toString())
+                    .newValue(newValue.getDate().toString())
                     .build());
-        } catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
         }
-    }
-
-    @Transactional
-    protected void logUpdate(PetCareLog petCareLog, PetCareLog oldPetCareLog) {
-        try {
+        if (!Objects.equals(oldValue.getNote(), newValue.getNote().trim())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(newValue.getId())
+                    .columnName("note")
+                    .oldValue(oldValue.getNote())
+                    .newValue(newValue.getNote().trim())
+                    .build());
+        }
+        if (!CollectionUtil.isNullOrEmpty(details)) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)
-                    .createdBy(petCareLog.getUpdatedBy())
-                    .details(List.of(
-                            ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(petCareLog.getId())
-                                .columnName("adopt_id")
-                                .oldValue(oldPetCareLog.getAdopt().getId())
-                                .newValue(petCareLog.getAdopt().getId())
-                                .build(),
-                            ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(petCareLog.getId())
-                                .columnName("date")
-                                .oldValue(oldPetCareLog.getDate().toString())
-                                .newValue(petCareLog.getDate().toString())
-                                .build(),
-                            ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(petCareLog.getId())
-                                .columnName("note")
-                                .oldValue(oldPetCareLog.getNote())
-                                .newValue(petCareLog.getNote())
-                                .build()
-                    ))
+                    .createdBy(newValue.getUpdatedBy())
+                    .details(details)
                     .build());
-        } catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
         }
     }
+
 }

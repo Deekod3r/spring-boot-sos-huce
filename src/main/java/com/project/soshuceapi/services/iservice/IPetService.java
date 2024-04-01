@@ -22,7 +22,7 @@ public interface IPetService {
 
     void updateImage(PetUpdateImageRequest request);
 
-    void deleteSoft(String id, String deletedBy);
+    void delete(String id, String deletedBy);
 
     void setAdoptedBy(String userId, String petId, String updatedBy);
 

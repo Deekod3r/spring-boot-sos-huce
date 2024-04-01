@@ -44,7 +44,12 @@ public class SecurityConfig {
             "/pets",
             "/pets/{id}",
             "/pets/statistic-cases",
-            "/gallerias"
+            "/gallerias",
+            "/configs",
+            "/banks",
+            "/news",
+            "/news/{id}",
+            "/news/categories",
     };
 
     @Bean
@@ -75,7 +80,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:4200/",
                 "https://sos-huce-1703816060758.web.app/",
                 "https://sos-huce-1703816060758.firebaseapp.com/"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -20,21 +20,21 @@ public enum ERole {
             USER_DELETE,
             USER_CREATE
     )),
-    MANAGER(Set.of(
-            MANAGER_READ,
-            MANAGER_UPDATE,
-            MANAGER_DELETE,
-            MANAGER_CREATE
-    )),
     ADMIN(Set.of(
             ADMIN_READ,
             ADMIN_UPDATE,
             ADMIN_DELETE,
-            ADMIN_CREATE,
+            ADMIN_CREATE
+    )),
+    MANAGER(Set.of(
             MANAGER_READ,
             MANAGER_UPDATE,
             MANAGER_DELETE,
-            MANAGER_CREATE
+            MANAGER_CREATE,
+            ADMIN_READ,
+            ADMIN_UPDATE,
+            ADMIN_DELETE,
+            ADMIN_CREATE
     ));
 
     private final Set<EPermission> permissions;

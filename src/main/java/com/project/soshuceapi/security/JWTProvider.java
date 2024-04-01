@@ -12,10 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -47,18 +44,18 @@ public class JWTProvider {
     }
 
     public String generateToken(@Nullable Map<String, Object> extraClaims, UserDetails userDetails ) {
-        if (extraClaims == null) extraClaims = new HashMap<>();
+        if (Objects.isNull(extraClaims)) extraClaims = new HashMap<>();
         return buildToken(extraClaims, userDetails, Constants.Security.TOKEN_EXPIRATION_TIME);
     }
 
     public String generateRefreshToken(@Nullable Map<String, Object> extraClaims, UserDetails userDetails) {
-        if (extraClaims == null) extraClaims = new HashMap<>();
+        if (Objects.isNull(extraClaims)) extraClaims = new HashMap<>();
         return buildToken(extraClaims, userDetails, Constants.Security.TOKEN_REFRESH_EXPIRATION_TIME);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String email = extractEmail(token);
-        return (email.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        return Objects.equals(email, userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

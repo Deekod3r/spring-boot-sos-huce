@@ -1,6 +1,7 @@
 package com.project.soshuceapi.utils;
 
 import java.security.SecureRandom;
+import java.util.Objects;
 import java.util.Random;
 
 public class StringUtil {
@@ -17,11 +18,11 @@ public class StringUtil {
     }
 
     public static boolean isNullOrEmpty(String str) {
-        return str == null || str.isEmpty();
+        return Objects.isNull(str) || str.isEmpty();
     }
 
     public static boolean isNullOrBlank(String str) {
-        return str == null || str.isBlank();
+        return Objects.isNull(str) || str.isBlank();
     }
 
     public static String uppercaseFirstLetter(String input) {

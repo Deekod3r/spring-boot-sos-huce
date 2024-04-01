@@ -110,4 +110,5 @@ public class DataUtil {
             throw new RuntimeException("Error when parsing timestamp", e);
         }
     }
+
 }

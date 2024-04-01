@@ -21,4 +21,5 @@ public enum EPermission {
     MANAGER_DELETE("management:delete");
 
     private final String permission;
+
 }

@@ -7,17 +7,15 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class ApplicationAuditAware implements AuditorAware<String> {
     @Override
     @NonNull
     public Optional<String> getCurrentAuditor() {
-        Authentication authentication =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
-        if (authentication == null
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (Objects.isNull(authentication)
                 || !authentication.isAuthenticated()
                 || authentication instanceof AnonymousAuthenticationToken) {
             return Optional.empty();

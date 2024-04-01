@@ -12,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 @Slf4j
 public class LogoutService implements LogoutHandler {
@@ -27,17 +29,18 @@ public class LogoutService implements LogoutHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         try {
             final String authHeader = request.getHeader(Constants.Security.REQUEST_HEADER_AUTH);
-            if (authHeader == null || !authHeader.startsWith(Constants.Security.TOKEN_PREFIX)) {
+            if (Objects.isNull(authHeader) || !authHeader.startsWith(Constants.Security.TOKEN_PREFIX)) {
                 return;
             }
             String jwt = authHeader.substring(Constants.Security.TOKEN_PREFIX.length());
             String key = Constants.Security.TOKEN_HEADER_KEY + jwtProvider.extractEmail(jwt);
             String storedToken = (String) redisService.getDataFromRedis(key);
-            if (storedToken != null) {
+            if (Objects.nonNull(storedToken)) {
                 redisService.deleteDataFromRedis(key);
                 SecurityContextHolder.clearContext();
             }
         } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }

@@ -23,6 +23,8 @@ public class ConfigValue {
     private String keyCV;
     @Column(name = "value", columnDefinition = "TEXT", nullable = false)
     private String value;
+    @Column(name = "type", columnDefinition = "INTEGER", nullable = false)
+    private Integer type; //1: text, 2: html
     @Column(name = "description", columnDefinition = "VARCHAR(255)", nullable = false)
     private String description;
 

@@ -1,5 +1,6 @@
 package com.project.soshuceapi.config.security;
 
+import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.repositories.UserRepo;
 import com.project.soshuceapi.security.ApplicationAuditAware;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class WebConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> userRepo.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("not.found.user.by.email"));
+                .orElseThrow(() -> new UsernameNotFoundException(ResponseMessage.User.NOT_FOUND));
     }
 
     @Bean

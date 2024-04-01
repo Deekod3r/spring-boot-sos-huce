@@ -43,7 +43,7 @@ public class GalleriaController {
                 Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
                 boolean roleExists = authorities.stream()
                         .anyMatch(grantedAuthority ->
-                                grantedAuthority.getAuthority().equals(Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
+                                Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
                 if (roleExists) {
                     status = true;
 

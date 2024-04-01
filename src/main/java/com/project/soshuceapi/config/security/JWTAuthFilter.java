@@ -20,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -39,16 +40,16 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain ) throws ServletException, IOException {
         final String authHeader = request.getHeader(Constants.Security.REQUEST_HEADER_AUTH);
         try {
-            if (authHeader == null || !authHeader.startsWith(Constants.Security.TOKEN_PREFIX)) {
+            if (Objects.isNull(authHeader) || !authHeader.startsWith(Constants.Security.TOKEN_PREFIX)) {
                 filterChain.doFilter(request, response);
                 return;
             }
             String jwt = authHeader.substring(Constants.Security.TOKEN_PREFIX.length());
             String email = jwtProvider.extractEmail(jwt);
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (Objects.nonNull(email) && Objects.isNull(SecurityContextHolder.getContext().getAuthentication())) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
                 var token = redisService.getDataFromRedis(Constants.Security.TOKEN_HEADER_KEY + email);
-                boolean isTokenValid = token != null && token.equals(jwt);
+                boolean isTokenValid = Objects.nonNull(token) && token.equals(jwt);
                 if (isTokenValid && jwtProvider.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
