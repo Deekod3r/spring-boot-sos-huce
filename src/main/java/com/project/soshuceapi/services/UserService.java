@@ -12,7 +12,6 @@ import com.project.soshuceapi.models.requests.*;
 import com.project.soshuceapi.repositories.UserRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IUserService;
-import com.project.soshuceapi.utils.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -526,7 +525,7 @@ public class UserService implements IUserService {
                     .newValue(newValue.getStatus().toString())
                     .build());
         }
-        if (!CollectionUtil.isNullOrEmpty(details)) {
+        if(!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)

@@ -24,7 +24,7 @@ public interface BankRepo extends JpaRepository<Bank, String> {
     @Query("SELECT b FROM Bank b WHERE b.id = :id AND b.isDeleted = false")
     Optional<Bank> findById(@NonNull @Param("id") String id);
 
-    @Query("SELECT b FROM Bank b WHERE b.accountNumber = :accountNumber AND b.isDeleted = false")
+    @Query("SELECT b FROM Bank b WHERE lower(b.accountNumber) = lower(:accountNumber) AND b.isDeleted = false")
     Bank findByAccountNumber(@Param("accountNumber") String accountNumber);
 
 }

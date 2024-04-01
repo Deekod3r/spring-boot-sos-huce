@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class NewsDTO {
     String id;
     String title;
+    String description;
     String content;
     String image;
     Boolean status;

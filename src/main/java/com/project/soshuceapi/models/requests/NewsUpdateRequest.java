@@ -17,6 +17,8 @@ public class NewsUpdateRequest {
     String id;
     @NotBlank(message = ResponseMessage.News.MISSING_TITLE)
     String title;
+    @NotBlank(message = ResponseMessage.News.MISSING_DESCRIPTION)
+    String description;
     @NotBlank(message = ResponseMessage.News.MISSING_CONTENT)
     String content;
     @NotNull(message = ResponseMessage.News.MISSING_CATEGORY)

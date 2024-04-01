@@ -18,6 +18,8 @@ public class NewsCreateRequest {
     String title;
     @NotBlank(message = ResponseMessage.News.MISSING_CONTENT)
     String content;
+    @NotBlank(message = ResponseMessage.News.MISSING_DESCRIPTION)
+    String description;
     @NotNull(message = ResponseMessage.News.MISSING_CATEGORY)
     String categoryId;
     @NotNull(message = ResponseMessage.News.MISSING_IMAGE)

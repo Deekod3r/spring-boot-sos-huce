@@ -16,7 +16,6 @@ import com.project.soshuceapi.repositories.PetCareLogRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IAdoptService;
 import com.project.soshuceapi.services.iservice.IPetCareLogService;
-import com.project.soshuceapi.utils.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -190,7 +189,7 @@ public class PetCareLogService implements IPetCareLogService {
                     .newValue(newValue.getNote().trim())
                     .build());
         }
-        if (!CollectionUtil.isNullOrEmpty(details)) {
+        if(!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)

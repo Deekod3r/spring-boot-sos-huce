@@ -22,6 +22,8 @@ public class News {
     private String id;
     @Column(name = "title", columnDefinition = "VARCHAR(255)", nullable = false)
     private String title;
+    @Column(name = "description", columnDefinition = "VARCHAR(255)", nullable = false)
+    private String description;
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
     @Column(name = "image", columnDefinition = "TEXT", nullable = false)
@@ -41,5 +43,4 @@ public class News {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "news_category_id", nullable = false)
     private NewsCategory newsCategory;
-
 }

@@ -196,6 +196,7 @@ public class ResponseMessage {
         public static final String MISSING_STATUS = "Thông tin trạng thái tin tức không được bỏ trống";
         public static final String INVALID_STATUS = "Thông tin trạng thái tin tức không hợp lệ";
         public static final String TITLE_EXISTED = "Tiêu đề tin tức đã tồn tại";
+        public static final String MISSING_DESCRIPTION = "Thông tin mô tả tin tức không được bỏ trống";
     }
 
     public static class NewsCategory {

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -88,6 +89,7 @@ public class NewsService implements INewsService {
             news = new News();
             news.setTitle(request.getTitle().trim());
             news.setContent(request.getContent().trim());
+            news.setDescription(request.getDescription().trim());
             news.setImage(url);
             news.setStatus(true);
             news.setNewsCategory(newsCategory);
@@ -120,6 +122,7 @@ public class NewsService implements INewsService {
             logUpdate(news, request);
             news.setTitle(request.getTitle().trim());
             news.setContent(request.getContent().trim());
+            news.setDescription(request.getDescription().trim());
             news.setStatus(request.getStatus());
             if (Objects.nonNull(newsCategory)) {
                 news.setNewsCategory(newsCategory);
@@ -190,6 +193,7 @@ public class NewsService implements INewsService {
         newsDTO.setId(news.getId());
         newsDTO.setTitle(news.getTitle());
         newsDTO.setContent(news.getContent());
+        newsDTO.setDescription(news.getDescription());
         newsDTO.setImage(news.getImage());
         newsDTO.setStatus(news.getStatus());
         newsDTO.setCategoryId(news.getNewsCategory().getId());
@@ -221,6 +225,13 @@ public class NewsService implements INewsService {
                         ActionLogDetail.builder()
                                 .tableName(TAG)
                                 .rowId(news.getId())
+                                .columnName("description")
+                                .oldValue("")
+                                .newValue(news.getDescription())
+                                .build(),
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(news.getId())
                                 .columnName("image")
                                 .oldValue("")
                                 .newValue(news.getImage())
@@ -237,34 +248,60 @@ public class NewsService implements INewsService {
     }
 
     private void logUpdate(News oldValue, NewsUpdateRequest newValue) {
-        actionLogService.create(ActionLogDTO.builder()
-                .action(Constants.ActionLog.UPDATE)
-                .description(Constants.ActionLog.UPDATE + "." + TAG)
-                .createdBy(newValue.getUpdatedBy())
-                .details(List.of(
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(oldValue.getId())
-                                .columnName("title")
-                                .oldValue(oldValue.getTitle())
-                                .newValue(newValue.getTitle().trim())
-                                .build(),
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(oldValue.getId())
-                                .columnName("content")
-                                .oldValue(oldValue.getContent())
-                                .newValue(newValue.getContent().trim())
-                                .build(),
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(oldValue.getId())
-                                .columnName("status")
-                                .oldValue(String.valueOf(oldValue.getStatus()))
-                                .newValue(String.valueOf(newValue.getStatus()))
-                                .build()
-                ))
-                .build());
+        List<ActionLogDetail> details = new ArrayList<>();
+        if(!Objects.equals(oldValue.getTitle(), newValue.getTitle())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(oldValue.getId())
+                    .columnName("title")
+                    .oldValue(oldValue.getTitle())
+                    .newValue(newValue.getTitle())
+                    .build());
+        }
+        if(!Objects.equals(oldValue.getContent(), newValue.getContent())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(oldValue.getId())
+                    .columnName("content")
+                    .oldValue(oldValue.getContent())
+                    .newValue(newValue.getContent())
+                    .build());
+        }
+        if(!Objects.equals(oldValue.getDescription(), newValue.getDescription())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(oldValue.getId())
+                    .columnName("description")
+                    .oldValue(oldValue.getDescription())
+                    .newValue(newValue.getDescription())
+                    .build());
+        }
+        if(!Objects.equals(oldValue.getStatus(), newValue.getStatus())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(oldValue.getId())
+                    .columnName("status")
+                    .oldValue(String.valueOf(oldValue.getStatus()))
+                    .newValue(String.valueOf(newValue.getStatus()))
+                    .build());
+        }
+        if(!Objects.equals(oldValue.getNewsCategory().getId(), newValue.getCategoryId())) {
+            details.add(ActionLogDetail.builder()
+                    .tableName(TAG)
+                    .rowId(oldValue.getId())
+                    .columnName("category_id")
+                    .oldValue(oldValue.getNewsCategory().getId())
+                    .newValue(newValue.getCategoryId())
+                    .build());
+        }
+        if(!details.isEmpty()) {
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.UPDATE)
+                    .description(Constants.ActionLog.UPDATE + "." + TAG)
+                    .createdBy(newValue.getUpdatedBy())
+                    .details(details)
+                    .build());
+        }
     }
 
     private void logDelete(News news, String deletedBy) {
@@ -273,27 +310,6 @@ public class NewsService implements INewsService {
                 .description(Constants.ActionLog.DELETE + "." + TAG)
                 .createdBy(deletedBy)
                 .details(List.of(
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(news.getId())
-                                .columnName("title")
-                                .oldValue(news.getTitle())
-                                .newValue("")
-                                .build(),
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(news.getId())
-                                .columnName("content")
-                                .oldValue(news.getContent())
-                                .newValue("")
-                                .build(),
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(news.getId())
-                                .columnName("image")
-                                .oldValue(news.getImage())
-                                .newValue("")
-                                .build(),
                         ActionLogDetail.builder()
                                 .tableName(TAG)
                                 .rowId(news.getId())

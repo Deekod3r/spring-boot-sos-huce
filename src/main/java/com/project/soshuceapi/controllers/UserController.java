@@ -419,7 +419,7 @@ public class UserController {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
-            UserDTO user = userService.getByEmail(request.getEmail());
+            UserDTO user = userService.getByEmail(request.getEmail().trim());
             if (Objects.nonNull(user) && !Objects.equals(user.getId(), id)) {
                 response.setMessage(ResponseMessage.User.USER_EXISTED);
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);

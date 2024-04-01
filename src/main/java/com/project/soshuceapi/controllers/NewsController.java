@@ -89,7 +89,8 @@ public class NewsController {
             NewsDTO news = newsService.getById(id);
             if(!news.getStatus()) {
                 if (auditorAware.getCurrentAuditor().isEmpty()) {
-                    return ResponseEntity.ok(response);
+                    response.setMessage(ResponseMessage.News.NOT_FOUND);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
                 } else {
                     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                     Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -97,15 +98,18 @@ public class NewsController {
                             .anyMatch(grantedAuthority ->
                                     Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
                     if (roleExists) {
-                        return ResponseEntity.ok(response);
+                        response.setMessage(ResponseMessage.News.NOT_FOUND);
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
                     }
                 }
-            } else {
-                response.setData(news);
             }
+            response.setData(news);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

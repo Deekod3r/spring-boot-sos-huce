@@ -3,22 +3,24 @@ package com.project.soshuceapi.services;
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.entities.Adopt;
+import com.project.soshuceapi.entities.Pet;
 import com.project.soshuceapi.entities.User;
 import com.project.soshuceapi.entities.locations.Ward;
 import com.project.soshuceapi.entities.logging.ActionLogDetail;
 import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.AdoptDTO;
-import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.mappers.AdoptMapper;
-import com.project.soshuceapi.models.mappers.PetMapper;
 import com.project.soshuceapi.models.requests.AdoptCreateRequest;
 import com.project.soshuceapi.models.requests.AdoptSearchRequest;
 import com.project.soshuceapi.models.requests.AdoptUpdateRequest;
 import com.project.soshuceapi.models.requests.AdoptUpdateStatusRequest;
 import com.project.soshuceapi.repositories.AdoptRepo;
-import com.project.soshuceapi.services.iservice.*;
-import com.project.soshuceapi.utils.CollectionUtil;
+import com.project.soshuceapi.repositories.PetRepo;
+import com.project.soshuceapi.services.iservice.IActionLogService;
+import com.project.soshuceapi.services.iservice.IAdoptService;
+import com.project.soshuceapi.services.iservice.ILocationService;
+import com.project.soshuceapi.services.iservice.IPetService;
 import com.project.soshuceapi.utils.DataUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.annotation.Nullable;
@@ -48,7 +50,7 @@ public class AdoptService implements IAdoptService {
     @Autowired
     private IPetService petService;
     @Autowired
-    private PetMapper petMapper;
+    private PetRepo petRepo;
     @Autowired
     private AdoptMapper adoptMapper;
 
@@ -109,7 +111,8 @@ public class AdoptService implements IAdoptService {
     @Transactional
     public void create(AdoptCreateRequest request) {
         try {
-            PetDTO pet = petService.getById(request.getPetId());
+            Pet pet = petRepo.findById(request.getPetId()).orElseThrow(
+                    () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
             if (!Objects.equals(pet.getStatus(), Constants.PetStatus.WAIT_FOR_ADOPTING)) {
                 throw new BadRequestException(ResponseMessage.Pet.NOT_AVAILABLE_FOR_ADOPT);
             }
@@ -121,7 +124,7 @@ public class AdoptService implements IAdoptService {
                 throw new BadRequestException(ResponseMessage.Adopt.DUPLICATE_ADOPT);
             }
             Adopt adopt = new Adopt();
-            adopt.setPet(petMapper.mapFrom(pet));
+            adopt.setPet(pet);
             adopt.setCreatedBy(User.builder()
                     .id(request.getCreatedBy())
                     .build());
@@ -488,7 +491,7 @@ public class AdoptService implements IAdoptService {
                     .newValue(String.valueOf(newValue.getFee()))
                     .build());
         }
-        if (!CollectionUtil.isNullOrEmpty(details)) {
+        if(!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)

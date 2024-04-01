@@ -13,7 +13,6 @@ import com.project.soshuceapi.repositories.NewsCategoryRepo;
 import com.project.soshuceapi.repositories.NewsRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.INewsCategoryService;
-import com.project.soshuceapi.utils.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,9 +33,10 @@ public class NewsCategoryService implements INewsCategoryService {
     @Autowired
     private NewsCategoryRepo newsCategoryRepo;
     @Autowired
-    private IActionLogService actionLogService;
-    @Autowired
     private NewsRepo newsRepo;
+    @Autowired
+    private IActionLogService actionLogService;
+
 
     @Override
     public List<NewsCategoryDTO> getAll() {
@@ -199,7 +199,7 @@ public class NewsCategoryService implements INewsCategoryService {
                     .newValue(newValue.getDescription())
                     .build());
         }
-        if (!CollectionUtil.isNullOrEmpty(details)) {
+        if(!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)

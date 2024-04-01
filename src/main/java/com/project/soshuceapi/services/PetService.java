@@ -17,7 +17,6 @@ import com.project.soshuceapi.repositories.PetRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IFileService;
 import com.project.soshuceapi.services.iservice.IPetService;
-import com.project.soshuceapi.utils.CollectionUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -496,7 +495,7 @@ public class PetService implements IPetService {
                     .newValue(!StringUtil.isNullOrBlank(newValue.getNote()) ? newValue.getNote().trim() : null)
                     .build());
         }
-        if (!CollectionUtil.isNullOrEmpty(details)) {
+        if(!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)
