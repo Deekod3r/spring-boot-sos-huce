@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.sql.Date;
+import java.util.Objects;
 
 public class DataUtil {
 
@@ -110,5 +111,79 @@ public class DataUtil {
             throw new RuntimeException("Error when parsing timestamp", e);
         }
     }
+
+    public static String parseString(Object obj) {
+        return Objects.isNull(obj) ? null : obj.toString();
+    }
+
+    public static Integer parseInteger(Object obj) {
+        return Objects.isNull(obj) ? null : Integer.parseInt(obj.toString());
+    }
+
+    public static Long parseLong(Object obj) {
+        return Objects.isNull(obj) ? null : Long.parseLong(obj.toString());
+    }
+
+    public static Double parseDouble(Object obj) {
+        return Objects.isNull(obj) ? null : Double.parseDouble(obj.toString());
+    }
+
+    public static Boolean parseBoolean(Object obj) {
+        return Objects.isNull(obj) ? null : Boolean.parseBoolean(obj.toString());
+    }
+
+    public static Date parseDate(Object obj) {
+        return Objects.isNull(obj) ? null : Date.valueOf(obj.toString());
+    }
+
+    public static LocalDate parseLocalDate(Object obj) {
+        return Objects.isNull(obj) ? null : LocalDate.parse(obj.toString());
+    }
+
+    public static LocalDateTime parseLocalDateTime(Object obj) {
+        return Objects.isNull(obj) ? null : LocalDateTime.parse(obj.toString());
+    }
+
+    public static Timestamp parseTimestamp(Object obj) {
+        return Objects.isNull(obj) ? null : Timestamp.valueOf(obj.toString());
+    }
+
+    public static String parseString(Object obj, String defaultValue) {
+        return Objects.isNull(obj) ? defaultValue : obj.toString();
+    }
+
+    public static Integer parseInteger(Object obj, Integer defaultValue) {
+        return Objects.isNull(obj) ? defaultValue : Integer.parseInt(obj.toString());
+    }
+
+    public static Long parseLong(Object obj, Long defaultValue) {
+        return Objects.isNull(obj) ? defaultValue : Long.parseLong(obj.toString());
+    }
+
+    public static Double parseDouble(Object obj, Double defaultValue) {
+        return Objects.isNull(obj) ? defaultValue : Double.parseDouble(obj.toString());
+    }
+
+    public static Boolean parseBoolean(Object obj, Boolean defaultValue) {
+        return Objects.isNull(obj) ? defaultValue : Boolean.parseBoolean(obj.toString());
+    }
+
+    public static Date parseDate(Object obj, Date defaultValue) {
+        return Objects.isNull(obj) ? defaultValue : Date.valueOf(obj.toString());
+    }
+
+    public static LocalDate parseLocalDate(Object obj, LocalDate defaultValue) {
+        return Objects.isNull(obj) ? defaultValue : LocalDate.parse(obj.toString());
+    }
+
+    public static LocalDateTime parseLocalDateTime(Object obj, LocalDateTime defaultValue) {
+        return Objects.isNull(obj) ? defaultValue : LocalDateTime.parse(obj.toString());
+    }
+
+    public static Timestamp parseTimestamp(Object obj, Timestamp defaultValue) {
+        return Objects.isNull(obj) ? defaultValue : Timestamp.valueOf(obj.toString());
+    }
+
+
 
 }

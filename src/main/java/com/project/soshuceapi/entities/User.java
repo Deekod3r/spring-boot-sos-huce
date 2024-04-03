@@ -51,6 +51,7 @@ public class User implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "registeredBy", fetch = FetchType.LAZY)
     private Set<Adopt> adoptsRegistered = new HashSet<>();
+    @JsonIgnore
     @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
     private Set<Adopt> adoptsCreated = new HashSet<>();
     @JsonIgnore

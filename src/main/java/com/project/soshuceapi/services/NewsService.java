@@ -20,15 +20,13 @@ import com.project.soshuceapi.services.iservice.INewsService;
 import com.project.soshuceapi.utils.DataUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -46,14 +44,35 @@ public class NewsService implements INewsService {
     private IActionLogService actionLogService;
 
     @Override
-    public List<NewsDTO> getAll(NewsSearchRequest request) {
+    public Map<String, Object> getAll(NewsSearchRequest request) {
         try {
-            List<News> news = newsRepo.findAll(
+            Page<Object[]> news = newsRepo.findAll(
                     request.getTitle(), request.getCategoryId(), request.getStatus(),
                     DataUtil.parseLocalDateTime(request.getFromDate()),
-                    DataUtil.parseLocalDateTime(request.getToDate())
+                    DataUtil.parseLocalDateTime(request.getToDate()),
+                    Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
-            return news.stream().map(this::parseNewsDTO).collect(Collectors.toList());
+            List<NewsDTO> newsDTOs = new ArrayList<>();
+            for (Object object : news.getContent()) {
+                Object[] item = (Object[]) object;
+                NewsDTO newsDTO = NewsDTO.builder()
+                        .id(DataUtil.parseString(item[0]))
+                        .title(DataUtil.parseString(item[1]))
+                        .description(DataUtil.parseString(item[2]))
+                        .image(DataUtil.parseString(item[3]))
+                        .status(DataUtil.parseBoolean(item[4]))
+                        .categoryId(DataUtil.parseString(item[5]))
+                        .categoryName(DataUtil.parseString(item[6]))
+                        .createdAt(DataUtil.parseLocalDateTime(item[7]))
+                        .build();
+                newsDTOs.add(newsDTO);
+            }
+            return Map.of(
+                    "news", newsDTOs,
+                    "totalElements", news.getTotalElements(),
+                    "totalPages", news.getTotalPages(),
+                    "currentPage", news.getNumber() + 1
+            );
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -249,7 +268,7 @@ public class NewsService implements INewsService {
 
     private void logUpdate(News oldValue, NewsUpdateRequest newValue) {
         List<ActionLogDetail> details = new ArrayList<>();
-        if(!Objects.equals(oldValue.getTitle(), newValue.getTitle())) {
+        if(!Objects.equals(oldValue.getTitle(), newValue.getTitle().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -258,7 +277,7 @@ public class NewsService implements INewsService {
                     .newValue(newValue.getTitle())
                     .build());
         }
-        if(!Objects.equals(oldValue.getContent(), newValue.getContent())) {
+        if(!Objects.equals(oldValue.getContent(), newValue.getContent().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -267,7 +286,7 @@ public class NewsService implements INewsService {
                     .newValue(newValue.getContent())
                     .build());
         }
-        if(!Objects.equals(oldValue.getDescription(), newValue.getDescription())) {
+        if(!Objects.equals(oldValue.getDescription(), newValue.getDescription().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())

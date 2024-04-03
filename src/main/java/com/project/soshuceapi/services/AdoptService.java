@@ -10,7 +10,6 @@ import com.project.soshuceapi.entities.logging.ActionLogDetail;
 import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.AdoptDTO;
-import com.project.soshuceapi.models.mappers.AdoptMapper;
 import com.project.soshuceapi.models.requests.AdoptCreateRequest;
 import com.project.soshuceapi.models.requests.AdoptSearchRequest;
 import com.project.soshuceapi.models.requests.AdoptUpdateRequest;
@@ -31,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -51,8 +51,6 @@ public class AdoptService implements IAdoptService {
     private IPetService petService;
     @Autowired
     private PetRepo petRepo;
-    @Autowired
-    private AdoptMapper adoptMapper;
 
     @Override
     public Map<String, Object> getAll(AdoptSearchRequest request) {
@@ -68,9 +66,8 @@ public class AdoptService implements IAdoptService {
                     .map(this::parseAdoptDTO).toList();
             return Map.of(
                     "adopts", adoptDTOS,
-                    "total", adopts.getTotalElements(),
-                    "page", adopts.getNumber() + 1,
-                    "limit", adopts.getSize(),
+                    "totalElements", adopts.getTotalElements(),
+                    "currentPage", adopts.getNumber() + 1,
                     "totalPages", adopts.getTotalPages()
             );
         } catch (Exception e) {
@@ -97,7 +94,7 @@ public class AdoptService implements IAdoptService {
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
             return new HashMap<>() {{
                 put("adopt", parseAdoptDTO(adopt));
-                put("pet", adopt.getPet());
+                put("pet", petService.parsePetDTO(adopt.getPet()));
             }};
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
@@ -140,9 +137,8 @@ public class AdoptService implements IAdoptService {
             adopt.setReason(request.getReason().trim());
             adopt.setStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING);
             adopt.setIsDeleted(false);
-            adopt.setFee(0.0F);
-            adopt = adoptRepo.save(adopt);
-            logCreate(adopt);
+            adopt.setFee(BigDecimal.ZERO);
+            logCreate(adoptRepo.save(adopt));
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -338,7 +334,21 @@ public class AdoptService implements IAdoptService {
     }
 
     private AdoptDTO parseAdoptDTO(Adopt adopt) {
-        AdoptDTO adoptDTO = adoptMapper.mapTo(adopt, AdoptDTO.class);
+        AdoptDTO adoptDTO = new AdoptDTO();
+        adoptDTO.setId(adopt.getId());
+        adoptDTO.setCode(adopt.getCode());
+        adoptDTO.setWardId(adopt.getWardId());
+        adoptDTO.setDistrictId(adopt.getDistrictId());
+        adoptDTO.setProvinceId(adopt.getProvinceId());
+        adoptDTO.setFee(adopt.getFee());
+        adoptDTO.setAddress(adopt.getAddress());
+        adoptDTO.setStatus(adopt.getStatus());
+        adoptDTO.setReason(adopt.getReason());
+        adoptDTO.setConfirmedAt(adopt.getConfirmedAt());
+        adoptDTO.setRejectedAt(adopt.getRejectedAt());
+        adoptDTO.setRejectedReason(adopt.getRejectedReason());
+        adoptDTO.setCreatedAt(adopt.getCreatedAt());
+
         adoptDTO.setPetId(adopt.getPet().getId());
         adoptDTO.setPetName(adopt.getPet().getCode() + " - " + adopt.getPet().getName());
         adoptDTO.setCreatedBy(adopt.getCreatedBy().getId());

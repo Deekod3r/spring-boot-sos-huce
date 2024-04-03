@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -39,20 +40,22 @@ public class NewsController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getNews(@RequestParam(value = "title", defaultValue = "", required = false) String title,
+    public ResponseEntity<?> getNews(@RequestParam(value = "limit", defaultValue = "1000000", required = false) Integer limit,
+                                     @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
+                                     @RequestParam(value = "title", defaultValue = "", required = false) String title,
                                      @RequestParam(value = "status", defaultValue = "", required = false) Boolean status,
                                      @RequestParam(value = "categoryId", defaultValue = "", required = false) String categoryId,
                                      @RequestParam(value = "fromDate", defaultValue = "", required = false) String fromDate,
                                      @RequestParam(value = "toDate", defaultValue = "", required = false) String toDate) {
-        Response<List<NewsDTO>> response = new Response<>();
+        Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
             if (!StringUtil.isNullOrBlank(fromDate) && !DataUtil.isDate(fromDate, Constants.FormatPattern.LOCAL_DATETIME)) {
-                response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
+                response.setMessage(ResponseMessage.News.INVALID_SEARCH_DATE);
                 return ResponseEntity.badRequest().body(response);
             }
             if (!StringUtil.isNullOrBlank(toDate) && !DataUtil.isDate(toDate, Constants.FormatPattern.LOCAL_DATETIME)) {
-                response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
+                response.setMessage(ResponseMessage.News.INVALID_SEARCH_DATE);
                 return ResponseEntity.badRequest().body(response);
             }
             if (auditorAware.getCurrentAuditor().isEmpty()) {
@@ -67,7 +70,7 @@ public class NewsController {
                     status = true;
                 }
             }
-            response.setData(newsService.getAll(NewsSearchRequest.of(title, status, categoryId, fromDate, toDate)));
+            response.setData(newsService.getAll(NewsSearchRequest.of(title.trim(), status, categoryId, fromDate, toDate, page, limit)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

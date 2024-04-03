@@ -1,12 +1,12 @@
 package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseMessage;
-import com.project.soshuceapi.models.DTOs.PetCareLogDTO;
-import com.project.soshuceapi.models.requests.PetCareLogCreateRequest;
-import com.project.soshuceapi.models.requests.PetCareLogSearchRequest;
-import com.project.soshuceapi.models.requests.PetCareLogUpdateRequest;
+import com.project.soshuceapi.models.DTOs.DonateDTO;
+import com.project.soshuceapi.models.requests.DonateCreateRequest;
+import com.project.soshuceapi.models.requests.DonateSearchRequest;
+import com.project.soshuceapi.models.requests.DonateUpdateRequest;
 import com.project.soshuceapi.models.responses.Response;
-import com.project.soshuceapi.services.iservice.IPetCareLogService;
+import com.project.soshuceapi.services.iservice.IDonateService;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,31 +18,33 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/pet-care-logs")
-public class PetCareLogController {
+@RequestMapping("/donates")
+public class DonateController {
 
     @Autowired
-    private IPetCareLogService petCareLogService;
+    private IDonateService donateService;
     @Autowired
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getPetCareLogs(
-            @RequestParam(value = "adoptId", required = false, defaultValue = "") String adoptId,
-            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-            @RequestParam(value = "toDate", required = false) LocalDate toDate
+    public ResponseEntity<?> getDonates(
+            @RequestParam(value = "remitter", defaultValue = "", required = false) String remitter,
+            @RequestParam(value = "payee", defaultValue = "", required = false) String payee,
+            @RequestParam(value = "fromDate", defaultValue = "", required = false) LocalDate fromDate,
+            @RequestParam(value = "toDate", defaultValue = "", required = false) LocalDate toDate,
+            @RequestParam(value = "limit", defaultValue = "1000000", required = false) Integer limit,
+            @RequestParam(value = "page", defaultValue = "1", required = false) Integer page
     ) {
-        Response<List<PetCareLogDTO>> response = new Response<>();
+        Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
-            response.setSuccess(true);
+            response.setData(donateService.getAll(DonateSearchRequest.of(remitter.trim(), payee.trim(), fromDate, toDate, limit, page)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
-            response.setData(petCareLogService.getAll(PetCareLogSearchRequest.of(adoptId, fromDate, toDate)));
+            response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -52,21 +54,17 @@ public class PetCareLogController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getPetCareLog(@PathVariable String id) {
-        Response<PetCareLogDTO> response = new Response<>();
+    public ResponseEntity<?> getDonateById(@PathVariable("id") String id) {
+        Response<DonateDTO> response = new Response<>();
         response.setSuccess(false);
         try {
-            if (auditorAware.getCurrentAuditor().isEmpty()) {
-                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
             if (StringUtil.isNullOrBlank(id)) {
-                response.setMessage(ResponseMessage.Pet.MISSING_ID);
+                response.setMessage(ResponseMessage.Donate.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            response.setSuccess(true);
+            response.setData(donateService.getById(id));
             response.setMessage(ResponseMessage.Common.SUCCESS);
-            response.setData(petCareLogService.getById(id));
+            response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -76,7 +74,7 @@ public class PetCareLogController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createPetCareLog(@RequestBody @Valid PetCareLogCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> createDonate(@Valid @RequestBody DonateCreateRequest request, BindingResult bindingResult) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -89,10 +87,10 @@ public class PetCareLogController {
                 return ResponseEntity.badRequest().body(response);
             }
             request.setCreatedBy(auditorAware.getCurrentAuditor().get());
-            petCareLogService.create(request);
+            donateService.create(request);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setData(true);
             response.setSuccess(true);
-            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -102,8 +100,8 @@ public class PetCareLogController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updatePetCareLog(@PathVariable String id,
-                                              @RequestBody @Valid PetCareLogUpdateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> updateDonate(@PathVariable("id") String id,
+                                          @Valid @RequestBody DonateUpdateRequest request, BindingResult bindingResult) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -115,16 +113,15 @@ public class PetCareLogController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id)) {
-                response.setMessage(ResponseMessage.Pet.MISSING_ID);
+            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
+                response.setMessage(ResponseMessage.Donate.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
-            request.setId(id);
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
-            petCareLogService.update(request);
+            donateService.update(request);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setData(true);
             response.setSuccess(true);
-            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -134,7 +131,7 @@ public class PetCareLogController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deletePetCareLog(@PathVariable String id) {
+    public ResponseEntity<?> deleteDonate(@PathVariable("id") String id) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -143,13 +140,13 @@ public class PetCareLogController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (StringUtil.isNullOrBlank(id)) {
-                response.setMessage(ResponseMessage.Pet.MISSING_ID);
+                response.setMessage(ResponseMessage.Adopt.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            petCareLogService.delete(id, auditorAware.getCurrentAuditor().get());
+            donateService.delete(id, auditorAware.getCurrentAuditor().get());
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setData(true);
             response.setSuccess(true);
-            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);

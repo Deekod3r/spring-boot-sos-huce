@@ -347,17 +347,16 @@ public class UserService implements IUserService {
     public Map<String, Object> getAll(UserSearchRequest request) {
         try {
             Page<User> users = userRepo.getAll(
-                    request.getName().trim(),
-                    request.getEmail().trim(),
-                    request.getPhoneNumber().trim(),
+                    request.getName(),
+                    request.getEmail(),
+                    request.getPhoneNumber(),
                     request.getIsActivated(),
-                    request.getRole().trim(),
+                    request.getRole(),
                     PageRequest.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
-            List<UserDTO> userDTOs = users.getContent().stream().map(user ->
-                    userMapper.mapTo(user, UserDTO.class)).toList();
             return Map.of(
-                    "users", userDTOs,
+                    "users", users.getContent().stream().map(user ->
+                            userMapper.mapTo(user, UserDTO.class)).toList(),
                     "total", users.getTotalElements(),
                     "page", users.getNumber() + 1,
                     "limit", users.getSize(),

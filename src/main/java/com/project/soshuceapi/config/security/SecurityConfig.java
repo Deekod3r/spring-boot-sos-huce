@@ -50,6 +50,7 @@ public class SecurityConfig {
             "/news",
             "/news/{id}",
             "/news/categories",
+            "/donates"
     };
 
     @Bean

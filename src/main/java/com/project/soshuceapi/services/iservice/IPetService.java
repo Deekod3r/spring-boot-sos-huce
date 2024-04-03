@@ -1,5 +1,6 @@
 package com.project.soshuceapi.services.iservice;
 
+import com.project.soshuceapi.entities.Pet;
 import com.project.soshuceapi.models.DTOs.PetDTO;
 import com.project.soshuceapi.models.requests.PetCreateRequest;
 import com.project.soshuceapi.models.requests.PetSearchRequest;
@@ -25,5 +26,7 @@ public interface IPetService {
     void delete(String id, String deletedBy);
 
     void setAdoptedBy(String userId, String petId, String updatedBy);
+
+    PetDTO parsePetDTO(Pet pet);
 
 }

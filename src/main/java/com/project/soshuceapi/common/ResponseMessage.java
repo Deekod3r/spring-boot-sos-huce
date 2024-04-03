@@ -197,6 +197,7 @@ public class ResponseMessage {
         public static final String INVALID_STATUS = "Thông tin trạng thái tin tức không hợp lệ";
         public static final String TITLE_EXISTED = "Tiêu đề tin tức đã tồn tại";
         public static final String MISSING_DESCRIPTION = "Thông tin mô tả tin tức không được bỏ trống";
+        public static final String INVALID_SEARCH_DATE = "Thông tin thời gian không hợp lệ";
     }
 
     public static class NewsCategory {
@@ -210,6 +211,26 @@ public class ResponseMessage {
         public static final String MISSING_STATUS = "Thông tin trạng thái danh mục tin tức không được bỏ trống";
         public static final String INVALID_STATUS = "Thông tin trạng thái danh mục tin tức không hợp lệ";
         public static final String NAME_EXISTED = "Tên danh mục tin tức đã tồn tại";
+    }
+
+    public static class Donate {
+        public static final String MISSING_REMITTER = "Thông tin người chuyển không được bỏ trống";
+        public static final String INVALID_REMITTER = "Thông tin người chuyển không hợp lệ";
+        public static final String MISSING_PAYEE = "Thông tin người nhận không được bỏ trống";
+        public static final String INVALID_PAYEE = "Thông tin người nhận không hợp lệ";
+        public static final String MISSING_DETAIL = "Thông tin chi tiết không được bỏ trống";
+        public static final String INVALID_DETAIL = "Thông tin chi tiết không hợp lệ";
+        public static final String MISSING_AMOUNT = "Thông tin số tiền không được bỏ trống";
+        public static final String INVALID_AMOUNT = "Thông tin số tiền không hợp lệ";
+        public static final String MISSING_DATE = "Thông tin ngày chuyển không được bỏ trống";
+        public static final String INVALID_DATE = "Thông tin ngày ủng hộ không hợp lệ";
+        public static final String NOT_FOUND = "Thông tin đóng góp không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh đóng góp không khớp";
+        public static final String NOT_AVAILABLE_FOR_UPDATE = "Đóng góp không trong trạng thái có thể cập nhật";
+        public static final String MISSING_ID = "Thông tin định danh đóng góp không được bỏ trống";
+        public static final String MISSING_STATUS = "Thông tin trạng thái đóng góp không được bỏ trống";
+        public static final String INVALID_STATUS = "Thông tin trạng thái đóng góp không hợp lệ";
+        public static final String INVALID_SEARCH_DATE = "Thông tin thời gian không hợp lệ";
     }
 
 }

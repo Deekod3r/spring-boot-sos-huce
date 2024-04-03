@@ -6,10 +6,10 @@ import com.project.soshuceapi.models.requests.NewsSearchRequest;
 import com.project.soshuceapi.models.requests.NewsUpdateImageRequest;
 import com.project.soshuceapi.models.requests.NewsUpdateRequest;
 
-import java.util.List;
+import java.util.Map;
 
 public interface INewsService {
-    List<NewsDTO> getAll(NewsSearchRequest request);
+    Map<String, Object> getAll(NewsSearchRequest request);
 
     NewsDTO getById(String id);
 

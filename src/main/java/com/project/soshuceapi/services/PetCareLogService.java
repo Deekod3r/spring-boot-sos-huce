@@ -100,10 +100,24 @@ public class PetCareLogService implements IPetCareLogService {
 
     @Override
     @Transactional
-    public void delete(String id) {
+    public void delete(String id, String deletedBy) {
         try {
             PetCareLog petCareLog = petCareLogRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.PetCareLog.NOT_FOUND));
+            actionLogService.create(ActionLogDTO.builder()
+                    .action(Constants.ActionLog.DELETE)
+                    .description(Constants.ActionLog.DELETE + "." + TAG)
+                    .createdBy(deletedBy)
+                    .details(List.of(
+                            ActionLogDetail.builder()
+                                    .tableName(TAG)
+                                    .rowId(id)
+                                    .columnName("is_deleted")
+                                    .oldValue("false")
+                                    .newValue("true")
+                                    .build()
+                    ))
+                    .build());
             petCareLogRepo.delete(petCareLog);
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());

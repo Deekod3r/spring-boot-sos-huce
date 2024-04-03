@@ -1,18 +1,17 @@
 package com.project.soshuceapi.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
+@Builder
 @Table(name = "donates")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
@@ -27,8 +26,8 @@ public class Donate {
     private String payee;
     @Column(name = "detail", columnDefinition = "VARCHAR(255)")
     private String detail;
-    @Column(name = "amount", columnDefinition = "BIGINT", nullable = false)
-    private Long amount;
+    @Column(name = "amount", columnDefinition = "NUMERIC(38,2)", nullable = false)
+    private BigDecimal amount;
     @Column(name = "date", columnDefinition = "DATE", nullable = false)
     private LocalDate date;
 

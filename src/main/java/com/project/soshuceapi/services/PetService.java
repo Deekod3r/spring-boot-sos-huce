@@ -53,19 +53,17 @@ public class PetService implements IPetService {
     @Override
     public Map<String, Object> getAll(PetSearchRequest request) {
         try {
-            Page<Pet> pets = petRepo.findAll(request.getName().trim(), request.getBreed().trim(), request.getColor().trim(),
-                    request.getCode().trim(), request.getType(), request.getAge(), request.getGender(),
+            Page<Pet> pets = petRepo.findAll(request.getName(), request.getBreed(), request.getColor(),
+                    request.getCode(), request.getType(), request.getAge(), request.getGender(),
                     request.getStatus(), request.getDiet(), request.getVaccine(), request.getSterilization(),
                     request.getRabies(), request.getAdoptedBy(),
                     Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1));
-            List<PetDTO> petDTOs = pets.getContent().stream()
-                    .map(this::parsePetDTO)
-                    .toList();
             return Map.of(
-                    "pets", petDTOs,
-                    "total", pets.getTotalElements(),
-                    "page", pets.getNumber() + 1,
-                    "limit", pets.getSize(),
+                    "pets", pets.getContent().stream()
+                        .map(this::parsePetDTO)
+                        .toList(),
+                    "totalElements", pets.getTotalElements(),
+                    "currentPage", pets.getNumber() + 1,
                     "totalPages", pets.getTotalPages()
             );
         } catch (Exception e) {
@@ -91,8 +89,7 @@ public class PetService implements IPetService {
             pet.setCreatedBy(request.getCreatedBy());
             pet.setCode(generateCode(pet.getName()));
             pet.setIsDeleted(false);
-            pet = petRepo.save(pet);
-            logCreate(pet);
+            logCreate(petRepo.save(pet));
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -271,7 +268,8 @@ public class PetService implements IPetService {
         }
     }
 
-    private PetDTO parsePetDTO(Pet pet) {
+    @Override
+    public PetDTO parsePetDTO(Pet pet) {
         PetDTO dto = petMapper.mapTo(pet, PetDTO.class);
         if (Objects.nonNull(pet.getAdoptedBy())) {
             dto.setInfoAdoptedBy(pet.getAdoptedBy().getName()

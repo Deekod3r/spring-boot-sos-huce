@@ -34,7 +34,7 @@ public class PetController {
     @GetMapping
     public ResponseEntity<?> getPets(
             @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-            @RequestParam(value = "limit", defaultValue = "10000000", required = false) Integer limit,
+            @RequestParam(value = "limit", defaultValue = "1000000", required = false) Integer limit,
             @RequestParam(value = "name", defaultValue = "", required = false) String name,
             @RequestParam(value = "breed", defaultValue = "", required = false) String breed,
             @RequestParam(value = "color", defaultValue = "", required = false) String color,
@@ -52,7 +52,7 @@ public class PetController {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
-            response.setData(petService.getAll(PetSearchRequest.of(page, limit, name, breed, color, code, type, age,
+            response.setData(petService.getAll(PetSearchRequest.of(page, limit, name.trim(), breed.trim(), color.trim(), code.trim(), type, age,
                     gender, status, diet, vaccine, sterilization, rabies, adoptedBy)));
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);

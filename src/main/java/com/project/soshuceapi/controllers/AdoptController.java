@@ -41,7 +41,7 @@ public class AdoptController {
     @GetMapping
     @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
     public ResponseEntity<?> getAdopts(@RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-                                       @RequestParam(value = "limit", defaultValue = "10000000", required = false) Integer limit,
+                                       @RequestParam(value = "limit", defaultValue = "1000000", required = false) Integer limit,
                                        @RequestParam(value = "status", defaultValue = "", required = false) Integer status,
                                        @RequestParam(value = "code", defaultValue = "", required = false) String code,
                                        @RequestParam(value = "registeredBy", defaultValue = "", required = false) String registeredBy,
@@ -63,7 +63,7 @@ public class AdoptController {
                 response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
                 return ResponseEntity.badRequest().body(response);
             }
-            response.setData(adoptService.getAll(AdoptSearchRequest.of(code, fromDate, toDate, status, registeredBy, petAdopt, page, limit)));
+            response.setData(adoptService.getAll(AdoptSearchRequest.of(code.trim(), fromDate, toDate, status, registeredBy, petAdopt, page, limit)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

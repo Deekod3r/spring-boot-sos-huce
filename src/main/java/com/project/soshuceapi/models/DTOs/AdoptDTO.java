@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,7 +21,7 @@ public class AdoptDTO implements Serializable {
     String districtName;
     Integer provinceId;
     String provinceName;
-    Float fee;
+    BigDecimal fee;
     String address;
     Integer status;
     String reason;

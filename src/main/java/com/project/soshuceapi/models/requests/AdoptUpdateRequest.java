@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
@@ -33,7 +35,7 @@ public class AdoptUpdateRequest {
     String reason;
     @NotNull(message = ResponseMessage.Adopt.MISSING_FEE)
     @Min(value = 0, message = ResponseMessage.Adopt.INVALID_FEE)
-    Float fee;
+    BigDecimal fee;
     @JsonIgnore
     String updatedBy;
 }

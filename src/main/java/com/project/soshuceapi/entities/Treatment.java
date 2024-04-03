@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -31,8 +32,8 @@ public class Treatment {
     private String location;
     @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     private String description;
-    @Column(name = "price", columnDefinition = "BIGINT", nullable = false)
-    private Long price;
+    @Column(name = "price", columnDefinition = "NUMERIC(38,2)", nullable = false)
+    private BigDecimal price;
     @Column(name="quantity", columnDefinition = "INTEGER", nullable = false)
     private Integer quantity;
     @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)

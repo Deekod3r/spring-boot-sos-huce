@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -23,8 +24,8 @@ public class LivingCost {
     private String id;
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
-    @Column(name = "cost", columnDefinition = "FLOAT", nullable = false)
-    private Float cost;
+    @Column(name = "cost", columnDefinition = "NUMERIC(38,2)", nullable = false)
+    private BigDecimal cost;
     @Column(name = "date", columnDefinition = "DATE", nullable = false)
     private LocalDate date;
     @Column(name = "bill", columnDefinition = "TEXT", nullable = false)

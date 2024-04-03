@@ -316,7 +316,7 @@ public class UserController {
             if (Objects.equals(roleRequest, Constants.User.ROLE_ADMIN)) {
                 role = Constants.User.ROLE_USER;
             }
-            response.setData(userService.getAll(UserSearchRequest.of(name, email, phoneNumber, role, isActivated, page, limit)));
+            response.setData(userService.getAll(UserSearchRequest.of(name.trim(), email.trim(), phoneNumber.trim(), role, isActivated, page, limit)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

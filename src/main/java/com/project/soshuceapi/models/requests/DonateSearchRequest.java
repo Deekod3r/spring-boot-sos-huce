@@ -3,17 +3,18 @@ package com.project.soshuceapi.models.requests;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NewsSearchRequest {
-    String title;
-    Boolean status;
-    String categoryId;
-    String fromDate;
-    String toDate;
-    Integer page;
+public class DonateSearchRequest {
+    String remitter;
+    String payee;
+    LocalDate fromDate;
+    LocalDate toDate;
     Integer limit;
+    Integer page;
 }
