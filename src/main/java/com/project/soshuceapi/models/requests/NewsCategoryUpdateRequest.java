@@ -5,6 +5,7 @@ import com.project.soshuceapi.common.ResponseMessage;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 
 @Data
 @Builder
@@ -15,8 +16,10 @@ public class NewsCategoryUpdateRequest {
     @NotBlank(message = ResponseMessage.NewsCategory.MISSING_ID)
     String id;
     @NotBlank(message = ResponseMessage.NewsCategory.MISSING_NAME)
+    @Length(max = 100, message = ResponseMessage.NewsCategory.INVALID_NAME)
     String name;
     @NotBlank(message = ResponseMessage.NewsCategory.MISSING_DESCRIPTION)
+    @Length(max = 255, message = ResponseMessage.NewsCategory.INVALID_DESCRIPTION)
     String description;
     @JsonIgnore
     String updatedBy;

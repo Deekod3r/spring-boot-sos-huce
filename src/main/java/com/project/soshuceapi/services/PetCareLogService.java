@@ -105,8 +105,8 @@ public class PetCareLogService implements IPetCareLogService {
             PetCareLog petCareLog = petCareLogRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.PetCareLog.NOT_FOUND));
             actionLogService.create(ActionLogDTO.builder()
-                    .action(Constants.ActionLog.DELETE)
-                    .description(Constants.ActionLog.DELETE + "." + TAG)
+                    .action(Constants.ActionLog.DELETE_SOFT)
+                    .description(Constants.ActionLog.DELETE_SOFT + "." + TAG)
                     .createdBy(deletedBy)
                     .details(List.of(
                             ActionLogDetail.builder()

@@ -163,8 +163,8 @@ public class NewsController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if(StringUtil.isNullOrBlank(id)) {
-                response.setMessage(ResponseMessage.News.MISSING_ID);
+            if(StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
+                response.setMessage(ResponseMessage.News.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
@@ -197,8 +197,8 @@ public class NewsController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if(StringUtil.isNullOrBlank(id)) {
-                response.setMessage(ResponseMessage.News.MISSING_ID);
+            if(StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
+                response.setMessage(ResponseMessage.News.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
@@ -323,8 +323,8 @@ public class NewsController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if(StringUtil.isNullOrBlank(id)) {
-                response.setMessage(ResponseMessage.NewsCategory.MISSING_ID);
+            if(StringUtil.isNullOrBlank(id)|| !Objects.equals(id, request.getId())) {
+                response.setMessage(ResponseMessage.NewsCategory.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());

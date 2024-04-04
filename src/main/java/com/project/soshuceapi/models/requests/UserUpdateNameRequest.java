@@ -22,7 +22,7 @@ public class UserUpdateNameRequest {
     @NotBlank(message = ResponseMessage.User.MISSING_PASSWORD)
     String currentPassword;
     @NotBlank(message = ResponseMessage.User.MISSING_NAME)
-    @Pattern(regexp = Constants.Regex.NAME, message = ResponseMessage.User.INVALID_NAME)
+    @Pattern(regexp = Constants.Regex.CHARACTER, message = ResponseMessage.User.INVALID_NAME)
     @Length(min = 2, max = 100, message = ResponseMessage.User.INVALID_NAME)
     String name;
     @JsonIgnore

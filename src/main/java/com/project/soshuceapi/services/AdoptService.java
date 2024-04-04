@@ -272,8 +272,8 @@ public class AdoptService implements IAdoptService {
             Adopt adopt = adoptRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
             actionLogService.create(ActionLogDTO.builder()
-                    .action(Constants.ActionLog.DELETE)
-                    .description(Constants.ActionLog.DELETE + "." + TAG)
+                    .action(Constants.ActionLog.DELETE_SOFT)
+                    .description(Constants.ActionLog.DELETE_SOFT + "." + TAG)
                     .createdBy(deletedBy)
                     .details(List.of(
                             ActionLogDetail.builder()

@@ -22,7 +22,7 @@ public class UserUpdatePhoneRequest {
     @NotBlank(message = ResponseMessage.User.MISSING_PASSWORD)
     String currentPassword;
     @NotBlank(message = ResponseMessage.User.MISSING_PHONE_NUMBER)
-    @Pattern(regexp = Constants.Regex.PHONE_NUMBER, message = ResponseMessage.User.INVALID_PHONE_NUMBER)
+    @Pattern(regexp = Constants.Regex.DIGIT, message = ResponseMessage.User.INVALID_PHONE_NUMBER)
     @Length(min = 10, max = 15, message = ResponseMessage.User.INVALID_PHONE_NUMBER)
     String phoneNumber;
     @JsonIgnore

@@ -22,11 +22,11 @@ public class AdminUpdateRequest {
     @NotBlank(message = ResponseMessage.User.MISSING_ID)
     String id;
     @NotBlank(message = ResponseMessage.User.MISSING_PHONE_NUMBER)
-    @Pattern(regexp = Constants.Regex.PHONE_NUMBER, message = ResponseMessage.User.INVALID_PHONE_NUMBER)
+    @Pattern(regexp = Constants.Regex.DIGIT, message = ResponseMessage.User.INVALID_PHONE_NUMBER)
     @Length(min = 10, max = 15, message = ResponseMessage.User.INVALID_PHONE_NUMBER)
     String phoneNumber;
     @NotBlank(message = ResponseMessage.User.MISSING_NAME)
-    @Pattern(regexp = Constants.Regex.NAME, message = ResponseMessage.User.INVALID_NAME)
+    @Pattern(regexp = Constants.Regex.CHARACTER, message = ResponseMessage.User.INVALID_NAME)
     @Length(min = 2, max = 100, message = ResponseMessage.User.INVALID_NAME)
     String name;
     @NotBlank(message = ResponseMessage.User.MISSING_EMAIL)

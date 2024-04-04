@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 
 @Data
 @Builder
@@ -16,8 +17,10 @@ public class NewsUpdateRequest {
     @NotBlank(message = ResponseMessage.News.MISSING_ID)
     String id;
     @NotBlank(message = ResponseMessage.News.MISSING_TITLE)
+    @Length(max = 255, message = ResponseMessage.News.INVALID_TITLE)
     String title;
     @NotBlank(message = ResponseMessage.News.MISSING_DESCRIPTION)
+    @Length(max = 255, message = ResponseMessage.News.INVALID_DESCRIPTION)
     String description;
     @NotBlank(message = ResponseMessage.News.MISSING_CONTENT)
     String content;

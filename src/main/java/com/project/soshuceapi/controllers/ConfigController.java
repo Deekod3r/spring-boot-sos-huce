@@ -32,6 +32,10 @@ public class ConfigController {
         response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(key)) {
+                if (auditorAware.getCurrentAuditor().isEmpty()) {
+                    response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+                }
                 response.setData(configService.getAll());
             } else {
                 response.setData(configService.getByKey(key));

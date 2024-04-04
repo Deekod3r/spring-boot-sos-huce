@@ -21,7 +21,7 @@ import java.time.LocalDate;
 public class PetCreateRequest {
     @NotBlank(message = ResponseMessage.Pet.MISSING_NAME)
     @Length(min = 2, max = 50, message = ResponseMessage.Pet.INVALID_NAME)
-    @Pattern(regexp = Constants.Regex.NAME, message = ResponseMessage.Pet.INVALID_NAME)
+    @Pattern(regexp = Constants.Regex.CHARACTER, message = ResponseMessage.Pet.INVALID_NAME)
     String name;
     @NotNull(message = ResponseMessage.Pet.MISSING_INTAKE_DATE)
     @PastOrPresent(message = ResponseMessage.Pet.INVALID_INTAKE_DATE)

@@ -28,8 +28,8 @@ public class Constants {
 
     public static class Regex {
         public final static String PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_])[A-Za-z\\d\\W_]{8,}$";
-        public final static String NAME = "^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưỂỄỆẾỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪẹễệếỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ ]{2,}$";
-        public final static String PHONE_NUMBER = "^\\d+$";
+        public final static String CHARACTER = "^[a-zA-ZưứừữựửƯỨỪỮỰỬéèẽẹẻÉÈẼẸẺếềễệểẾỀỄỆỂýỳỹỵỷÝỲỸỴỶúùũụủÚÙŨỤỦíìĩịỉÍÌĨỊỈóòõọỏÓÒÕỌỎốồỗộổỐỒỖỘỔớờỡợởỚỜỠỢỞáàãạảÁÀÃẠẢấầẫậẩẤẦẪẬẨắằẵặẳẮẰẴẶẲđĐ ]{2,}$";
+        public final static String DIGIT = "^\\d+$";
     }
 
     public static class Mail {

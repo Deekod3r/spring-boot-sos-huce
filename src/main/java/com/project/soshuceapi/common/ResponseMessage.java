@@ -101,6 +101,7 @@ public class ResponseMessage {
         public static final String MISSING_PROVINCE_ID = "Thông tin tỉnh/thành phố không được bỏ trống";
         public static final String MISSING_ADDRESS = "Thông tin địa chỉ không được bỏ trống";
         public static final String INVALID_ADDRESS = "Thông tin địa chỉ không hợp lệ";
+
         public static final String MISSING_REASON = "Thông tin lý do không được bỏ trống";
         public static final String INVALID_REASON = "Thông tin lý do không hợp lệ";
         public static final String MISSING_REGISTERED_BY = "Thông tin người đăng ký không được bỏ trống";
@@ -174,6 +175,7 @@ public class ResponseMessage {
         public static final String MISSING_OWNER = "Thông tin chủ sở hữu không được bỏ trống";
         public static final String INVALID_OWNER = "Thông tin chủ sở hữu không hợp lệ";
         public static final String MISSING_LOGO = "Thông tin logo không được bỏ trống";
+        public static final String INVALID_LOGO = "Thông tin logo không hợp lệ";
         public static final String MISSING_ID = "Thông tin định danh tài khoản nhận hỗ trợ không được bỏ trống";
         public static final String NOT_FOUND = "Thông tin tài khoản nhận hỗ trợ không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh tài khoản nhận hỗ trợ không khớp";
@@ -197,6 +199,7 @@ public class ResponseMessage {
         public static final String INVALID_STATUS = "Thông tin trạng thái tin tức không hợp lệ";
         public static final String TITLE_EXISTED = "Tiêu đề tin tức đã tồn tại";
         public static final String MISSING_DESCRIPTION = "Thông tin mô tả tin tức không được bỏ trống";
+        public static final String INVALID_DESCRIPTION = "Thông tin mô tả tin tức không hợp lệ";
         public static final String INVALID_SEARCH_DATE = "Thông tin thời gian không hợp lệ";
     }
 
@@ -204,12 +207,10 @@ public class ResponseMessage {
         public static final String MISSING_NAME = "Thông tin tên danh mục tin tức không được bỏ trống";
         public static final String INVALID_NAME = "Thông tin tên danh mục tin tức không hợp lệ";
         public static final String MISSING_DESCRIPTION = "Thông tin mô tả danh mục tin tức không được bỏ trống";
+        public static final String INVALID_DESCRIPTION = "Thông tin mô tả danh mục tin tức không hợp lệ";
         public static final String NOT_FOUND = "Thông tin danh mục tin tức không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh danh mục tin tức không khớp";
-        public static final String NOT_AVAILABLE_FOR_UPDATE = "Danh mục tin tức không trong trạng thái có thể cập nhật";
         public static final String MISSING_ID = "Thông tin định danh danh mục tin tức không được bỏ trống";
-        public static final String MISSING_STATUS = "Thông tin trạng thái danh mục tin tức không được bỏ trống";
-        public static final String INVALID_STATUS = "Thông tin trạng thái danh mục tin tức không hợp lệ";
         public static final String NAME_EXISTED = "Tên danh mục tin tức đã tồn tại";
     }
 
