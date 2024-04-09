@@ -40,8 +40,9 @@ public class NewsController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getNews(@RequestParam(value = "limit", defaultValue = "1000000", required = false) Integer limit,
+    public ResponseEntity<?> getNews(@RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
                                      @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
+                                     @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
                                      @RequestParam(value = "title", defaultValue = "", required = false) String title,
                                      @RequestParam(value = "status", defaultValue = "", required = false) Boolean status,
                                      @RequestParam(value = "categoryId", defaultValue = "", required = false) String categoryId,
@@ -70,7 +71,7 @@ public class NewsController {
                     status = true;
                 }
             }
-            response.setData(newsService.getAll(NewsSearchRequest.of(title.trim(), status, categoryId, fromDate, toDate, page, limit)));
+            response.setData(newsService.getAll(NewsSearchRequest.of(title.trim(), status, categoryId, fromDate, toDate, page, limit, fullData)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
@@ -163,7 +164,7 @@ public class NewsController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if(StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
+            if (!Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.News.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -197,7 +198,7 @@ public class NewsController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if(StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
+            if(!Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.News.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -323,7 +324,7 @@ public class NewsController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if(StringUtil.isNullOrBlank(id)|| !Objects.equals(id, request.getId())) {
+            if(!Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.NewsCategory.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }

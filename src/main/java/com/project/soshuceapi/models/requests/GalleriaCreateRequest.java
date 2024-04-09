@@ -25,8 +25,6 @@ public class GalleriaCreateRequest {
     String description;
     @NotNull(message = ResponseMessage.Galleria.MISSING_IMAGE)
     MultipartFile image;
-    @NotNull(message = ResponseMessage.Galleria.MISSING_STATUS)
-    Boolean status;
     @NotNull(message = ResponseMessage.Galleria.MISSING_LINK)
     String link;
     @JsonIgnore

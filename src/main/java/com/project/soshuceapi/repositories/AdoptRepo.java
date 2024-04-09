@@ -4,6 +4,7 @@ import com.project.soshuceapi.entities.Adopt;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
@@ -57,18 +58,34 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
     Optional<Adopt> findById(@NonNull @Param("id") String id);
 
     @Query(value = "SELECT COUNT(1) FROM Adopt a " +
-            "WHERE (:status IS NULL OR a.status = :status) " +
+            "WHERE (:status IS NULL OR a.status IN :status) " +
             "AND a.isDeleted = false " +
             "AND a.pet.isDeleted = false " +
             "AND (:userId = '' OR a.registeredBy.id = :userId) ")
-    long countByStatus(Integer status, String userId);
+    long countByStatus(List<Integer> status, String userId);
 
     @Query(value = "SELECT COUNT(1) FROM adopts " +
             "WHERE pet_id = :petId " +
             "AND registered_by = :userId " +
-            "AND status NOT IN (3, 4, 5) " +
+            "AND status IN (1, 2) " +
             "AND is_deleted = false", nativeQuery = true)
-    long checkDuplicate(String petId, String userId);
+    long checkDuplicate(@Param("petId") String petId, @Param("userId") String userId);
+
+    @Modifying
+    @Query(value = "UPDATE adopts " +
+            "SET " +
+            "    status = 3, " +
+            "    updated_at = CURRENT_TIMESTAMP, " +
+            "    updated_by = :rejectBy, " +
+            "    rejected_by = :rejectBy, " +
+            "    rejected_at = CURRENT_TIMESTAMP, " +
+            "    rejected_reason = 'Thú cưng đã được nhận nuôi' " +
+            "WHERE " +
+            "    status IN (1, 2) " +
+            "    AND pet_id = :petId " +
+            "    AND is_deleted = false", nativeQuery = true)
+    void rejectAllByPet(@Param("petId") String petId, @Param("rejectBy") String rejectBy);
+
 
     @Query(value = "SELECT nextval('adopt_seq')", nativeQuery = true)
     long getSEQ();

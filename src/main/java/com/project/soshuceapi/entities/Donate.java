@@ -24,6 +24,8 @@ public class Donate {
     private String remitter;
     @Column(name = "payee", columnDefinition = "VARCHAR(100)", nullable = false)
     private String payee;
+    @Column(name = "type", columnDefinition = "INT", nullable = false)
+    private Integer type;
     @Column(name = "detail", columnDefinition = "VARCHAR(255)")
     private String detail;
     @Column(name = "amount", columnDefinition = "NUMERIC(38,2)", nullable = false)

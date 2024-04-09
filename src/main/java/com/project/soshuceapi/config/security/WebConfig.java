@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.ws.config.annotation.DelegatingWsConfiguration;
 
 @Configuration
 @RequiredArgsConstructor
@@ -49,6 +50,11 @@ public class WebConfig {
     @Bean
     public AuditorAware<String> auditorAware() {
         return new ApplicationAuditAware();
+    }
+
+    @Bean
+    public DelegatingWsConfiguration delegatingWsConfiguration() {
+        return new DelegatingWsConfiguration();
     }
 
 }

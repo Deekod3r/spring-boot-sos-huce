@@ -34,7 +34,8 @@ public class PetController {
     @GetMapping
     public ResponseEntity<?> getPets(
             @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-            @RequestParam(value = "limit", defaultValue = "1000000", required = false) Integer limit,
+            @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
+            @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
             @RequestParam(value = "name", defaultValue = "", required = false) String name,
             @RequestParam(value = "breed", defaultValue = "", required = false) String breed,
             @RequestParam(value = "color", defaultValue = "", required = false) String color,
@@ -53,7 +54,7 @@ public class PetController {
         response.setSuccess(false);
         try {
             response.setData(petService.getAll(PetSearchRequest.of(page, limit, name.trim(), breed.trim(), color.trim(), code.trim(), type, age,
-                    gender, status, diet, vaccine, sterilization, rabies, adoptedBy)));
+                    gender, status, diet, vaccine, sterilization, rabies, adoptedBy, fullData)));
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
@@ -141,7 +142,7 @@ public class PetController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
+            if (!Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.Pet.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -175,7 +176,7 @@ public class PetController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
+            if (!Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.Pet.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }

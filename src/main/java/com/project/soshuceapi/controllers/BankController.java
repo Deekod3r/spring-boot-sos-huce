@@ -110,7 +110,7 @@ public class BankController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if(!Objects.equals(request.getId(), id)) {
+            if (!Objects.equals(request.getId(), id)) {
                 response.setMessage(ResponseMessage.Bank.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }

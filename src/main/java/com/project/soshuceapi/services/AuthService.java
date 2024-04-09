@@ -3,7 +3,7 @@ package com.project.soshuceapi.services;
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.entities.User;
-import com.project.soshuceapi.exceptions.AuthenticationException;
+import com.project.soshuceapi.exceptions.AuthException;
 import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.UserDTO;
@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -69,11 +70,9 @@ public class AuthService implements IAuthService {
                 return Map.of("token",token,"refreshToken",refreshToken,"user", userMapper.mapTo(user, UserDTO.class));
             }
             return null;
-        } catch (org.springframework.security.core.AuthenticationException authenticationException){
-            throw new AuthenticationException(authenticationException.getMessage());
-        } catch (BadRequestException e) {
-            throw new BadRequestException(e.getMessage());
-        } catch (Exception e) {
+        } catch (AuthenticationException e){
+            throw new AuthException(e.getMessage());
+        }catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
@@ -117,5 +116,6 @@ public class AuthService implements IAuthService {
     private void revokeAllUserTokens(User user) {
         redisService.deleteDataFromRedis(Constants.Security.TOKEN_HEADER_KEY + user.getEmail());
     }
+
 
 }

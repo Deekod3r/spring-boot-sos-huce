@@ -31,18 +31,18 @@ public class PetCareLogController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> getPetCareLogs(
             @RequestParam(value = "adoptId", required = false, defaultValue = "") String adoptId,
-            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-            @RequestParam(value = "toDate", required = false) LocalDate toDate
+            @RequestParam(value = "petId", required = false, defaultValue = "") String petId,
+            @RequestParam(value = "fromDate", required = false, defaultValue = "") LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false, defaultValue = "") LocalDate toDate
     ) {
         Response<List<PetCareLogDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
-            response.setData(petCareLogService.getAll(PetCareLogSearchRequest.of(adoptId, fromDate, toDate)));
+            response.setData(petCareLogService.getAll(PetCareLogSearchRequest.of(adoptId, petId, fromDate, toDate)));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -115,7 +115,7 @@ public class PetCareLogController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id)) {
+            if (!Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.Pet.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }

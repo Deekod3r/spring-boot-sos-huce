@@ -26,6 +26,13 @@ public class Constants {
         public final static String ROLE_GUEST = "GUEST";
     }
 
+    public static class Donate {
+        public final static Integer MONEY = 1;
+        public final static Integer GOODS = 2;
+        public final static Integer OTHER = 3;
+
+    }
+
     public static class Regex {
         public final static String PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_])[A-Za-z\\d\\W_]{8,}$";
         public final static String CHARACTER = "^[a-zA-ZưứừữựửƯỨỪỮỰỬéèẽẹẻÉÈẼẸẺếềễệểẾỀỄỆỂýỳỹỵỷÝỲỸỴỶúùũụủÚÙŨỤỦíìĩịỉÍÌĨỊỈóòõọỏÓÒÕỌỎốồỗộổỐỒỖỘỔớờỡợởỚỜỠỢỞáàãạảÁÀÃẠẢấầẫậẩẤẦẪẬẨắằẵặẳẮẰẴẶẲđĐ ]{2,}$";

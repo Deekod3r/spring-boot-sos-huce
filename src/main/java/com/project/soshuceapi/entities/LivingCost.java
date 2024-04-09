@@ -28,8 +28,8 @@ public class LivingCost {
     private BigDecimal cost;
     @Column(name = "date", columnDefinition = "DATE", nullable = false)
     private LocalDate date;
-    @Column(name = "bill", columnDefinition = "TEXT", nullable = false)
-    private String bill;
+    @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
+    private Boolean status;
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;
 

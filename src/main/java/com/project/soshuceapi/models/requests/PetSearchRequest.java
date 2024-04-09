@@ -26,5 +26,6 @@ public class PetSearchRequest {
     Integer sterilization;
     Integer rabies;
     String adoptedBy;
+    Boolean fullData;
 }
 

@@ -1,23 +1,21 @@
 package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseMessage;
-import com.project.soshuceapi.models.DTOs.FileDTO;
+import com.project.soshuceapi.exceptions.BadRequestException;
+import com.project.soshuceapi.models.requests.ImageCreateRequest;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.IFileService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -26,21 +24,28 @@ public class FileController {
 
     @Autowired
     private IFileService fileService;
+    @Autowired
+    private AuditorAware<String> auditorAware;
 
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile multipartFile) {
-        log.info("HIT -/upload | File Name : {}", multipartFile.getOriginalFilename());
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Response<FileDTO> response = new Response<>();
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+    public ResponseEntity<?> uploadMultipleFiles(@Valid @ModelAttribute ImageCreateRequest request, BindingResult bindingResult) {
+        Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
-            Map<String, String> data = fileService.upload(multipartFile);
-            FileDTO fileDTO = FileDTO.builder()
-                            .name(data.get("fileName"))
-                            .url(data.get("url"))
-                            .build();
-            response.setData(fileDTO);
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            if (bindingResult.hasErrors()) {
+                response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            request.setCreatedBy(auditorAware.getCurrentAuditor().get());
+            fileService.createImage(request);
+            response.setData(true);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -48,22 +53,28 @@ public class FileController {
         }
     }
 
-    @PostMapping("/upload-multiple")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String uploadMultipleFiles() {
-        return "upload.multiple.files";
-    }
-
-    @PostMapping("/download")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String downloadFile() {
-        return "download.file";
-    }
-
-    @PostMapping("/download-multiple")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String downloadMultipleFiles() {
-        return "download.multiple.files";
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+    public ResponseEntity<?> deleteFile(@PathVariable String id) {
+        Response<Boolean> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            fileService.deleteImage(id, auditorAware.getCurrentAuditor().get());
+            response.setData(true);
+            response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
 }

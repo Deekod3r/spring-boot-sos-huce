@@ -45,6 +45,7 @@ public class PetCareLogService implements IPetCareLogService {
         try {
             List<PetCareLog> petCareLogs = petCareLogRepo.findAll(
                     request.getAdoptId(),
+                    request.getPetId(),
                     request.getFromDate(),
                     request.getToDate()
             );
@@ -203,7 +204,7 @@ public class PetCareLogService implements IPetCareLogService {
                     .newValue(newValue.getNote().trim())
                     .build());
         }
-        if(!details.isEmpty()) {
+        if (!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)

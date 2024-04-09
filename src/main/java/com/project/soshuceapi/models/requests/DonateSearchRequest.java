@@ -17,4 +17,5 @@ public class DonateSearchRequest {
     LocalDate toDate;
     Integer limit;
     Integer page;
+    Boolean fullData;
 }

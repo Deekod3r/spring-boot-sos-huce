@@ -60,7 +60,7 @@ public class AdoptService implements IAdoptService {
                     DataUtil.parseLocalDateTime(request.getFromDate()),
                     DataUtil.parseLocalDateTime(request.getToDate()),
                     request.getRegisteredBy(), request.getPetAdopt(),
-                    Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
+                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             List<AdoptDTO> adoptDTOS = adopts.getContent().stream()
                     .map(this::parseAdoptDTO).toList();
@@ -113,7 +113,9 @@ public class AdoptService implements IAdoptService {
             if (!Objects.equals(pet.getStatus(), Constants.PetStatus.WAIT_FOR_ADOPTING)) {
                 throw new BadRequestException(ResponseMessage.Pet.NOT_AVAILABLE_FOR_ADOPT);
             }
-            long count = adoptRepo.countByStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING, request.getRegisteredBy());
+            long count = adoptRepo.countByStatus(
+                    List.of(Constants.AdoptStatus.WAIT_FOR_PROGRESSING, Constants.AdoptStatus.IN_PROGRESS),
+                    request.getRegisteredBy());
             if (count >= 3) {
                 throw new BadRequestException(ResponseMessage.Adopt.MAX_ADOPTS);
             }
@@ -163,7 +165,6 @@ public class AdoptService implements IAdoptService {
             adopt.setProvinceId(request.getProvinceId());
             adopt.setAddress(request.getAddress().trim());
             adopt.setReason(request.getReason().trim());
-            adopt.setFee(request.getFee());
             adopt.setUpdatedAt(LocalDateTime.now());
             adopt.setUpdatedBy(request.getUpdatedBy());
             adoptRepo.save(adopt);
@@ -226,6 +227,14 @@ public class AdoptService implements IAdoptService {
                     && !Objects.equals(adopt.getStatus(), Constants.AdoptStatus.IN_PROGRESS)) {
                 throw new BadRequestException(ResponseMessage.Adopt.NOT_AVAILABLE_FOR_UPDATE);
             }
+            if (Objects.equals(request.getStatus(), Constants.AdoptStatus.COMPLETE)) {
+                if (Objects.equals(adopt.getPet().getStatus(), Constants.PetStatus.DIED)) {
+                    throw new BadRequestException(ResponseMessage.Pet.DIED);
+                }
+                if (Objects.equals(adopt.getPet().getStatus(), Constants.PetStatus.ADOPTED)) {
+                    throw new BadRequestException(ResponseMessage.Pet.ADOPTED);
+                }
+            }
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)
@@ -239,7 +248,8 @@ public class AdoptService implements IAdoptService {
                                     .newValue(String.valueOf(request.getStatus()))
                                     .build()
                     ))
-                    .build());            adopt.setStatus(request.getStatus());
+                    .build());
+            adopt.setStatus(request.getStatus());
             adopt.setUpdatedAt(LocalDateTime.now());
             adopt.setUpdatedBy(request.getUpdatedBy());
             if (Objects.equals(request.getStatus(), Constants.AdoptStatus.COMPLETE)) {
@@ -247,6 +257,7 @@ public class AdoptService implements IAdoptService {
                         .id(request.getUpdatedBy())
                         .build());
                 adopt.setConfirmedAt(LocalDateTime.now());
+                adopt.setFee(request.getFee());
                 petService.setAdoptedBy(adopt.getRegisteredBy().getId(), adopt.getPet().getId(), request.getUpdatedBy());
             }
             if (Objects.equals(request.getStatus(), Constants.AdoptStatus.REJECT)) {
@@ -257,6 +268,9 @@ public class AdoptService implements IAdoptService {
                 adopt.setRejectedReason(!StringUtil.isNullOrBlank(request.getMessage()) ? request.getMessage().trim() : request.getMessage());
             }
             adoptRepo.save(adopt);
+            if (Objects.equals(request.getStatus(), Constants.AdoptStatus.COMPLETE)) {
+                adoptRepo.rejectAllByPet(adopt.getPet().getId(), request.getUpdatedBy());
+            }
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -303,11 +317,11 @@ public class AdoptService implements IAdoptService {
             if (StringUtil.isNullOrBlank(userId)) {
                 userId = "";
             }
-            Long wait = adoptRepo.countByStatus(Constants.AdoptStatus.WAIT_FOR_PROGRESSING, userId);
-            Long progress = adoptRepo.countByStatus(Constants.AdoptStatus.IN_PROGRESS, userId);
-            Long reject = adoptRepo.countByStatus(Constants.AdoptStatus.REJECT, userId);
-            Long cancel = adoptRepo.countByStatus(Constants.AdoptStatus.CANCEL, userId);
-            Long complete = adoptRepo.countByStatus(Constants.AdoptStatus.COMPLETE, userId);
+            Long wait = adoptRepo.countByStatus(List.of(Constants.AdoptStatus.WAIT_FOR_PROGRESSING), userId);
+            Long progress = adoptRepo.countByStatus(List.of(Constants.AdoptStatus.IN_PROGRESS), userId);
+            Long reject = adoptRepo.countByStatus(List.of(Constants.AdoptStatus.REJECT), userId);
+            Long cancel = adoptRepo.countByStatus(List.of(Constants.AdoptStatus.CANCEL), userId);
+            Long complete = adoptRepo.countByStatus(List.of(Constants.AdoptStatus.COMPLETE), userId);
             Long total = adoptRepo.countByStatus(null, userId);
             return new HashMap<>() {{
                 put("countWaiting", wait);
@@ -492,16 +506,7 @@ public class AdoptService implements IAdoptService {
                     .newValue(newValue.getReason().trim())
                     .build());
         }
-        if (!Objects.equals(oldValue.getFee(), newValue.getFee())) {
-            details.add(ActionLogDetail.builder()
-                    .tableName(TAG)
-                    .rowId(newValue.getId())
-                    .columnName("fee")
-                    .oldValue(String.valueOf(oldValue.getFee()))
-                    .newValue(String.valueOf(newValue.getFee()))
-                    .build());
-        }
-        if(!details.isEmpty()) {
+        if (!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)

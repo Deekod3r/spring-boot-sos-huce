@@ -57,7 +57,7 @@ public class PetService implements IPetService {
                     request.getCode(), request.getType(), request.getAge(), request.getGender(),
                     request.getStatus(), request.getDiet(), request.getVaccine(), request.getSterilization(),
                     request.getRabies(), request.getAdoptedBy(),
-                    Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1));
+                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1));
             return Map.of(
                     "pets", pets.getContent().stream()
                         .map(this::parsePetDTO)
@@ -295,7 +295,7 @@ public class PetService implements IPetService {
                                 .rowId(pet.getId())
                                 .columnName("name")
                                 .oldValue("")
-                                .newValue(pet.getName().trim())
+                                .newValue(pet.getName())
                                 .build(),
                         ActionLogDetail.builder()
                                 .tableName(TAG)
@@ -493,7 +493,7 @@ public class PetService implements IPetService {
                     .newValue(!StringUtil.isNullOrBlank(newValue.getNote()) ? newValue.getNote().trim() : null)
                     .build());
         }
-        if(!details.isEmpty()) {
+        if (!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)

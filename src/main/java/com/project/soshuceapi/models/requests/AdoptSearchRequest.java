@@ -19,4 +19,5 @@ public class AdoptSearchRequest {
     String petAdopt;
     Integer page;
     Integer limit;
+    Boolean fullData;
 }

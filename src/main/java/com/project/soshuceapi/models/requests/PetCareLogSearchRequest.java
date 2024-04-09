@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Builder
 public class PetCareLogSearchRequest {
     String adoptId;
+    String petId;
     LocalDate fromDate;
     LocalDate toDate;
 }

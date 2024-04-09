@@ -50,7 +50,7 @@ public class NewsService implements INewsService {
                     request.getTitle(), request.getCategoryId(), request.getStatus(),
                     DataUtil.parseLocalDateTime(request.getFromDate()),
                     DataUtil.parseLocalDateTime(request.getToDate()),
-                    Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
+                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             List<NewsDTO> newsDTOs = new ArrayList<>();
             for (Object object : news.getContent()) {
@@ -98,7 +98,7 @@ public class NewsService implements INewsService {
     public void create(NewsCreateRequest request) {
         try {
             News news = newsRepo.findByTitle(request.getTitle());
-            if(Objects.nonNull(news)) {
+            if (Objects.nonNull(news)) {
                 throw new BadRequestException(ResponseMessage.News.TITLE_EXISTED);
             }
             NewsCategory newsCategory = newsCategoryRepo.findById(request.getCategoryId())
@@ -134,7 +134,7 @@ public class NewsService implements INewsService {
                 throw new BadRequestException(ResponseMessage.News.TITLE_EXISTED);
             }
             NewsCategory newsCategory = null;
-            if(!Objects.equals(request.getCategoryId(), news.getNewsCategory().getId())) {
+            if (!Objects.equals(request.getCategoryId(), news.getNewsCategory().getId())) {
                 newsCategory = newsCategoryRepo.findById(request.getCategoryId())
                         .orElseThrow(() -> new BadRequestException(ResponseMessage.NewsCategory.NOT_FOUND));
             }
@@ -268,7 +268,7 @@ public class NewsService implements INewsService {
 
     private void logUpdate(News oldValue, NewsUpdateRequest newValue) {
         List<ActionLogDetail> details = new ArrayList<>();
-        if(!Objects.equals(oldValue.getTitle(), newValue.getTitle().trim())) {
+        if (!Objects.equals(oldValue.getTitle(), newValue.getTitle().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -277,7 +277,7 @@ public class NewsService implements INewsService {
                     .newValue(newValue.getTitle())
                     .build());
         }
-        if(!Objects.equals(oldValue.getContent(), newValue.getContent().trim())) {
+        if (!Objects.equals(oldValue.getContent(), newValue.getContent().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -286,7 +286,7 @@ public class NewsService implements INewsService {
                     .newValue(newValue.getContent())
                     .build());
         }
-        if(!Objects.equals(oldValue.getDescription(), newValue.getDescription().trim())) {
+        if (!Objects.equals(oldValue.getDescription(), newValue.getDescription().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -295,7 +295,7 @@ public class NewsService implements INewsService {
                     .newValue(newValue.getDescription())
                     .build());
         }
-        if(!Objects.equals(oldValue.getStatus(), newValue.getStatus())) {
+        if (!Objects.equals(oldValue.getStatus(), newValue.getStatus())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -304,7 +304,7 @@ public class NewsService implements INewsService {
                     .newValue(String.valueOf(newValue.getStatus()))
                     .build());
         }
-        if(!Objects.equals(oldValue.getNewsCategory().getId(), newValue.getCategoryId())) {
+        if (!Objects.equals(oldValue.getNewsCategory().getId(), newValue.getCategoryId())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -313,7 +313,7 @@ public class NewsService implements INewsService {
                     .newValue(newValue.getCategoryId())
                     .build());
         }
-        if(!details.isEmpty()) {
+        if (!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)

@@ -92,6 +92,8 @@ public class ResponseMessage {
         public static final String NOT_AVAILABLE_FOR_UPDATE = "Thú cưng không trong trạng thái có thể cập nhật";
         public static final String MISSING_INTAKE_DATE = "Thông tin ngày tiếp nhận không được bỏ trống";
         public static final String INVALID_INTAKE_DATE = "Thông tin ngày tiếp nhận không hợp lệ";
+        public static final String DIED = "Thú cưng đã chết";
+        public static final String ADOPTED = "Thú cưng đã được nhận nuôi";
 
     }
 
@@ -101,14 +103,13 @@ public class ResponseMessage {
         public static final String MISSING_PROVINCE_ID = "Thông tin tỉnh/thành phố không được bỏ trống";
         public static final String MISSING_ADDRESS = "Thông tin địa chỉ không được bỏ trống";
         public static final String INVALID_ADDRESS = "Thông tin địa chỉ không hợp lệ";
-
         public static final String MISSING_REASON = "Thông tin lý do không được bỏ trống";
         public static final String INVALID_REASON = "Thông tin lý do không hợp lệ";
         public static final String MISSING_REGISTERED_BY = "Thông tin người đăng ký không được bỏ trống";
         public static final String NOT_FOUND = "Thông tin đơn nhận nuôi không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh đơn nhận nuôi không khớp";
         public static final String NOT_AVAILABLE_FOR_CANCEL = "Đơn nhận nuôi không trong trạng thái để hủy";
-        public static final String MAX_ADOPTS = "Số lượng đơn nhận nuôi đã đạt tối đa";
+        public static final String MAX_ADOPTS = "Số lượng đơn nhận nuôi cần xử lý của người dùng đã đạt tối đa";
         public static final String DUPLICATE_ADOPT = "Đã có đơn nhận nuôi cho thú cưng này";
         public static final String MISSING_ID = "Thông tin định danh đơn nhận nuôi không được bỏ trống";
         public static final String MISSING_STATUS = "Thông tin trạng thái đơn nhận nuôi không được bỏ trống";
@@ -117,6 +118,7 @@ public class ResponseMessage {
         public static final String NOT_AVAILABLE_FOR_UPDATE = "Đơn nhận nuôi không trong trạng thái có thể cập nhật";
         public static final String MISSING_FEE = "Thông tin tiền vía nhận nuôi không được bỏ trống";
         public static final String INVALID_FEE = "Thông tin tiền vía nhận nuôi không hợp lệ";
+        public static final String MISSING_REJECT_REASON = "Thông tin lý do từ chối không được bỏ trống";
     }
 
     public static class PetCareLog {
@@ -227,11 +229,35 @@ public class ResponseMessage {
         public static final String INVALID_DATE = "Thông tin ngày ủng hộ không hợp lệ";
         public static final String NOT_FOUND = "Thông tin đóng góp không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh đóng góp không khớp";
-        public static final String NOT_AVAILABLE_FOR_UPDATE = "Đóng góp không trong trạng thái có thể cập nhật";
         public static final String MISSING_ID = "Thông tin định danh đóng góp không được bỏ trống";
         public static final String MISSING_STATUS = "Thông tin trạng thái đóng góp không được bỏ trống";
         public static final String INVALID_STATUS = "Thông tin trạng thái đóng góp không hợp lệ";
         public static final String INVALID_SEARCH_DATE = "Thông tin thời gian không hợp lệ";
+        public static final String MISSING_TYPE = "Thông tin loại đóng góp không được bỏ trống";
+        public static final String INVALID_TYPE = "Thông tin loại đóng góp không hợp lệ";
+    }
+
+    public static class LivingCost {
+        public static final String MISSING_NAME = "Thông tin tên chi phí không được bỏ trống";
+        public static final String INVALID_NAME = "Thông tin tên chi phí không hợp lệ";
+        public static final String MISSING_COST = "Thông tin số tiền chi phí không được bỏ trống";
+        public static final String INVALID_COST = "Thông tin số tiền chi phí không hợp lệ";
+        public static final String MISSING_DATE = "Thông tin ngày chi không được bỏ trống";
+        public static final String INVALID_DATE = "Thông tin ngày chi không hợp lệ";
+        public static final String MISSING_STATUS = "Thông tin trạng thái chi phí không được bỏ trống";
+        public static final String INVALID_STATUS = "Thông tin trạng thái chi phí không hợp lệ";
+        public static final String MISSING_NOTE = "Thông tin ghi chú chi phí không được bỏ trống";
+        public static final String NOT_FOUND = "Thông tin chi phí không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh chi phí không khớp";
+        public static final String MISSING_ID = "Thông tin định danh chi phí không được bỏ trống";
+        public static final String MISSING_IMAGES = "Thông tin hình ảnh chi phí không được bỏ trống";
+    }
+
+    public static class Image {
+        public static final String MISSING_IMAGES = "Thông tin hình ảnh không được bỏ trống";
+        public static final String MISSING_OBJECT_ID = "Thông tin định danh đối tượng không được bỏ trống";
+        public static final String MISSING_OBJECT_NAME = "Thông tin tên đối tượng không được bỏ trống";
+        public static final String NOT_FOUND = "Thông tin hình ảnh không tồn tại";
     }
 
 }

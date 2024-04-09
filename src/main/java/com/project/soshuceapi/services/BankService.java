@@ -61,10 +61,10 @@ public class BankService implements IBankService {
     @Transactional
     public void create(BankCreateRequest request) {
         try {
-            if(bankRepo.count() >= Constants.Bank.MAX_QUANTITY) {
+            if (bankRepo.count() >= Constants.Bank.MAX_QUANTITY) {
                 throw new BadRequestException(ResponseMessage.Bank.MAX_QUANTITY);
             }
-            if(Objects.nonNull(bankRepo.findByAccountNumber(request.getAccountNumber().trim()))) {
+            if (Objects.nonNull(bankRepo.findByAccountNumber(request.getAccountNumber().trim()))) {
                 throw new BadRequestException(ResponseMessage.Bank.NAME_EXISTED);
             }
             logCreate(bankRepo.save(
@@ -91,7 +91,7 @@ public class BankService implements IBankService {
         try {
             Bank bank = bankRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Bank.NOT_FOUND));
-            if(Objects.nonNull(bankRepo.findByAccountNumber(request.getAccountNumber().trim()))
+            if (Objects.nonNull(bankRepo.findByAccountNumber(request.getAccountNumber().trim()))
                     && !Objects.equals(bank.getAccountNumber(), request.getAccountNumber().trim())) {
                 throw new BadRequestException(ResponseMessage.Bank.NAME_EXISTED);
             }
@@ -195,7 +195,7 @@ public class BankService implements IBankService {
 
     private void logUpdate(Bank oldValue, BankUpdateRequest newValue) {
         List<ActionLogDetail> details = new ArrayList<>();
-        if(!Objects.equals(oldValue.getName(), newValue.getName().trim())) {
+        if (!Objects.equals(oldValue.getName(), newValue.getName().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -204,7 +204,7 @@ public class BankService implements IBankService {
                     .newValue(newValue.getName().trim())
                     .build());
         }
-        if(!Objects.equals(oldValue.getAccountNumber(), newValue.getAccountNumber().trim())) {
+        if (!Objects.equals(oldValue.getAccountNumber(), newValue.getAccountNumber().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -213,7 +213,7 @@ public class BankService implements IBankService {
                     .newValue(newValue.getAccountNumber().trim())
                     .build());
         }
-        if(!Objects.equals(oldValue.getOwner(), newValue.getOwner().trim())) {
+        if (!Objects.equals(oldValue.getOwner(), newValue.getOwner().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -222,7 +222,7 @@ public class BankService implements IBankService {
                     .newValue(newValue.getOwner().trim())
                     .build());
         }
-        if(!Objects.equals(oldValue.getLogo(), newValue.getLogo().trim())) {
+        if (!Objects.equals(oldValue.getLogo(), newValue.getLogo().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -231,7 +231,7 @@ public class BankService implements IBankService {
                     .newValue(newValue.getLogo().trim())
                     .build());
         }
-        if(!details.isEmpty()) {
+        if (!details.isEmpty()) {
             actionLogService.create(
                     ActionLogDTO.builder()
                             .action(Constants.ActionLog.UPDATE)

@@ -46,7 +46,7 @@ public class DonateService implements IDonateService {
                     request.getPayee(),
                     request.getFromDate(),
                     request.getToDate(),
-                    Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
+                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             return Map.of(
                     "donates", donates.getContent().stream()
@@ -83,6 +83,7 @@ public class DonateService implements IDonateService {
             Donate donate = Donate.builder()
                     .remitter(request.getRemitter().trim())
                     .payee(request.getPayee().trim())
+                    .type(request.getType())
                     .detail(!StringUtil.isNullOrBlank(request.getDetail()) ? request.getDetail().trim() : request.getDetail())
                     .amount(request.getAmount())
                     .date(request.getDate())
@@ -155,6 +156,7 @@ public class DonateService implements IDonateService {
                 donate.getId(),
                 donate.getRemitter(),
                 donate.getPayee(),
+                donate.getType(),
                 donate.getDetail(),
                 donate.getAmount(),
                 donate.getDate()
@@ -180,6 +182,13 @@ public class DonateService implements IDonateService {
                                         .columnName("payee")
                                         .oldValue("")
                                         .newValue(donate.getPayee())
+                                        .build(),
+                                ActionLogDetail.builder()
+                                        .tableName(TAG)
+                                        .rowId(donate.getId())
+                                        .columnName("type")
+                                        .oldValue("")
+                                        .newValue(donate.getType().toString())
                                         .build(),
                                 ActionLogDetail.builder()
                                         .tableName(TAG)

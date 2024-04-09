@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -27,8 +26,6 @@ public class GalleriaUpdateRequest {
     @NotBlank(message = ResponseMessage.Galleria.MISSING_DESCRIPTION)
     @Length(min = 2, max = 255, message = ResponseMessage.Galleria.INVALID_DESCRIPTION)
     String description;
-    @NotNull(message = ResponseMessage.Galleria.MISSING_IMAGE)
-    MultipartFile image;
     @NotNull(message = ResponseMessage.Galleria.MISSING_STATUS)
     Boolean status;
     @NotNull(message = ResponseMessage.Galleria.MISSING_LINK)

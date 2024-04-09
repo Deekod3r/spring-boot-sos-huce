@@ -1,12 +1,13 @@
 package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseMessage;
-import com.project.soshuceapi.models.DTOs.DonateDTO;
-import com.project.soshuceapi.models.requests.DonateCreateRequest;
-import com.project.soshuceapi.models.requests.DonateSearchRequest;
-import com.project.soshuceapi.models.requests.DonateUpdateRequest;
+import com.project.soshuceapi.exceptions.BadRequestException;
+import com.project.soshuceapi.models.DTOs.LivingCostDTO;
+import com.project.soshuceapi.models.requests.LivingCostCreateRequest;
+import com.project.soshuceapi.models.requests.LivingCostSearchRequest;
+import com.project.soshuceapi.models.requests.LivingCostUpdateRequest;
 import com.project.soshuceapi.models.responses.Response;
-import com.project.soshuceapi.services.iservice.IDonateService;
+import com.project.soshuceapi.services.iservice.ILivingCostService;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,30 +23,35 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/donates")
-public class DonateController {
+@RequestMapping("/living-costs")
+public class LivingCostController {
 
     @Autowired
-    private IDonateService donateService;
+    private ILivingCostService livingCostService;
     @Autowired
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getDonates(
-            @RequestParam(value = "remitter", defaultValue = "", required = false) String remitter,
-            @RequestParam(value = "payee", defaultValue = "", required = false) String payee,
-            @RequestParam(value = "fromDate", defaultValue = "", required = false) LocalDate fromDate,
-            @RequestParam(value = "toDate", defaultValue = "", required = false) LocalDate toDate,
-            @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
-            @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-            @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+    public ResponseEntity<?> getAll(
+            @RequestParam(value = "limit", required = false, defaultValue = "5") Integer limit,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+            @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
+            @RequestParam(value = "fromDate", required = false, defaultValue = "") LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false, defaultValue = "") LocalDate toDate
     ) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
-            response.setData(donateService.getAll(DonateSearchRequest.of(remitter.trim(), payee.trim(), fromDate, toDate, limit, page, fullData)));
-            response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setData(livingCostService.getAll(LivingCostSearchRequest.builder()
+                    .page(page)
+                    .limit(limit)
+                    .fullData(fullData)
+                    .fromDate(fromDate)
+                    .toDate(toDate)
+                    .build()));
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -55,18 +61,21 @@ public class DonateController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getDonateById(@PathVariable("id") String id) {
-        Response<DonateDTO> response = new Response<>();
+    public ResponseEntity<?> getById(@PathVariable String id) {
+        Response<LivingCostDTO> response = new Response<>();
         response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(id)) {
-                response.setMessage(ResponseMessage.Donate.MISSING_ID);
+                response.setMessage(ResponseMessage.LivingCost.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            response.setData(donateService.getById(id));
-            response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setData(livingCostService.getById(id));
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -75,7 +84,7 @@ public class DonateController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createDonate(@Valid @RequestBody DonateCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> create(@Valid @ModelAttribute LivingCostCreateRequest request, BindingResult bindingResult) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -88,10 +97,10 @@ public class DonateController {
                 return ResponseEntity.badRequest().body(response);
             }
             request.setCreatedBy(auditorAware.getCurrentAuditor().get());
-            donateService.create(request);
-            response.setMessage(ResponseMessage.Common.SUCCESS);
+            livingCostService.create(request);
             response.setData(true);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -101,8 +110,8 @@ public class DonateController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateDonate(@PathVariable("id") String id,
-                                          @Valid @RequestBody DonateUpdateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> update(@PathVariable String id,
+                                    @Valid @RequestBody LivingCostUpdateRequest request, BindingResult bindingResult) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -115,15 +124,18 @@ public class DonateController {
                 return ResponseEntity.badRequest().body(response);
             }
             if (!Objects.equals(id, request.getId())) {
-                response.setMessage(ResponseMessage.Donate.NOT_MATCH);
+                response.setMessage(ResponseMessage.LivingCost.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
-            donateService.update(request);
-            response.setMessage(ResponseMessage.Common.SUCCESS);
+            livingCostService.update(request);
             response.setData(true);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -132,7 +144,7 @@ public class DonateController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deleteDonate(@PathVariable("id") String id) {
+    public ResponseEntity<?> delete(@PathVariable String id) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -141,14 +153,17 @@ public class DonateController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (StringUtil.isNullOrBlank(id)) {
-                response.setMessage(ResponseMessage.Adopt.MISSING_ID);
+                response.setMessage(ResponseMessage.LivingCost.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            donateService.delete(id, auditorAware.getCurrentAuditor().get());
-            response.setMessage(ResponseMessage.Common.SUCCESS);
+            livingCostService.delete(id, auditorAware.getCurrentAuditor().get());
             response.setData(true);
             response.setSuccess(true);
+            response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

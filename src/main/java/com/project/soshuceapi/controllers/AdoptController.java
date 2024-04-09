@@ -41,7 +41,8 @@ public class AdoptController {
     @GetMapping
     @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
     public ResponseEntity<?> getAdopts(@RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-                                       @RequestParam(value = "limit", defaultValue = "1000000", required = false) Integer limit,
+                                       @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
+                                       @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
                                        @RequestParam(value = "status", defaultValue = "", required = false) Integer status,
                                        @RequestParam(value = "code", defaultValue = "", required = false) String code,
                                        @RequestParam(value = "registeredBy", defaultValue = "", required = false) String registeredBy,
@@ -63,7 +64,7 @@ public class AdoptController {
                 response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
                 return ResponseEntity.badRequest().body(response);
             }
-            response.setData(adoptService.getAll(AdoptSearchRequest.of(code.trim(), fromDate, toDate, status, registeredBy, petAdopt, page, limit)));
+            response.setData(adoptService.getAll(AdoptSearchRequest.of(code.trim(), fromDate, toDate, status, registeredBy, petAdopt, page, limit, fullData)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
@@ -202,12 +203,22 @@ public class AdoptController {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
+            if (!Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.Adopt.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             if (bindingResult.hasErrors()) {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (Objects.equals(request.getStatus(), Constants.AdoptStatus.REJECT)
+                    && StringUtil.isNullOrBlank(request.getMessage())) {
+                response.setMessage(ResponseMessage.Adopt.MISSING_REJECT_REASON);
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (Objects.equals(request.getStatus(), Constants.AdoptStatus.COMPLETE)
+                    && Objects.isNull(request.getFee())) {
+                response.setMessage(ResponseMessage.Adopt.MISSING_FEE);
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
@@ -240,7 +251,7 @@ public class AdoptController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
+            if (!Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.Adopt.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }

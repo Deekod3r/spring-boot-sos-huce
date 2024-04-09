@@ -199,7 +199,7 @@ public class NewsCategoryService implements INewsCategoryService {
                     .newValue(newValue.getDescription())
                     .build());
         }
-        if(!details.isEmpty()) {
+        if (!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)

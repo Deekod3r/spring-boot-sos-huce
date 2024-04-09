@@ -1,7 +1,7 @@
 package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseMessage;
-import com.project.soshuceapi.exceptions.AuthenticationException;
+import com.project.soshuceapi.exceptions.AuthException;
 import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.requests.LoginRequest;
 import com.project.soshuceapi.models.responses.Response;
@@ -41,7 +41,7 @@ public class AuthController {
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
-        } catch (AuthenticationException e) {
+        } catch (AuthException e) {
             response.setMessage(ResponseMessage.User.LOGIN_INFO_INCORRECT);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (BadRequestException e) {

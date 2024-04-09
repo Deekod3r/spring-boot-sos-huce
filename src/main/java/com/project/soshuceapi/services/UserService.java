@@ -272,7 +272,7 @@ public class UserService implements IUserService {
         try {
             User user = userRepo.findById(request.getId()).orElseThrow(() ->
                     new BadRequestException(ResponseMessage.User.NOT_FOUND));
-            if(!Objects.equals(user.getRole().name(), Constants.User.ROLE_ADMIN)
+            if (!Objects.equals(user.getRole().name(), Constants.User.ROLE_ADMIN)
             && !Objects.equals(user.getRole().name(), Constants.User.ROLE_MANAGER)) {
                 throw new BadRequestException(ResponseMessage.User.NOT_AVAILABLE_FOR_UPDATE);
             }
@@ -524,7 +524,7 @@ public class UserService implements IUserService {
                     .newValue(newValue.getStatus().toString())
                     .build());
         }
-        if(!details.isEmpty()) {
+        if (!details.isEmpty()) {
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.UPDATE)
                     .description(Constants.ActionLog.UPDATE + "." + TAG)

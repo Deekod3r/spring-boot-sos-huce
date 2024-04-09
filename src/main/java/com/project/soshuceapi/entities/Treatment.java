@@ -38,8 +38,6 @@ public class Treatment {
     private Integer quantity;
     @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
     private Boolean status;
-    @Column(name = "bill", columnDefinition = "TEXT", nullable = false)
-    private String bill;
 
     @Column(name = "is_deleted", columnDefinition = "BOOLEAN", nullable = false)
     private Boolean isDeleted;
@@ -56,7 +54,7 @@ public class Treatment {
     @JoinColumn(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
     private String createdBy;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
 }
