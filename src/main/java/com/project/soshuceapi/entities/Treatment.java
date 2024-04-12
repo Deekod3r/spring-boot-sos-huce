@@ -26,7 +26,7 @@ public class Treatment {
     private String name;
     @Column(name = "start_date", columnDefinition = "DATE", nullable = false)
     private LocalDate startDate;
-    @Column(name = "end_date", columnDefinition = "DATE")
+    @Column(name = "end_date", columnDefinition = "DATE", nullable = false)
     private LocalDate endDate;
     @Column(name = "location", columnDefinition = "VARCHAR(255)", nullable = false)
     private String location;
@@ -36,6 +36,8 @@ public class Treatment {
     private BigDecimal price;
     @Column(name="quantity", columnDefinition = "INTEGER", nullable = false)
     private Integer quantity;
+    @Column(name = "type", columnDefinition = "INTEGER", nullable = false)
+    private Integer type; // 1: tiem tong hop, 2: tiem dai, 3: triet san, 4: chua benh, 5: khac
     @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
     private Boolean status;
 
@@ -54,7 +56,7 @@ public class Treatment {
     @JoinColumn(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
     private String createdBy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
 }

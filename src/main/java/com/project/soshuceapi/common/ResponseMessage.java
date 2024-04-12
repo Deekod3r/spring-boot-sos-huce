@@ -45,9 +45,6 @@ public class ResponseMessage {
         public static final String PASSWORD_DUPLICATE = "Mật khẩu mới không được trùng với mật khẩu cũ";
         public static final String MISSING_STATUS = "Thông tin trạng thái người dùng không được bỏ trống";
         public static final String INVALID_STATUS = "Thông tin trạng thái người dùng không hợp lệ";
-        public static final String MISSING_ADDRESS = "Thông tin địa chỉ người dùng không được bỏ trống";
-
-
     }
 
     public static class Pet {
@@ -125,7 +122,6 @@ public class ResponseMessage {
         public static final String MISSING_DATE = "Thông tin ngày kiểm tra không được bỏ trống";
         public static final String INVALID_DATE = "Thông tin ngày kiểm tra không hợp lệ";
         public static final String MISSING_NOTE = "Thông tin ghi chú không được bỏ trống";
-        public static final String INVALID_NOTE = "Thông tin ghi chú không hợp lệ";
         public static final String MISSING_ADOPT_ID = "Thông tin định danh đơn nhận nuôi không được bỏ trống";
         public static final String NOT_FOUND = "Thông tin nhật ký không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh nhật ký không khớp";
@@ -139,13 +135,11 @@ public class ResponseMessage {
         public static final String INVALID_DESCRIPTION = "Thông tin mô tả không hợp lệ";
         public static final String MISSING_IMAGE = "Thông tin hình ảnh không được bỏ trống";
         public static final String MISSING_STATUS = "Thông tin trạng thái không được bỏ trống";
-        public static final String INVALID_STATUS = "Thông tin trạng thái không hợp lệ";
         public static final String NOT_FOUND = "Thông tin bộ sưu tập không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh bộ sưu tập không khớp";
         public static final String MISSING_ID = "Thông tin định danh bộ sưu tập không được bỏ trống";
         public static final String MISSING_LINK = "Thông tin liên kết không được bỏ trống";
         public static final String MISSING_INDEX = "Thông tin thứ tự không được bỏ trống";
-        public static final String NOT_AVAILABLE_FOR_UPDATE = "Bộ sưu tập không trong trạng thái có thể cập nhật";
     }
 
     public static class Location {
@@ -181,7 +175,6 @@ public class ResponseMessage {
         public static final String MISSING_ID = "Thông tin định danh tài khoản nhận hỗ trợ không được bỏ trống";
         public static final String NOT_FOUND = "Thông tin tài khoản nhận hỗ trợ không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh tài khoản nhận hỗ trợ không khớp";
-        public static final String NOT_AVAILABLE_FOR_UPDATE = "Tài khoản nhận hỗ trợ không trong trạng thái có thể cập nhật";
         public static final String MAX_QUANTITY = "Số lượng tài khoản nhận hỗ trợ đã đạt tối đa";
         public static final String NAME_EXISTED = "Tên tài khoản nhận hỗ trợ đã tồn tại";
     }
@@ -190,15 +183,12 @@ public class ResponseMessage {
         public static final String MISSING_TITLE = "Thông tin tiêu đề tin tức không được bỏ trống";
         public static final String INVALID_TITLE = "Thông tin tiêu đề tin tức không hợp lệ";
         public static final String MISSING_CONTENT = "Thông tin nội dung tin tức không được bỏ trống";
-        public static final String INVALID_CONTENT = "Thông tin nội dung tin tức không hợp lệ";
         public static final String MISSING_IMAGE = "Thông tin hình ảnh tin tức không được bỏ trống";
         public static final String MISSING_CATEGORY = "Thông tin danh mục tin tức không được bỏ trống";
         public static final String NOT_FOUND = "Thông tin tin tức không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh tin tức không khớp";
-        public static final String NOT_AVAILABLE_FOR_UPDATE = "Tin tức không trong trạng thái có thể cập nhật";
         public static final String MISSING_ID = "Thông tin định danh tin tức không được bỏ trống";
         public static final String MISSING_STATUS = "Thông tin trạng thái tin tức không được bỏ trống";
-        public static final String INVALID_STATUS = "Thông tin trạng thái tin tức không hợp lệ";
         public static final String TITLE_EXISTED = "Tiêu đề tin tức đã tồn tại";
         public static final String MISSING_DESCRIPTION = "Thông tin mô tả tin tức không được bỏ trống";
         public static final String INVALID_DESCRIPTION = "Thông tin mô tả tin tức không hợp lệ";
@@ -218,11 +208,7 @@ public class ResponseMessage {
 
     public static class Donate {
         public static final String MISSING_REMITTER = "Thông tin người chuyển không được bỏ trống";
-        public static final String INVALID_REMITTER = "Thông tin người chuyển không hợp lệ";
         public static final String MISSING_PAYEE = "Thông tin người nhận không được bỏ trống";
-        public static final String INVALID_PAYEE = "Thông tin người nhận không hợp lệ";
-        public static final String MISSING_DETAIL = "Thông tin chi tiết không được bỏ trống";
-        public static final String INVALID_DETAIL = "Thông tin chi tiết không hợp lệ";
         public static final String MISSING_AMOUNT = "Thông tin số tiền không được bỏ trống";
         public static final String INVALID_AMOUNT = "Thông tin số tiền không hợp lệ";
         public static final String MISSING_DATE = "Thông tin ngày chuyển không được bỏ trống";
@@ -230,9 +216,6 @@ public class ResponseMessage {
         public static final String NOT_FOUND = "Thông tin đóng góp không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh đóng góp không khớp";
         public static final String MISSING_ID = "Thông tin định danh đóng góp không được bỏ trống";
-        public static final String MISSING_STATUS = "Thông tin trạng thái đóng góp không được bỏ trống";
-        public static final String INVALID_STATUS = "Thông tin trạng thái đóng góp không hợp lệ";
-        public static final String INVALID_SEARCH_DATE = "Thông tin thời gian không hợp lệ";
         public static final String MISSING_TYPE = "Thông tin loại đóng góp không được bỏ trống";
         public static final String INVALID_TYPE = "Thông tin loại đóng góp không hợp lệ";
     }
@@ -245,8 +228,6 @@ public class ResponseMessage {
         public static final String MISSING_DATE = "Thông tin ngày chi không được bỏ trống";
         public static final String INVALID_DATE = "Thông tin ngày chi không hợp lệ";
         public static final String MISSING_STATUS = "Thông tin trạng thái chi phí không được bỏ trống";
-        public static final String INVALID_STATUS = "Thông tin trạng thái chi phí không hợp lệ";
-        public static final String MISSING_NOTE = "Thông tin ghi chú chi phí không được bỏ trống";
         public static final String NOT_FOUND = "Thông tin chi phí không tồn tại";
         public static final String NOT_MATCH = "Thông tin định danh chi phí không khớp";
         public static final String MISSING_ID = "Thông tin định danh chi phí không được bỏ trống";
@@ -258,6 +239,43 @@ public class ResponseMessage {
         public static final String MISSING_OBJECT_ID = "Thông tin định danh đối tượng không được bỏ trống";
         public static final String MISSING_OBJECT_NAME = "Thông tin tên đối tượng không được bỏ trống";
         public static final String NOT_FOUND = "Thông tin hình ảnh không tồn tại";
+    }
+
+    public static class Treatment {
+        public static final String MISSING_NAME = "Thông tin tên điều trị không được bỏ trống";
+        public static final String INVALID_NAME = "Thông tin tên điều trị không hợp lệ";
+        public static final String MISSING_START_DATE = "Thông tin ngày bắt đầu không được bỏ trống";
+        public static final String INVALID_START_DATE = "Thông tin ngày bắt đầu không hợp lệ";
+        public static final String MISSING_END_DATE = "Thông tin ngày kết thúc không được bỏ trống";
+        public static final String INVALID_END_DATE = "Thông tin ngày kết thúc không hợp lệ";
+        public static final String MISSING_DESCRIPTION = "Thông tin mô tả không được bỏ trống";
+        public static final String INVALID_DESCRIPTION = "Thông tin mô tả không hợp lệ";
+        public static final String MISSING_PRICE = "Thông tin giá không được bỏ trống";
+        public static final String INVALID_PRICE = "Thông tin giá không hợp lệ";
+        public static final String MISSING_QUANTITY = "Thông tin số lượng không được bỏ trống";
+        public static final String INVALID_QUANTITY = "Thông tin số lượng không hợp lệ";
+        public static final String MISSING_LOCATION = "Thông tin địa điểm không được bỏ trống";
+        public static final String NOT_FOUND = "Thông tin điều trị không tồn tại";
+        public static final String NOT_MATCH = "Thông tin định danh điều trị không khớp";
+        public static final String MISSING_ID = "Thông tin định danh điều trị không được bỏ trống";
+        public static final String MISSING_PET_ID = "Thông tin định danh thú cưng không được bỏ trống";
+        public static final String MISSING_DETAILS = "Thông tin chi tiết điều trị không được bỏ trống";
+        public static final String MISSING_TREATMENT_ID = "Thông tin định danh điều trị không được bỏ trống";
+        public static final String MISSING_TREATMENT_NAME = "Thông tin tên điều trị không được bỏ trống";
+        public static final String INVALID_LOCATION = "Thông tin địa điểm không hợp lệ";
+        public static final String MISSING_IMAGES = "Thông tin hình ảnh hóa đơn không được bỏ trống";
+        public static final String MISSING_TYPE = "Thông tin loại điều trị không được bỏ trống";
+        public static final String INVALID_TYPE = "Thông tin loại điều trị không hợp lệ";
+        public static final String MISSING_STATUS = "Thông tin trạng thái thông tin điều trị không được bỏ trống";
+    }
+
+    public static class Feedback {
+        public static final String MISSING_FULL_NAME = "Thông tin họ và tên không được bỏ trống";
+        public static final String INVALID_FULL_NAME = "Thông tin họ và tên không hợp lệ";
+        public static final String MISSING_MESSAGE = "Thông tin nội dung phản hồi không được bỏ trống";
+        public static final String INVALID_MESSAGE = "Thông tin nội dung phản hồi không hợp lệ";
+        public static final String MISSING_EMAIL = "Thông tin email không được bỏ trống";
+        public static final String INVALID_EMAIL = "Thông tin email không hợp lệ";
     }
 
 }

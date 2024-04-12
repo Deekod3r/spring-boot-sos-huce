@@ -150,6 +150,7 @@ public class Constants {
 
     public static class FormatPattern {
         public final static String LOCAL_DATETIME = "yyyy-MM-dd'T'HH:mm:ss";
+        public final static String LOCAL_DATETIME_WITH_NANOSECONDS  = "yyyy-MM-dd HH:mm:ss.SSSSSS";
         public final static String LOCAL_DATE = "yyyy-MM-dd";
     }
 

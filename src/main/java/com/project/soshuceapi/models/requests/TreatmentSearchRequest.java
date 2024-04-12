@@ -10,12 +10,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserSearchRequest {
-    String name;
-    String email;
-    String phoneNumber;
-    String role;
-    Boolean isActivated;
+public class TreatmentSearchRequest {
+    String petId;
+    Boolean status;
     Integer page;
     Integer limit;
     Boolean fullData;

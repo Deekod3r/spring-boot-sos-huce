@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -31,7 +32,7 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "AND (cast(:toDate as timestamp) IS NULL OR a.createdAt <= :toDate ) " +
             "AND (:registeredBy = '' OR a.registeredBy.id = :registeredBy) " +
             "AND (:petAdopt = '' OR a.pet.id = :petAdopt) " +
-            "ORDER BY a.status, a.createdAt DESC, a.updatedAt DESC")
+            "ORDER BY a.createdAt DESC, a.updatedAt DESC")
     Page<Adopt> findAll(
             @Param("status") Integer status,
             @Param("code") String code,
@@ -64,6 +65,19 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "AND (:userId = '' OR a.registeredBy.id = :userId) ")
     long countByStatus(List<Integer> status, String userId);
 
+    @Query(value = "SELECT " +
+            "COUNT(CASE WHEN a.status = 1 THEN 1 END) AS countWaiting, " +
+            "COUNT(CASE WHEN a.status = 2 THEN 1 END) AS countInProgress, " +
+            "COUNT(CASE WHEN a.status = 3 THEN 1 END) AS countReject, " +
+            "COUNT(CASE WHEN a.status = 4 THEN 1 END) AS countCancel, " +
+            "COUNT(CASE WHEN a.status = 5 THEN 1 END) AS countComplete, " +
+            "COUNT(1) AS total " +
+            "FROM Adopt a " +
+            "WHERE (:userId = '' OR a.registeredBy.id = :userId) " +
+            "AND a.isDeleted = false " +
+            "AND a.pet.isDeleted = false")
+    Map<String, Long> countAll(String userId);
+
     @Query(value = "SELECT COUNT(1) FROM adopts " +
             "WHERE pet_id = :petId " +
             "AND registered_by = :userId " +
@@ -89,5 +103,72 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
 
     @Query(value = "SELECT nextval('adopt_seq')", nativeQuery = true)
     long getSEQ();
+
+    @Query("SELECT " +
+            "    EXTRACT(YEAR FROM a.confirmedAt) AS year, " +
+            "    EXTRACT(MONTH FROM a.confirmedAt) AS month, " +
+            "    SUM(a.fee) AS total_amount " +
+            "FROM " +
+            "    Adopt a " +
+            "WHERE " +
+            "    a.isDeleted = FALSE " +
+            "    AND a.status = 5 " +
+            "    AND (:year IS NULL OR EXTRACT(YEAR FROM a.confirmedAt) = :year)" +
+            "GROUP BY " +
+            "    year, " +
+            "    month " +
+            "ORDER BY " +
+            "    EXTRACT(YEAR FROM a.confirmedAt), " +
+            "    EXTRACT(MONTH FROM a.confirmedAt) ")
+    List<Object[]> calTotalFeeAdopt(
+            @Param("year") Integer year
+    );
+
+    @Query(value = "SELECT adopts.id, adopts.code, " +
+            "           adopts.confirmed_at + " +
+            "           (SELECT CAST((config_values.value || ' days') AS INTERVAL) " +
+            "           FROM config_values " +
+            "           WHERE config_values.key_cv = 'CIRCLE_LOG') as check_date_first, " +
+            "           adopts.confirmed_at + " +
+            "           (SELECT CAST((CAST(config_values.value AS INTEGER) * 2 || ' days') AS INTERVAL) " +
+            "           FROM config_values " +
+            "           WHERE config_values.key_cv = 'CIRCLE_LOG') as check_date_second, " +
+            "           adopts.confirmed_at + " +
+            "           (SELECT CAST((CAST(config_values.value AS INTEGER) * 3 || ' days') AS INTERVAL) " +
+            "           FROM config_values " +
+            "           WHERE config_values.key_cv = 'CIRCLE_LOG') as check_date_third " +
+            "FROM adopts " +
+            "WHERE status = 5 " +
+            "AND is_deleted = false " +
+            "AND (" +
+            "   (adopts.confirmed_at + " +
+            "        (SELECT CAST((config_values.value || ' days') AS INTERVAL) " +
+            "         FROM config_values " +
+            "         WHERE config_values.key_cv = 'CIRCLE_LOG') - CURRENT_TIMESTAMP) " +
+            "    BETWEEN CAST('0 days' AS INTERVAL) AND " +
+            "            (SELECT CAST((config_values.value || ' days') AS INTERVAL) " +
+            "             FROM config_values " +
+            "             WHERE config_values.key_cv = 'DEAD_NIGHT')" +
+            "   OR " +
+            "   (adopts.confirmed_at + " +
+            "        (SELECT CAST((CAST(config_values.value AS INTEGER) * 2 || ' days') AS INTERVAL) " +
+            "         FROM config_values " +
+            "         WHERE config_values.key_cv = 'CIRCLE_LOG') - CURRENT_TIMESTAMP) " +
+            "    BETWEEN CAST('0 days' AS INTERVAL) AND " +
+            "            (SELECT CAST((config_values.value || ' days') AS INTERVAL) " +
+            "             FROM config_values " +
+            "             WHERE config_values.key_cv = 'DEAD_NIGHT')" +
+            "   OR " +
+            "   (adopts.confirmed_at + " +
+            "        (SELECT CAST((CAST(config_values.value AS INTEGER) * 3 || ' days') AS INTERVAL) " +
+            "         FROM config_values " +
+            "         WHERE config_values.key_cv = 'CIRCLE_LOG') - CURRENT_TIMESTAMP) " +
+            "    BETWEEN CAST('0 days' AS INTERVAL) AND " +
+            "            (SELECT CAST((config_values.value || ' days') AS INTERVAL) " +
+            "             FROM config_values " +
+            "             WHERE config_values.key_cv = 'DEAD_NIGHT')" +
+            ")", nativeQuery = true)
+    List<Object[]> findAdoptsByCircleLog();
+
 
 }

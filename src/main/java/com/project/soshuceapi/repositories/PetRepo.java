@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -20,7 +22,7 @@ public interface PetRepo extends JpaRepository<Pet, String> {
     @NonNull
     @Query("SELECT p FROM Pet p " +
             "LEFT JOIN FETCH p.adoptedBy " +
-            "WHERE p.isDeleted = false " +
+            "WHERE p.isDeleted = FALSE " +
             "AND (:name = '' OR p.name ILIKE CONCAT('%', :name, '%')) " +
             "AND (:breed = '' OR p.breed ILIKE CONCAT('%', :breed, '%')) " +
             "AND (:color = '' OR p.color ILIKE CONCAT('%', :color, '%')) " +
@@ -34,7 +36,7 @@ public interface PetRepo extends JpaRepository<Pet, String> {
             "AND (:sterilization IS NULL OR p.sterilization = :sterilization) " +
             "AND (:rabies IS NULL OR p.rabies = :rabies) " +
             "AND (:adoptedBy = '' OR p.adoptedBy.id = :adoptedBy) " +
-            "ORDER BY p.status DESC, p.createdAt DESC,  p.updatedAt DESC ")
+            "ORDER BY p.createdAt DESC,  p.updatedAt DESC ")
     Page<Pet> findAll(
             @Param("name") String name,
             @Param("breed") String breed,
@@ -53,13 +55,23 @@ public interface PetRepo extends JpaRepository<Pet, String> {
     );
 
     @NonNull
-    @Query(value = "SELECT * FROM pets WHERE is_deleted = false AND id = :id", nativeQuery = true)
+    @Query(value = "SELECT * FROM pets WHERE is_deleted = FALSE AND id = :id", nativeQuery = true)
     Optional<Pet> findById(@NonNull @Param("id") String id);
 
-    @Query(value = "SELECT count(1) FROM pets WHERE is_deleted = false", nativeQuery = true)
+    @Query(value = "SELECT count(1) FROM pets WHERE is_deleted = FALSE", nativeQuery = true)
     long count();
 
-    @Query(value = "SELECT count(1) FROM pets WHERE is_deleted = false AND status = :status", nativeQuery = true)
-    long countByStatus(int status);
+    @Query(value = "SELECT " +
+            "COUNT(1) AS total, " +
+            "SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS died, " +
+            "SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS adopted, " +
+            "SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END) AS healing, " +
+            "SUM(CASE WHEN status = 4 THEN 1 ELSE 0 END) AS wait " +
+            "FROM pets " +
+            "WHERE is_deleted = FALSE " +
+            "AND (cast(:date as date) IS NULL OR intake_date <= :date)",
+        nativeQuery = true)
+    Map<String, Long> getCountsByStatus(@Param("date") LocalDate date);
+
 
 }

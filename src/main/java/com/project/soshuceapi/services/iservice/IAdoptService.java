@@ -1,10 +1,9 @@
 package com.project.soshuceapi.services.iservice;
 
 import com.project.soshuceapi.models.DTOs.AdoptDTO;
-import com.project.soshuceapi.models.requests.AdoptCreateRequest;
-import com.project.soshuceapi.models.requests.AdoptSearchRequest;
-import com.project.soshuceapi.models.requests.AdoptUpdateRequest;
-import com.project.soshuceapi.models.requests.AdoptUpdateStatusRequest;
+import com.project.soshuceapi.models.DTOs.AdoptLogDTO;
+import com.project.soshuceapi.models.DTOs.TotalAmountStatisticDTO;
+import com.project.soshuceapi.models.requests.*;
 
 import java.util.List;
 import java.util.Map;
@@ -28,5 +27,9 @@ public interface IAdoptService {
     void delete(String id, String deletedBy);
 
     Map<String, Long> statisticStatus(String userId);
+
+    List<TotalAmountStatisticDTO> getTotalFeeAdopt(TotalFeeAdoptSearchRequest request);
+
+    List<AdoptLogDTO> getAdoptsByCircleLog();
 
 }

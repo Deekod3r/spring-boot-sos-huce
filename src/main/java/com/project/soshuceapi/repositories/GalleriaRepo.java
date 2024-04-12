@@ -14,7 +14,4 @@ public interface GalleriaRepo extends JpaRepository<Galleria, String> {
     @Query("SELECT g FROM Galleria g WHERE :status IS NULL OR g.status = :status ORDER BY g.index ASC")
     List<Galleria> findAll(@Param("status") Boolean status);
 
-    @Query("select count(g) from Galleria g where g.status = ?1")
-    long countByStatus(Boolean status);
-
 }

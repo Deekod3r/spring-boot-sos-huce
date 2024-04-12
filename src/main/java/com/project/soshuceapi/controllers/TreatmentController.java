@@ -1,12 +1,15 @@
 package com.project.soshuceapi.controllers;
 
+import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseMessage;
-import com.project.soshuceapi.models.DTOs.PetCareLogDTO;
-import com.project.soshuceapi.models.requests.PetCareLogCreateRequest;
-import com.project.soshuceapi.models.requests.PetCareLogSearchRequest;
-import com.project.soshuceapi.models.requests.PetCareLogUpdateRequest;
+import com.project.soshuceapi.models.DTOs.TotalAmountStatisticDTO;
+import com.project.soshuceapi.models.DTOs.TreatmentDTO;
+import com.project.soshuceapi.models.requests.TotalTreatmentCostSearchRequest;
+import com.project.soshuceapi.models.requests.TreatmentCreateRequest;
+import com.project.soshuceapi.models.requests.TreatmentSearchRequest;
+import com.project.soshuceapi.models.requests.TreatmentUpdateRequest;
 import com.project.soshuceapi.models.responses.Response;
-import com.project.soshuceapi.services.iservice.IPetCareLogService;
+import com.project.soshuceapi.services.iservice.ITreatmentService;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,35 +17,52 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/pet-care-logs")
-public class PetCareLogController {
+@RequestMapping("/treatments")
+public class TreatmentController {
 
     @Autowired
-    private IPetCareLogService petCareLogService;
+    private ITreatmentService treatmentService;
     @Autowired
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getPetCareLogs(
-            @RequestParam(value = "adoptId", required = false, defaultValue = "") String adoptId,
-            @RequestParam(value = "petId", required = false, defaultValue = "") String petId,
-            @RequestParam(value = "fromDate", required = false, defaultValue = "") LocalDate fromDate,
-            @RequestParam(value = "toDate", required = false, defaultValue = "") LocalDate toDate
+    public ResponseEntity<?> getPets(
+            @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
+            @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
+            @RequestParam(value = "status", defaultValue = "", required = false) Boolean status,
+            @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
+            @RequestParam(value = "petId", defaultValue = "", required = false) String petId
     ) {
-        Response<List<PetCareLogDTO>> response = new Response<>();
+        Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
+            if (auditorAware.getCurrentAuditor().isEmpty()) {
+                status = true;
+            } else {
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+                boolean roleExists = authorities.stream()
+                        .anyMatch(grantedAuthority ->
+                                Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
+                if (roleExists) {
+                    status = true;
+                }
+            }
+            response.setData(treatmentService.getAll(TreatmentSearchRequest.of(petId, status, page, limit, fullData)));
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
-            response.setData(petCareLogService.getAll(PetCareLogSearchRequest.of(adoptId, petId, fromDate, toDate)));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -52,17 +72,35 @@ public class PetCareLogController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getPetCareLog(@PathVariable String id) {
-        Response<PetCareLogDTO> response = new Response<>();
+    public ResponseEntity<?> getPet(@PathVariable String id) {
+        Response<TreatmentDTO> response = new Response<>();
         response.setSuccess(false);
         try {
             if (StringUtil.isNullOrBlank(id)) {
                 response.setMessage(ResponseMessage.PetCareLog.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
+            response.setData(treatmentService.getById(id));
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
-            response.setData(petCareLogService.getById(id));
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/total-cost")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+    public ResponseEntity<?> getTotalTreatmentCost(
+            @RequestParam(value = "year", defaultValue = "", required = false) Integer year
+    ) {
+        Response<List<TotalAmountStatisticDTO>> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            response.setData(treatmentService.getTotalTreatmentCost(TotalTreatmentCostSearchRequest.of(year)));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -72,7 +110,7 @@ public class PetCareLogController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createPetCareLog(@RequestBody @Valid PetCareLogCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> createPet(@Valid @ModelAttribute TreatmentCreateRequest request, BindingResult bindingResult) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -85,10 +123,10 @@ public class PetCareLogController {
                 return ResponseEntity.badRequest().body(response);
             }
             request.setCreatedBy(auditorAware.getCurrentAuditor().get());
-            petCareLogService.create(request);
+            treatmentService.create(request);
             response.setData(true);
-            response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -98,8 +136,8 @@ public class PetCareLogController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updatePetCareLog(@PathVariable String id,
-                                              @RequestBody @Valid PetCareLogUpdateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> updatePet(@PathVariable String id, @Valid @RequestBody TreatmentUpdateRequest request,
+                                       BindingResult bindingResult) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -112,15 +150,14 @@ public class PetCareLogController {
                 return ResponseEntity.badRequest().body(response);
             }
             if (!Objects.equals(id, request.getId())) {
-                response.setMessage(ResponseMessage.PetCareLog.NOT_MATCH);
+                response.setMessage(ResponseMessage.Treatment.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
-            request.setId(id);
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
-            petCareLogService.update(request);
+            treatmentService.update(request);
             response.setData(true);
-            response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
@@ -130,7 +167,7 @@ public class PetCareLogController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deletePetCareLog(@PathVariable String id) {
+    public ResponseEntity<?> deletePet(@PathVariable String id) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -139,10 +176,10 @@ public class PetCareLogController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             if (StringUtil.isNullOrBlank(id)) {
-                response.setMessage(ResponseMessage.PetCareLog.MISSING_ID);
+                response.setMessage(ResponseMessage.LivingCost.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            petCareLogService.delete(id, auditorAware.getCurrentAuditor().get());
+            treatmentService.delete(id, auditorAware.getCurrentAuditor().get());
             response.setData(true);
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);

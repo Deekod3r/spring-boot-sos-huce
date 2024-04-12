@@ -13,7 +13,7 @@ public interface IPetService {
 
     Map<String, Object> getAll(PetSearchRequest request);
 
-    Map<String, Long> getStatisticCases();
+    Map<String, Long> getStatisticCases(Boolean compare);
 
     PetDTO getById(String id);
 

@@ -87,11 +87,13 @@ public class PetController {
     }
 
     @GetMapping("/statistic-cases")
-    public ResponseEntity<?> getStatisticStatus() {
+    public ResponseEntity<?> getStatisticStatus(
+            @RequestParam(value = "compare", defaultValue = "false", required = false) Boolean compare
+    ) {
         Response<Map<String, Long>> response = new Response<>();
         response.setSuccess(false);
         try {
-            response.setData(petService.getStatisticCases());
+            response.setData(petService.getStatisticCases(compare));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

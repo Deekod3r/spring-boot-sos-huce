@@ -3,6 +3,7 @@ package com.project.soshuceapi.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.soshuceapi.common.Constants;
 
+import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
@@ -99,6 +100,21 @@ public class DataUtil {
         }
     }
 
+    public static LocalDateTime parseLocalDateTime(String dateTimeStr, String formatPattern) {
+        try {
+            if (StringUtil.isNullOrBlank(dateTimeStr)) {
+                return null;
+            }
+            if (isDate(dateTimeStr, formatPattern)) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatPattern);
+                return LocalDateTime.parse(dateTimeStr, formatter);
+            }
+            return null;
+        } catch (DateTimeParseException e) {
+            throw new RuntimeException("Error when parsing date", e);
+        }
+    }
+
     public static Timestamp parseTimestamp(String dateTimeStr) {
         try {
             if (StringUtil.isNullOrBlank(dateTimeStr)) {
@@ -184,6 +200,9 @@ public class DataUtil {
         return Objects.isNull(obj) ? defaultValue : Timestamp.valueOf(obj.toString());
     }
 
+    public static BigDecimal parseBigDecimal(Object obj) {
+        return Objects.isNull(obj) ? null : new BigDecimal(obj.toString());
+    }
 
 
 }

@@ -3,9 +3,8 @@ package com.project.soshuceapi.controllers;
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.LivingCostDTO;
-import com.project.soshuceapi.models.requests.LivingCostCreateRequest;
-import com.project.soshuceapi.models.requests.LivingCostSearchRequest;
-import com.project.soshuceapi.models.requests.LivingCostUpdateRequest;
+import com.project.soshuceapi.models.DTOs.TotalAmountStatisticDTO;
+import com.project.soshuceapi.models.requests.*;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.ILivingCostService;
 import com.project.soshuceapi.utils.StringUtil;
@@ -19,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -76,6 +76,24 @@ public class LivingCostController {
         } catch (BadRequestException e) {
             response.setMessage(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/total")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+    public ResponseEntity<?> getTotalLivingCost(
+            @RequestParam(value = "year", defaultValue = "", required = false) Integer year
+    ) {
+        Response<List<TotalAmountStatisticDTO>> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            response.setData(livingCostService.getTotalLivingCost(TotalLivingCostSearchRequest.of(year)));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

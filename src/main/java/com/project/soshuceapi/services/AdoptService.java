@@ -10,10 +10,9 @@ import com.project.soshuceapi.entities.logging.ActionLogDetail;
 import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.AdoptDTO;
-import com.project.soshuceapi.models.requests.AdoptCreateRequest;
-import com.project.soshuceapi.models.requests.AdoptSearchRequest;
-import com.project.soshuceapi.models.requests.AdoptUpdateRequest;
-import com.project.soshuceapi.models.requests.AdoptUpdateStatusRequest;
+import com.project.soshuceapi.models.DTOs.AdoptLogDTO;
+import com.project.soshuceapi.models.DTOs.TotalAmountStatisticDTO;
+import com.project.soshuceapi.models.requests.*;
 import com.project.soshuceapi.repositories.AdoptRepo;
 import com.project.soshuceapi.repositories.PetRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
@@ -22,7 +21,6 @@ import com.project.soshuceapi.services.iservice.ILocationService;
 import com.project.soshuceapi.services.iservice.IPetService;
 import com.project.soshuceapi.utils.DataUtil;
 import com.project.soshuceapi.utils.StringUtil;
-import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -156,7 +154,7 @@ public class AdoptService implements IAdoptService {
             Adopt adopt = adoptRepo.findById(request.getId()).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
             if (!Objects.equals(adopt.getStatus(), Constants.AdoptStatus.WAIT_FOR_PROGRESSING)
-            && !Objects.equals(adopt.getStatus(), Constants.AdoptStatus.IN_PROGRESS)) {
+                && !Objects.equals(adopt.getStatus(), Constants.AdoptStatus.IN_PROGRESS)) {
                 throw new BadRequestException(ResponseMessage.Adopt.NOT_AVAILABLE_FOR_UPDATE);
             }
             logUpdate(adopt, request);
@@ -312,25 +310,48 @@ public class AdoptService implements IAdoptService {
     }
 
     @Override
-    public Map<String, Long> statisticStatus(@Nullable String userId) {
+    public Map<String, Long> statisticStatus(String userId) {
         try {
-            if (StringUtil.isNullOrBlank(userId)) {
-                userId = "";
-            }
-            Long wait = adoptRepo.countByStatus(List.of(Constants.AdoptStatus.WAIT_FOR_PROGRESSING), userId);
-            Long progress = adoptRepo.countByStatus(List.of(Constants.AdoptStatus.IN_PROGRESS), userId);
-            Long reject = adoptRepo.countByStatus(List.of(Constants.AdoptStatus.REJECT), userId);
-            Long cancel = adoptRepo.countByStatus(List.of(Constants.AdoptStatus.CANCEL), userId);
-            Long complete = adoptRepo.countByStatus(List.of(Constants.AdoptStatus.COMPLETE), userId);
-            Long total = adoptRepo.countByStatus(null, userId);
-            return new HashMap<>() {{
-                put("countWaiting", wait);
-                put("countInProgress", progress);
-                put("countReject", reject);
-                put("countCancel", cancel);
-                put("countComplete", complete);
-                put("total", total);
-            }};
+            return adoptRepo.countAll(userId);
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<TotalAmountStatisticDTO> getTotalFeeAdopt(TotalFeeAdoptSearchRequest request) {
+        try {
+            List<Object[]> data = adoptRepo.calTotalFeeAdopt(request.getYear());
+            return data.stream()
+                    .map(d -> TotalAmountStatisticDTO.of(
+                            DataUtil.parseInteger(d[0].toString()),
+                            DataUtil.parseInteger(d[1].toString()),
+                            DataUtil.parseBigDecimal(d[2].toString())
+                    ))
+                    .toList();
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<AdoptLogDTO> getAdoptsByCircleLog() {
+        try {
+            List<Object[]> data = adoptRepo.findAdoptsByCircleLog();
+            return data.stream()
+                    .map(d -> AdoptLogDTO.builder()
+                            .id(d[0].toString())
+                            .code(d[1].toString())
+                            .checkDateFirst(Objects.requireNonNull(DataUtil.parseLocalDateTime(d[2].toString(),
+                                    Constants.FormatPattern.LOCAL_DATETIME_WITH_NANOSECONDS)).toLocalDate())
+                            .checkDateSecond(Objects.requireNonNull(DataUtil.parseLocalDateTime(d[3].toString(),
+                                    Constants.FormatPattern.LOCAL_DATETIME_WITH_NANOSECONDS)).toLocalDate())
+                            .checkDateThird(Objects.requireNonNull(DataUtil.parseLocalDateTime(d[4].toString(),
+                                    Constants.FormatPattern.LOCAL_DATETIME_WITH_NANOSECONDS)).toLocalDate())
+                            .build())
+                    .toList();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());

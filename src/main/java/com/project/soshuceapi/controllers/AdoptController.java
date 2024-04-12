@@ -4,10 +4,9 @@ import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.AdoptDTO;
-import com.project.soshuceapi.models.requests.AdoptCreateRequest;
-import com.project.soshuceapi.models.requests.AdoptSearchRequest;
-import com.project.soshuceapi.models.requests.AdoptUpdateRequest;
-import com.project.soshuceapi.models.requests.AdoptUpdateStatusRequest;
+import com.project.soshuceapi.models.DTOs.AdoptLogDTO;
+import com.project.soshuceapi.models.DTOs.TotalAmountStatisticDTO;
+import com.project.soshuceapi.models.requests.*;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.IAdoptService;
 import com.project.soshuceapi.utils.DataUtil;
@@ -74,6 +73,39 @@ public class AdoptController {
         }
     }
 
+    @GetMapping("/total-fee")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+    public ResponseEntity<?> getTotalFeeAdopt(
+            @RequestParam(value = "year", defaultValue = "", required = false) Integer year
+    ) {
+        Response<List<TotalAmountStatisticDTO>> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            response.setData(adoptService.getTotalFeeAdopt(TotalFeeAdoptSearchRequest.of(year)));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/near-log")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+    public ResponseEntity<?> getNearLog() {
+        Response<List<AdoptLogDTO>> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            response.setData(adoptService.getAdoptsByCircleLog());
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('USER')")
@@ -317,7 +349,7 @@ public class AdoptController {
                 response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
                 return ResponseEntity.badRequest().body(response);
             }
-            response.setData(adoptService.statisticStatus(user));
+            response.setData(adoptService.statisticStatus(user.trim()));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

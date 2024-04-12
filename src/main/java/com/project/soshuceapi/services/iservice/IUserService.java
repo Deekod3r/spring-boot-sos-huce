@@ -35,8 +35,6 @@ public interface IUserService {
 
     UserDTO getByPhoneNumberOrEmail(String phoneNumber, String email);
 
-    Boolean isExistsById(String id);
-
     Boolean isExistByPhoneNumberOrEmail(String phoneNumber, String email);
 
     Boolean checkPassword(String id, String password);

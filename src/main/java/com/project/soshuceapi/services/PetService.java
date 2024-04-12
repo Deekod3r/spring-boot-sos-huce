@@ -17,6 +17,7 @@ import com.project.soshuceapi.repositories.PetRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IFileService;
 import com.project.soshuceapi.services.iservice.IPetService;
+import com.project.soshuceapi.utils.DataUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.time.YearMonth;
+import java.util.*;
 
 import static com.project.soshuceapi.utils.StringUtil.uppercaseAllFirstLetters;
 import static com.project.soshuceapi.utils.StringUtil.uppercaseFirstLetter;
@@ -220,14 +220,17 @@ public class PetService implements IPetService {
     }
 
     @Override
-    public Map<String, Long> getStatisticCases() {
+    public Map<String, Long> getStatisticCases(Boolean compare) {
         try {
-            return Map.of(
-                    "total", petRepo.count(),
-                    "adopted", petRepo.countByStatus(2),
-                    "healing", petRepo.countByStatus(3),
-                    "wait", petRepo.countByStatus(4)
-            );
+            if (compare) {
+                LocalDate firstDayOfPreviousMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+                LocalDate lastDayOfPreviousMonth = YearMonth.from(firstDayOfPreviousMonth).atEndOfMonth();
+                Map<String, Long> current = new HashMap<>(petRepo.getCountsByStatus(null));
+                Map<String, Long> previous = new HashMap<>(petRepo.getCountsByStatus(lastDayOfPreviousMonth));
+                current.put("totalPrevious", DataUtil.parseLong(previous.get("total")));
+                return current;
+            }
+            return petRepo.getCountsByStatus(null);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());

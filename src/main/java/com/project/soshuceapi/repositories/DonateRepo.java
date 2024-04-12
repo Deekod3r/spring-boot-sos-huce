@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,7 +21,7 @@ public interface DonateRepo extends JpaRepository<Donate, String> {
             "AND (:payee = '' OR d.payee ILIKE CONCAT('%', :payee, '%')) " +
             "AND (cast(:fromDate as date) IS NULL OR d.date >= :fromDate ) " +
             "AND (cast(:toDate as date) IS NULL OR d.date <= :toDate ) " +
-            "AND d.isDeleted = false " +
+            "AND d.isDeleted = FALSE " +
             "ORDER BY d.date DESC"
     )
     Page<Donate> findAll(
@@ -33,8 +34,27 @@ public interface DonateRepo extends JpaRepository<Donate, String> {
     @NonNull
     @Query("SELECT d FROM Donate d " +
             "WHERE d.id = :id " +
-            "AND d.isDeleted = false"
+            "AND d.isDeleted = FALSE"
     )
     Optional<Donate> findById(@NonNull @Param("id") String id);
+
+    @Query("SELECT " +
+            "    EXTRACT(YEAR FROM d.date) AS year, " +
+            "    EXTRACT(MONTH FROM d.date) AS month, " +
+            "    SUM(d.amount) AS total_amount " +
+            "FROM " +
+            "    Donate d " +
+            "WHERE " +
+            "    d.isDeleted = FALSE " +
+            "    AND (:year IS NULL OR EXTRACT(YEAR FROM d.date) = :year)" +
+            "GROUP BY " +
+            "    year, " +
+            "    month " +
+            "ORDER BY " +
+            "    EXTRACT(YEAR FROM d.date), " +
+            "    EXTRACT(MONTH FROM d.date) ")
+    List<Object[]> calTotalDonation(
+            @Param("year") Integer year
+    );
 
 }

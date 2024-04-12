@@ -290,7 +290,8 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> getUsers(@RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-                                      @RequestParam(value = "size", defaultValue = "1000000", required = false) Integer limit,
+                                      @RequestParam(value = "size", defaultValue = "5", required = false) Integer limit,
+                                      @RequestParam(value = "fullData", defaultValue = "", required = false) Boolean fullData,
                                       @RequestParam(value = "name", defaultValue = "", required = false) String name,
                                       @RequestParam(value = "email", defaultValue = "", required = false) String email,
                                       @RequestParam(value = "phoneNumber", defaultValue = "", required = false) String phoneNumber,
@@ -316,7 +317,7 @@ public class UserController {
             if (Objects.equals(roleRequest, Constants.User.ROLE_ADMIN)) {
                 role = Constants.User.ROLE_USER;
             }
-            response.setData(userService.getAll(UserSearchRequest.of(name.trim(), email.trim(), phoneNumber.trim(), role, isActivated, page, limit)));
+            response.setData(userService.getAll(UserSearchRequest.of(name.trim(), email.trim(), phoneNumber.trim(), role, isActivated, page, limit, fullData)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
@@ -548,8 +549,8 @@ public class UserController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
-                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
+            if (!Objects.equals(id, request.getId())) {
+                response.setMessage(ResponseMessage.User.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             if (!Objects.equals(request.getRole(), Constants.User.ROLE_USER)) {
@@ -618,8 +619,8 @@ public class UserController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !Objects.equals(id, request.getId())) {
-                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
+            if (!Objects.equals(id, request.getId())) {
+                response.setMessage(ResponseMessage.User.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
@@ -653,8 +654,8 @@ public class UserController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || !id.equals(request.getId())) {
-                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
+            if (!id.equals(request.getId())) {
+                response.setMessage(ResponseMessage.User.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());

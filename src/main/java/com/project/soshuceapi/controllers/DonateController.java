@@ -2,9 +2,11 @@ package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseMessage;
 import com.project.soshuceapi.models.DTOs.DonateDTO;
+import com.project.soshuceapi.models.DTOs.TotalAmountStatisticDTO;
 import com.project.soshuceapi.models.requests.DonateCreateRequest;
 import com.project.soshuceapi.models.requests.DonateSearchRequest;
 import com.project.soshuceapi.models.requests.DonateUpdateRequest;
+import com.project.soshuceapi.models.requests.TotalDonateSearchRequest;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.IDonateService;
 import com.project.soshuceapi.utils.StringUtil;
@@ -18,6 +20,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -64,6 +67,24 @@ public class DonateController {
                 return ResponseEntity.badRequest().body(response);
             }
             response.setData(donateService.getById(id));
+            response.setMessage(ResponseMessage.Common.SUCCESS);
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/total")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+    public ResponseEntity<?> getTotalDonation(
+            @RequestParam(value = "year", defaultValue = "", required = false) Integer year
+    ) {
+        Response<List<TotalAmountStatisticDTO>> response = new Response<>();
+        response.setSuccess(false);
+        try {
+            response.setData(donateService.getTotalDonation(TotalDonateSearchRequest.of(year)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

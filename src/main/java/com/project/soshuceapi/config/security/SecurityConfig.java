@@ -51,6 +51,8 @@ public class SecurityConfig {
             "/news/{id}",
             "/news/categories",
             "/donates",
+            "/feedbacks/create",
+            "/treatments",
             "/ws"
     };
 

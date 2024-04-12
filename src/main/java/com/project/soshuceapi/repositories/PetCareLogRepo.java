@@ -14,12 +14,12 @@ public interface PetCareLogRepo extends JpaRepository<PetCareLog, String> {
 
     @Query("SELECT p FROM PetCareLog p " +
             "JOIN FETCH p.adopt " +
-            "WHERE p.adopt.isDeleted = false " +
+            "WHERE p.adopt.isDeleted = FALSE " +
             "AND (:adoptId = '' OR p.adopt.id = :adoptId) " +
             "AND (:petId = '' OR p.adopt.pet.id = :petId) " +
             "AND (cast(:fromDate as date) IS NULL OR p.date >= :fromDate) " +
             "AND (cast(:toDate as date) IS NULL OR p.date <= :toDate) " +
-            "ORDER BY p.date DESC, p.updatedAt DESC, p.createdAt DESC")
+            "ORDER BY p.date DESC, p.createdAt DESC, p.updatedAt DESC")
     List<PetCareLog> findAll(
             @Param("adoptId") String adoptId,
             @Param("petId") String petId,

@@ -7,12 +7,15 @@ import com.project.soshuceapi.entities.logging.ActionLogDetail;
 import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.ActionLogDTO;
 import com.project.soshuceapi.models.DTOs.DonateDTO;
+import com.project.soshuceapi.models.DTOs.TotalAmountStatisticDTO;
 import com.project.soshuceapi.models.requests.DonateCreateRequest;
 import com.project.soshuceapi.models.requests.DonateSearchRequest;
 import com.project.soshuceapi.models.requests.DonateUpdateRequest;
+import com.project.soshuceapi.models.requests.TotalDonateSearchRequest;
 import com.project.soshuceapi.repositories.DonateRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IDonateService;
+import com.project.soshuceapi.utils.DataUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +73,23 @@ public class DonateService implements IDonateService {
                     .orElseThrow(()-> new BadRequestException(ResponseMessage.Donate.NOT_FOUND));
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<TotalAmountStatisticDTO> getTotalDonation(TotalDonateSearchRequest request) {
+        try {
+            List<Object[]> data = donateRepo.calTotalDonation(request.getYear());
+            return data.stream()
+                    .map(d -> TotalAmountStatisticDTO.of(
+                            DataUtil.parseInteger(d[0].toString()),
+                            DataUtil.parseInteger(d[1].toString()),
+                            DataUtil.parseBigDecimal(d[2].toString())
+                    ))
+                    .toList();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());

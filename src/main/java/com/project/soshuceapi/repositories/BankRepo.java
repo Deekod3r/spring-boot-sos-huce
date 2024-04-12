@@ -13,18 +13,18 @@ import java.util.Optional;
 @Repository
 public interface BankRepo extends JpaRepository<Bank, String> {
 
-    @Query("SELECT COUNT(b) FROM Bank b WHERE b.isDeleted = false")
+    @Query("SELECT COUNT(b) FROM Bank b WHERE b.isDeleted = FALSE")
     long count();
 
     @NonNull
-    @Query("SELECT b FROM Bank b WHERE b.isDeleted = false")
+    @Query("SELECT b FROM Bank b WHERE b.isDeleted = FALSE")
     List<Bank> findAll();
 
     @NonNull
-    @Query("SELECT b FROM Bank b WHERE b.id = :id AND b.isDeleted = false")
+    @Query("SELECT b FROM Bank b WHERE b.id = :id AND b.isDeleted = FALSE")
     Optional<Bank> findById(@NonNull @Param("id") String id);
 
-    @Query("SELECT b FROM Bank b WHERE lower(b.accountNumber) = lower(:accountNumber) AND b.isDeleted = false")
+    @Query("SELECT b FROM Bank b WHERE lower(b.accountNumber) = lower(:accountNumber) AND b.isDeleted = FALSE")
     Bank findByAccountNumber(@Param("accountNumber") String accountNumber);
 
 }

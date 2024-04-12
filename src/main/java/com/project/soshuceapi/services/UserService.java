@@ -15,7 +15,7 @@ import com.project.soshuceapi.services.iservice.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -352,15 +352,14 @@ public class UserService implements IUserService {
                     request.getPhoneNumber(),
                     request.getIsActivated(),
                     request.getRole(),
-                    PageRequest.ofSize(request.getLimit()).withPage(request.getPage() - 1)
+                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             return Map.of(
                     "users", users.getContent().stream().map(user ->
                             userMapper.mapTo(user, UserDTO.class)).toList(),
-                    "total", users.getTotalElements(),
-                    "page", users.getNumber() + 1,
-                    "limit", users.getSize(),
-                    "totalPage", users.getTotalPages()
+                    "totalElements", users.getTotalElements(),
+                    "currentPage", users.getNumber() + 1,
+                    "totalPages", users.getTotalPages()
             );
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
@@ -411,15 +410,6 @@ public class UserService implements IUserService {
                     userMapper.mapTo(user, UserDTO.class)).orElse(null);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
-    @Override
-    public Boolean isExistsById(String id) {
-        try {
-            return userRepo.existsById(id);
-        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
