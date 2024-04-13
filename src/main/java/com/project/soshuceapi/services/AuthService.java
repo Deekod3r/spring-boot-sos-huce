@@ -10,10 +10,7 @@ import com.project.soshuceapi.models.DTOs.UserDTO;
 import com.project.soshuceapi.models.mappers.UserMapper;
 import com.project.soshuceapi.models.requests.LoginRequest;
 import com.project.soshuceapi.security.JWTProvider;
-import com.project.soshuceapi.services.iservice.IActionLogService;
-import com.project.soshuceapi.services.iservice.IAuthService;
-import com.project.soshuceapi.services.iservice.IRedisService;
-import com.project.soshuceapi.services.iservice.IUserService;
+import com.project.soshuceapi.services.iservice.*;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,6 +44,8 @@ public class AuthService implements IAuthService {
     private UserMapper userMapper;
     @Autowired
     private IActionLogService actionLogService;
+    @Autowired
+    private IWebSocketService webSocketService;
 
     @Override
     public Map<String, Object> authenticate(LoginRequest loginRequest) {
@@ -56,6 +55,7 @@ public class AuthService implements IAuthService {
             );
             if (authenticate.isAuthenticated()) {
                 User user = userMapper.mapFrom(userService.getByEmail(loginRequest.getEmail().trim()));
+                webSocketService.pushMessage(Constants.ActionLog.LOGIN + " - " + user.getId());
                 String token = jwtProvider.generateToken(null, user);
                 String refreshToken = jwtProvider.generateRefreshToken(null, user);
                 revokeAllUserTokens(user);
