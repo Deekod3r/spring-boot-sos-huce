@@ -24,12 +24,12 @@ public class LivingCost {
     private String id;
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
+    @Column(name = "category", columnDefinition = "INTEGER", nullable = false)
+    private Integer category; // 1: thuc an, 2: thuoc, 3: vat dung, 4: khac
     @Column(name = "cost", columnDefinition = "NUMERIC(38,2)", nullable = false)
     private BigDecimal cost;
     @Column(name = "date", columnDefinition = "DATE", nullable = false)
     private LocalDate date;
-    @Column(name = "status", columnDefinition = "BOOLEAN", nullable = false)
-    private Boolean status;
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;
 
@@ -47,4 +47,5 @@ public class LivingCost {
     private String deletedBy;
     @JoinColumn(name = "created_by", columnDefinition = "VARCHAR(36)", nullable = false)
     private String createdBy;
+
 }

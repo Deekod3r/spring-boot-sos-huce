@@ -18,6 +18,8 @@ public interface ITreatmentService {
 
     List<TotalAmountStatisticDTO> getTotalTreatmentCost(TotalTreatmentCostSearchRequest request);
 
+    List<TotalAmountStatisticDTO> getTotalTreatmentCostByType(TotalTreatmentCostSearchRequest request);
+
     void create(TreatmentCreateRequest request);
 
     void update(TreatmentUpdateRequest request);

@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -52,7 +53,7 @@ public class LivingCostService implements ILivingCostService {
     public Map<String, Object> getAll(LivingCostSearchRequest request) {
         try {
             Page<LivingCost> livingCosts = livingCostRepo.findAll(
-                    request.getFromDate(), request.getToDate(),
+                    request.getFromDate(), request.getToDate(), request.getCategory(),
                     request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1));
             return Map.of(
                     "livingCosts", livingCosts.getContent().stream()
@@ -87,12 +88,42 @@ public class LivingCostService implements ILivingCostService {
         try {
             List<Object[]> data = livingCostRepo.calTotalLivingCost(request.getYear());
             return data.stream()
-                    .map(d -> TotalAmountStatisticDTO.of(
-                            DataUtil.parseInteger(d[0].toString()),
-                            DataUtil.parseInteger(d[1].toString()),
-                            DataUtil.parseBigDecimal(d[2].toString())
-                    ))
+                    .map(d -> TotalAmountStatisticDTO.builder()
+                            .year(DataUtil.parseInteger(d[0].toString()))
+                            .month(DataUtil.parseInteger(d[1].toString()))
+                            .totalAmount(DataUtil.parseBigDecimal(d[2].toString()))
+                            .build())
                     .toList();
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<TotalAmountStatisticDTO> getTotalLivingCostByCategory(TotalLivingCostSearchRequest request) {
+        try {
+            List<Object[]> data = null;
+            if (Objects.nonNull(request.getMonth())) {
+                data = livingCostRepo.calTotalLivingCostByCategoryAndMonth(request.getYear(), request.getMonth());
+                return data.stream()
+                        .map(d -> TotalAmountStatisticDTO.builder()
+                                .year(DataUtil.parseInteger(d[0].toString()))
+                                .month(DataUtil.parseInteger(d[1].toString()))
+                                .totalAmount(DataUtil.parseBigDecimal(d[2].toString()))
+                                .category(DataUtil.parseInteger(d[3].toString()))
+                                .build())
+                        .toList();
+            } else {
+                data = livingCostRepo.calTotalLivingCostByCategory(request.getYear());
+                return data.stream()
+                        .map(d -> TotalAmountStatisticDTO.builder()
+                                .year(DataUtil.parseInteger(d[0].toString()))
+                                .totalAmount(DataUtil.parseBigDecimal(d[1].toString()))
+                                .category(DataUtil.parseInteger(d[2].toString()))
+                                .build())
+                        .toList();
+            }
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -107,9 +138,9 @@ public class LivingCostService implements ILivingCostService {
             livingCost.setName(request.getName().trim());
             livingCost.setCost(request.getCost());
             livingCost.setDate(request.getDate());
+            livingCost.setCategory(request.getCategory());
             livingCost.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : request.getNote());
             livingCost.setIsDeleted(false);
-            livingCost.setStatus(true);
             livingCost.setCreatedBy(request.getCreatedBy());
             livingCost.setCreatedAt(LocalDateTime.now());
             livingCost = livingCostRepo.save(livingCost);
@@ -143,7 +174,7 @@ public class LivingCostService implements ILivingCostService {
             livingCost.setName(request.getName().trim());
             livingCost.setCost(request.getCost());
             livingCost.setDate(request.getDate());
-            livingCost.setStatus(request.getStatus());
+            livingCost.setCategory(request.getCategory());
             livingCost.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : request.getNote());
             livingCost.setUpdatedBy(request.getUpdatedBy());
             livingCost.setUpdatedAt(LocalDateTime.now());
@@ -191,9 +222,9 @@ public class LivingCostService implements ILivingCostService {
         return LivingCostDTO.builder()
                 .id(livingCost.getId())
                 .name(livingCost.getName())
+                .category(livingCost.getCategory())
                 .cost(livingCost.getCost())
                 .date(livingCost.getDate())
-                .status(livingCost.getStatus())
                 .note(livingCost.getNote())
                 .images(withImages ? imageRepo.findByObjectId(livingCost.getId()) : null)
                 .build();
@@ -229,6 +260,13 @@ public class LivingCostService implements ILivingCostService {
                         ActionLogDetail.builder()
                                 .tableName(TAG)
                                 .rowId(livingCost.getId())
+                                .columnName("category")
+                                .oldValue("")
+                                .newValue(livingCost.getCategory().toString())
+                                .build(),
+                        ActionLogDetail.builder()
+                                .tableName(TAG)
+                                .rowId(livingCost.getId())
                                 .columnName("note")
                                 .oldValue("")
                                 .newValue(!StringUtil.isNullOrBlank(livingCost.getNote()) ? livingCost.getNote().trim() : livingCost.getNote())
@@ -239,7 +277,7 @@ public class LivingCostService implements ILivingCostService {
 
     private void logUpdate(LivingCost oldValue, LivingCostUpdateRequest newValue) {
         List<ActionLogDetail> details = new ArrayList<>();
-        if(!oldValue.getName().equals(newValue.getName().trim())) {
+        if(!Objects.equals(oldValue.getName(), newValue.getName().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -248,7 +286,7 @@ public class LivingCostService implements ILivingCostService {
                     .newValue(newValue.getName().trim())
                     .build());
         }
-        if(!oldValue.getCost().equals(newValue.getCost())) {
+        if(!Objects.equals(oldValue.getCost(), newValue.getCost())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -257,7 +295,7 @@ public class LivingCostService implements ILivingCostService {
                     .newValue(newValue.getCost().toString())
                     .build());
         }
-        if(!oldValue.getDate().equals(newValue.getDate())) {
+        if(!Objects.equals(oldValue.getDate(), newValue.getDate())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -266,16 +304,16 @@ public class LivingCostService implements ILivingCostService {
                     .newValue(newValue.getDate().toString())
                     .build());
         }
-        if(!oldValue.getStatus().equals(newValue.getStatus())) {
+        if(!Objects.equals(oldValue.getCategory(), newValue.getCategory())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
-                    .columnName("status")
-                    .oldValue(oldValue.getStatus().toString())
-                    .newValue(newValue.getStatus().toString())
+                    .columnName("category")
+                    .oldValue(oldValue.getCategory().toString())
+                    .newValue(newValue.getCategory().toString())
                     .build());
         }
-        if(!oldValue.getNote().equals(!StringUtil.isNullOrBlank(newValue.getNote()) ? newValue.getNote().trim() : newValue.getNote())) {
+        if(!Objects.equals(oldValue.getNote(), !StringUtil.isNullOrBlank(newValue.getNote()) ? newValue.getNote().trim() : newValue.getNote())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())

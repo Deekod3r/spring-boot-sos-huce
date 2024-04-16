@@ -19,12 +19,14 @@ public interface LivingCostRepo extends JpaRepository<LivingCost, String> {
     @Query("SELECT lv FROM LivingCost lv " +
             "WHERE (cast(:fromDate as date) IS NULL OR lv.date >= :fromDate) " +
             "AND (cast(:toDate as date) IS NULL OR lv.date <= :toDate) " +
+            "AND (:category IS NULL OR lv.category = :category) " +
             "AND lv.isDeleted = FALSE " +
             "ORDER BY lv.date DESC"
     )
     Page<LivingCost> findAll(
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate,
+            @Param("category") Integer category,
             Pageable pageable
     );
 
@@ -42,7 +44,7 @@ public interface LivingCostRepo extends JpaRepository<LivingCost, String> {
             "    LivingCost lv " +
             "WHERE " +
             "    lv.isDeleted = FALSE " +
-            "    AND (:year IS NULL OR EXTRACT(YEAR FROM lv.date) = :year)" +
+            "    AND EXTRACT(YEAR FROM lv.date) = :year " +
             "GROUP BY " +
             "    year, " +
             "    month " +
@@ -52,5 +54,49 @@ public interface LivingCostRepo extends JpaRepository<LivingCost, String> {
     List<Object[]> calTotalLivingCost(
             @Param("year") Integer year
     );
+
+    @Query("SELECT " +
+            "    EXTRACT(YEAR FROM lv.date) AS year, " +
+            "    EXTRACT(MONTH FROM lv.date) AS month, " +
+            "    SUM(lv.cost) AS total_amount, " +
+            "    lv.category AS category " +
+            "FROM " +
+            "    LivingCost lv " +
+            "WHERE " +
+            "   lv.isDeleted = FALSE " +
+            "   AND EXTRACT(MONTH FROM lv.date) = :month " +
+            "   AND EXTRACT(YEAR FROM lv.date) = :year " +
+            "GROUP BY " +
+            "    year, " +
+            "    month," +
+            "    category " +
+            "ORDER BY " +
+            "    EXTRACT(YEAR FROM lv.date), " +
+            "    EXTRACT(MONTH FROM lv.date), " +
+            "    category "
+    )
+    List<Object[]> calTotalLivingCostByCategoryAndMonth(
+            @Param("year") Integer year,
+            @Param("month") Integer month
+    );
+
+    @Query("SELECT " +
+            "    EXTRACT(YEAR FROM lv.date) AS year, " +
+            "    SUM(lv.cost) AS total_amount, " +
+            "    lv.category AS category " +
+            "FROM " +
+            "    LivingCost lv " +
+            "WHERE " +
+            "   lv.isDeleted = FALSE " +
+            "   AND EXTRACT(YEAR FROM lv.date) = :year " +
+            "GROUP BY " +
+            "    year, " +
+            "    lv.category " +
+            "ORDER BY lv.category "
+    )
+    List<Object[]> calTotalLivingCostByCategory(
+            @Param("year") Integer year
+    );
+
 
 }

@@ -76,7 +76,7 @@ public class AdoptController {
     @GetMapping("/total-fee")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> getTotalFeeAdopt(
-            @RequestParam(value = "year", defaultValue = "", required = false) Integer year
+            @RequestParam(value = "year", defaultValue = "") Integer year
     ) {
         Response<List<TotalAmountStatisticDTO>> response = new Response<>();
         response.setSuccess(false);
@@ -97,7 +97,7 @@ public class AdoptController {
         Response<List<AdoptLogDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
-            response.setData(adoptService.getAdoptsByCircleLog());
+            response.setData(adoptService.getAdoptsNearLog());
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

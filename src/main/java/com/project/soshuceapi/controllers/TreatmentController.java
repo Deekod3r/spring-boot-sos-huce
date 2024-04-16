@@ -43,7 +43,9 @@ public class TreatmentController {
             @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
             @RequestParam(value = "status", defaultValue = "", required = false) Boolean status,
             @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
-            @RequestParam(value = "petId", defaultValue = "", required = false) String petId
+            @RequestParam(value = "petId", defaultValue = "", required = false) String petId,
+            @RequestParam(value = "type", defaultValue = "", required = false) Integer type,
+            @RequestParam(value = "daysOfTreatment", defaultValue = "", required = false) Integer daysOfTreatment
     ) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
@@ -60,7 +62,7 @@ public class TreatmentController {
                     status = true;
                 }
             }
-            response.setData(treatmentService.getAll(TreatmentSearchRequest.of(petId, status, page, limit, fullData)));
+            response.setData(treatmentService.getAll(TreatmentSearchRequest.of(petId, status, page, limit, fullData, type, daysOfTreatment)));
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
@@ -93,12 +95,27 @@ public class TreatmentController {
     @GetMapping("/total-cost")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> getTotalTreatmentCost(
-            @RequestParam(value = "year", defaultValue = "", required = false) Integer year
+            @RequestParam(value = "year", defaultValue = "") Integer year,
+            @RequestParam(value = "month", defaultValue = "", required = false) Integer month,
+            @RequestParam(value = "byType", required = false, defaultValue = "false") Boolean byType
     ) {
         Response<List<TotalAmountStatisticDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
-            response.setData(treatmentService.getTotalTreatmentCost(TotalTreatmentCostSearchRequest.of(year)));
+            if (byType) {
+                response.setData(treatmentService
+                        .getTotalTreatmentCostByType(TotalTreatmentCostSearchRequest.builder()
+                                .year(year)
+                                .month(month)
+                                .build())
+                );
+            } else {
+                response.setData(treatmentService
+                        .getTotalTreatmentCost(TotalTreatmentCostSearchRequest.builder()
+                                .year(year)
+                                .build())
+                );
+            }
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

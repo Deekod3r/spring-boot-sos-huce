@@ -30,6 +30,6 @@ public interface IAdoptService {
 
     List<TotalAmountStatisticDTO> getTotalFeeAdopt(TotalFeeAdoptSearchRequest request);
 
-    List<AdoptLogDTO> getAdoptsByCircleLog();
+    List<AdoptLogDTO> getAdoptsNearLog();
 
 }

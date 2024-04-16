@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public class LivingCostSearchRequest {
     Integer page;
     Integer limit;
+    Integer category;
     Boolean fullData;
     LocalDate fromDate;
     LocalDate toDate;

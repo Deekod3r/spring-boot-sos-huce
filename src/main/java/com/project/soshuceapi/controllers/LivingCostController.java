@@ -36,6 +36,7 @@ public class LivingCostController {
     public ResponseEntity<?> getAll(
             @RequestParam(value = "limit", required = false, defaultValue = "5") Integer limit,
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+            @RequestParam(value = "category", required = false, defaultValue = "") Integer category,
             @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
             @RequestParam(value = "fromDate", required = false, defaultValue = "") LocalDate fromDate,
             @RequestParam(value = "toDate", required = false, defaultValue = "") LocalDate toDate
@@ -46,6 +47,7 @@ public class LivingCostController {
             response.setData(livingCostService.getAll(LivingCostSearchRequest.builder()
                     .page(page)
                     .limit(limit)
+                    .category(category)
                     .fullData(fullData)
                     .fromDate(fromDate)
                     .toDate(toDate)
@@ -85,12 +87,27 @@ public class LivingCostController {
     @GetMapping("/total")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> getTotalLivingCost(
-            @RequestParam(value = "year", defaultValue = "", required = false) Integer year
+            @RequestParam(value = "year", defaultValue = "") Integer year,
+            @RequestParam(value = "month", defaultValue = "", required = false) Integer month,
+            @RequestParam(value = "byCategory", required = false, defaultValue = "false") Boolean byCategory
     ) {
         Response<List<TotalAmountStatisticDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
-            response.setData(livingCostService.getTotalLivingCost(TotalLivingCostSearchRequest.of(year)));
+            if (byCategory) {
+                response.setData(
+                        livingCostService.getTotalLivingCostByCategory(TotalLivingCostSearchRequest.builder()
+                                .year(year)
+                                .month(month)
+                                .build())
+                );
+            } else {
+                response.setData(
+                        livingCostService.getTotalLivingCost(TotalLivingCostSearchRequest.builder()
+                                .year(year)
+                                .build())
+                );
+            }
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

@@ -178,7 +178,7 @@ public class PetCareLogService implements IPetCareLogService {
                             .rowId(petCareLog.getId())
                             .columnName("note")
                             .oldValue("")
-                            .newValue(petCareLog.getNote())
+                            .newValue(petCareLog.getNote().trim())
                             .build()
                 ))
                 .build());

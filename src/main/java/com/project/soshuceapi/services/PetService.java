@@ -124,7 +124,7 @@ public class PetService implements IPetService {
             pet.setFriendlyToHuman(request.getFriendlyToHuman());
             pet.setFriendlyToDogs(request.getFriendlyToDogs());
             pet.setFriendlyToCats(request.getFriendlyToCats());
-            pet.setDescription(!StringUtil.isNullOrBlank(request.getDescription()) ? request.getDescription().trim() : request.getDescription());
+            pet.setDescription(request.getDescription().trim());
             pet.setNote(!StringUtil.isNullOrBlank(request.getNote()) ? request.getNote().trim() : request.getNote());
             pet.setUpdatedBy(request.getUpdatedBy());
             pet.setUpdatedAt(LocalDateTime.now());
@@ -180,6 +180,9 @@ public class PetService implements IPetService {
         try {
             Pet pet = petRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Pet.NOT_FOUND));
+            if (Objects.equals(pet.getStatus(), Constants.PetStatus.ADOPTED)) {
+                throw new BadRequestException(ResponseMessage.Pet.NOT_AVAILABLE_FOR_DELETE);
+            }
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.DELETE_SOFT)
                     .description(Constants.ActionLog.DELETE_SOFT + "." + TAG)
@@ -298,7 +301,7 @@ public class PetService implements IPetService {
                                 .rowId(pet.getId())
                                 .columnName("name")
                                 .oldValue("")
-                                .newValue(pet.getName())
+                                .newValue(pet.getName().trim())
                                 .build(),
                         ActionLogDetail.builder()
                                 .tableName(TAG)
@@ -320,13 +323,6 @@ public class PetService implements IPetService {
                                 .columnName("status")
                                 .oldValue("")
                                 .newValue(String.valueOf(pet.getStatus()))
-                                .build(),
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(pet.getId())
-                                .columnName("image")
-                                .oldValue("")
-                                .newValue(pet.getImage())
                                 .build()
                 ))
                 .build());
@@ -485,15 +481,6 @@ public class PetService implements IPetService {
                     .columnName("description")
                     .oldValue(oldValue.getDescription())
                     .newValue(newValue.getDescription().trim())
-                    .build());
-        }
-        if (!Objects.equals(newValue.getNote().trim(), oldValue.getNote())) {
-            details.add(ActionLogDetail.builder()
-                    .tableName(TAG)
-                    .rowId(newValue.getId())
-                    .columnName("note")
-                    .oldValue(oldValue.getNote())
-                    .newValue(!StringUtil.isNullOrBlank(newValue.getNote()) ? newValue.getNote().trim() : null)
                     .build());
         }
         if (!details.isEmpty()) {

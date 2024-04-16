@@ -84,11 +84,11 @@ public class DonateService implements IDonateService {
         try {
             List<Object[]> data = donateRepo.calTotalDonation(request.getYear());
             return data.stream()
-                    .map(d -> TotalAmountStatisticDTO.of(
-                            DataUtil.parseInteger(d[0].toString()),
-                            DataUtil.parseInteger(d[1].toString()),
-                            DataUtil.parseBigDecimal(d[2].toString())
-                    ))
+                    .map(d -> TotalAmountStatisticDTO.builder()
+                            .year(DataUtil.parseInteger(d[0].toString()))
+                            .month(DataUtil.parseInteger(d[1].toString()))
+                            .totalAmount(DataUtil.parseBigDecimal(d[2].toString()))
+                            .build())
                     .toList();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
@@ -194,14 +194,14 @@ public class DonateService implements IDonateService {
                                         .rowId(donate.getId())
                                         .columnName("remitter")
                                         .oldValue("")
-                                        .newValue(donate.getRemitter())
+                                        .newValue(donate.getRemitter().trim())
                                         .build(),
                                 ActionLogDetail.builder()
                                         .tableName(TAG)
                                         .rowId(donate.getId())
                                         .columnName("payee")
                                         .oldValue("")
-                                        .newValue(donate.getPayee())
+                                        .newValue(donate.getPayee().trim())
                                         .build(),
                                 ActionLogDetail.builder()
                                         .tableName(TAG)
@@ -215,7 +215,7 @@ public class DonateService implements IDonateService {
                                         .rowId(donate.getId())
                                         .columnName("detail")
                                         .oldValue("")
-                                        .newValue(donate.getDetail())
+                                        .newValue(StringUtil.isNullOrBlank(donate.getDetail()) ? "" : donate.getDetail().trim())
                                         .build(),
                                 ActionLogDetail.builder()
                                         .tableName(TAG)
@@ -255,7 +255,7 @@ public class DonateService implements IDonateService {
                     .newValue(newValue.getPayee().trim())
                     .build());
         }
-        if (!Objects.equals(oldValue.getDetail(), newValue.getDetail().trim())) {
+        if (!Objects.equals(oldValue.getDetail(), !StringUtil.isNullOrBlank(newValue.getDetail()) ? newValue.getDetail().trim() : newValue.getDetail())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())

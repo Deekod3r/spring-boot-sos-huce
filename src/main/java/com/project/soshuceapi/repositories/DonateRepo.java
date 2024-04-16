@@ -46,7 +46,7 @@ public interface DonateRepo extends JpaRepository<Donate, String> {
             "    Donate d " +
             "WHERE " +
             "    d.isDeleted = FALSE " +
-            "    AND (:year IS NULL OR EXTRACT(YEAR FROM d.date) = :year)" +
+            "    AND EXTRACT(YEAR FROM d.date) = :year " +
             "GROUP BY " +
             "    year, " +
             "    month " +

@@ -181,22 +181,22 @@ public class NewsCategoryService implements INewsCategoryService {
 
     private void logUpdate(NewsCategory oldValue, NewsCategoryUpdateRequest newValue) {
         List<ActionLogDetail> details = new ArrayList<>();
-        if (!Objects.equals(oldValue.getName(), newValue.getName())) {
+        if (!Objects.equals(oldValue.getName(), newValue.getName().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
                     .columnName("name")
                     .oldValue(oldValue.getName())
-                    .newValue(newValue.getName())
+                    .newValue(newValue.getName().trim())
                     .build());
         }
-        if (!Objects.equals(oldValue.getDescription(), newValue.getDescription())) {
+        if (!Objects.equals(oldValue.getDescription(), newValue.getDescription().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
                     .columnName("description")
                     .oldValue(oldValue.getDescription())
-                    .newValue(newValue.getDescription())
+                    .newValue(newValue.getDescription().trim())
                     .build());
         }
         if (!details.isEmpty()) {

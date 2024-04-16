@@ -13,6 +13,9 @@ import java.time.LocalDate;
 public class AdoptLogDTO {
     String id;
     String code;
+    String nameRegister;
+    String emailRegister;
+    String phoneRegister;
     LocalDate checkDateFirst;
     LocalDate checkDateSecond;
     LocalDate checkDateThird;

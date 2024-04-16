@@ -16,6 +16,7 @@ import java.util.List;
 public class LivingCostDTO {
     String id;
     String name;
+    Integer category;
     BigDecimal cost;
     LocalDate date;
     Boolean status;

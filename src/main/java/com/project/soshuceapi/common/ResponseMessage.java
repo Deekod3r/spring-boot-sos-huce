@@ -91,7 +91,7 @@ public class ResponseMessage {
         public static final String INVALID_INTAKE_DATE = "Thông tin ngày tiếp nhận không hợp lệ";
         public static final String DIED = "Thú cưng đã chết";
         public static final String ADOPTED = "Thú cưng đã được nhận nuôi";
-
+        public static final String NOT_AVAILABLE_FOR_DELETE = "Thú cưng không trong trạng thái có thể xóa";
     }
 
     public static class Adopt {
@@ -116,6 +116,7 @@ public class ResponseMessage {
         public static final String MISSING_FEE = "Thông tin tiền vía nhận nuôi không được bỏ trống";
         public static final String INVALID_FEE = "Thông tin tiền vía nhận nuôi không hợp lệ";
         public static final String MISSING_REJECT_REASON = "Thông tin lý do từ chối không được bỏ trống";
+        public static final String NOT_AVAILABLE_FOR_DELETE = "Đơn nhận nuôi không trong trạng thái có thể xóa";
     }
 
     public static class PetCareLog {
@@ -232,6 +233,7 @@ public class ResponseMessage {
         public static final String NOT_MATCH = "Thông tin định danh chi phí không khớp";
         public static final String MISSING_ID = "Thông tin định danh chi phí không được bỏ trống";
         public static final String MISSING_IMAGES = "Thông tin hình ảnh chi phí không được bỏ trống";
+        public static final String MISSING_CATEGORY = "Thông tin danh mục chi phí không được bỏ trống";
     }
 
     public static class Image {

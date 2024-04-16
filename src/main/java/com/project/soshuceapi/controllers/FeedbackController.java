@@ -1,11 +1,11 @@
 package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.ResponseMessage;
-import com.project.soshuceapi.entities.FeedbackBox;
+import com.project.soshuceapi.entities.Feedback;
 import com.project.soshuceapi.models.requests.FeedbackCreateRequest;
 import com.project.soshuceapi.models.requests.FeedbackSearchRequest;
 import com.project.soshuceapi.models.responses.Response;
-import com.project.soshuceapi.services.iservice.IFeedbackBoxService;
+import com.project.soshuceapi.services.iservice.IFeedbackService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ import java.util.Objects;
 public class FeedbackController {
 
     @Autowired
-    private IFeedbackBoxService feedbackBoxService;
+    private IFeedbackService feedbackBoxService;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
@@ -31,7 +31,7 @@ public class FeedbackController {
             @RequestParam(value = "fromDate") LocalDate fromDate,
             @RequestParam(value = "toDate") LocalDate toDate
     ) {
-        Response<List<FeedbackBox>> response = new Response<>();
+        Response<List<Feedback>> response = new Response<>();
         response.setSuccess(false);
         try {
             response.setData(feedbackBoxService.getAll(FeedbackSearchRequest.of(fromDate, toDate)));

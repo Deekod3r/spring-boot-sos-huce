@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "feedback_boxes")
+@Table(name = "feedbacks")
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
-public class FeedbackBox {
+public class Feedback {
     @Id
     @UuidGenerator
     @Column(name = "id", columnDefinition = "VARCHAR(36)")
@@ -29,6 +29,8 @@ public class FeedbackBox {
     private String message;
     @Column(name = "email", columnDefinition = "VARCHAR(100)", nullable = false)
     private String email;
+    @Column(name = "is_read", columnDefinition = "BOOLEAN", nullable = false)
+    private Boolean isRead;
     @Column(name = "created_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
 }

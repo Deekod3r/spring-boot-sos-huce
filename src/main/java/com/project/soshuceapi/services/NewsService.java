@@ -97,7 +97,7 @@ public class NewsService implements INewsService {
     @Transactional
     public void create(NewsCreateRequest request) {
         try {
-            News news = newsRepo.findByTitle(request.getTitle());
+            News news = newsRepo.findByTitle(request.getTitle().trim());
             if (Objects.nonNull(news)) {
                 throw new BadRequestException(ResponseMessage.News.TITLE_EXISTED);
             }
@@ -129,7 +129,7 @@ public class NewsService implements INewsService {
         try {
             News news = newsRepo.findById(request.getId())
                     .orElseThrow(() -> new BadRequestException(ResponseMessage.News.NOT_FOUND));
-            News existedNews = newsRepo.findByTitle(request.getTitle());
+            News existedNews = newsRepo.findByTitle(request.getTitle().trim());
             if (Objects.nonNull(existedNews) && !Objects.equals(existedNews.getId(), request.getId())) {
                 throw new BadRequestException(ResponseMessage.News.TITLE_EXISTED);
             }
@@ -232,21 +232,21 @@ public class NewsService implements INewsService {
                                 .rowId(news.getId())
                                 .columnName("title")
                                 .oldValue("")
-                                .newValue(news.getTitle())
+                                .newValue(news.getTitle().trim())
                                 .build(),
                         ActionLogDetail.builder()
                                 .tableName(TAG)
                                 .rowId(news.getId())
                                 .columnName("content")
                                 .oldValue("")
-                                .newValue(news.getContent())
+                                .newValue(news.getContent().trim())
                                 .build(),
                         ActionLogDetail.builder()
                                 .tableName(TAG)
                                 .rowId(news.getId())
                                 .columnName("description")
                                 .oldValue("")
-                                .newValue(news.getDescription())
+                                .newValue(news.getDescription().trim())
                                 .build(),
                         ActionLogDetail.builder()
                                 .tableName(TAG)
@@ -274,7 +274,7 @@ public class NewsService implements INewsService {
                     .rowId(oldValue.getId())
                     .columnName("title")
                     .oldValue(oldValue.getTitle())
-                    .newValue(newValue.getTitle())
+                    .newValue(newValue.getTitle().trim())
                     .build());
         }
         if (!Objects.equals(oldValue.getContent(), newValue.getContent().trim())) {
@@ -283,7 +283,7 @@ public class NewsService implements INewsService {
                     .rowId(oldValue.getId())
                     .columnName("content")
                     .oldValue(oldValue.getContent())
-                    .newValue(newValue.getContent())
+                    .newValue(newValue.getContent().trim())
                     .build());
         }
         if (!Objects.equals(oldValue.getDescription(), newValue.getDescription().trim())) {
@@ -292,7 +292,7 @@ public class NewsService implements INewsService {
                     .rowId(oldValue.getId())
                     .columnName("description")
                     .oldValue(oldValue.getDescription())
-                    .newValue(newValue.getDescription())
+                    .newValue(newValue.getDescription().trim())
                     .build());
         }
         if (!Objects.equals(oldValue.getStatus(), newValue.getStatus())) {

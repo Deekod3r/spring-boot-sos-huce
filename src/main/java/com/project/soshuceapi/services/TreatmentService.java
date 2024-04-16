@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,8 @@ public class TreatmentService implements ITreatmentService {
             Page<Treatment> treatments = treatmentRepo.findAll(
                     request.getPetId(),
                     request.getStatus(),
+                    request.getType(),
+                    Objects.nonNull(request.getDaysOfTreatment()) ? Duration.ofDays(request.getDaysOfTreatment()) : null,
                     request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             return Map.of(
@@ -87,12 +90,42 @@ public class TreatmentService implements ITreatmentService {
         try {
             List<Object[]> data = treatmentRepo.calTotalTreatmentCost(request.getYear());
             return data.stream()
-                    .map(d -> TotalAmountStatisticDTO.of(
-                            DataUtil.parseInteger(d[0].toString()),
-                            DataUtil.parseInteger(d[1].toString()),
-                            DataUtil.parseBigDecimal(d[2].toString())
-                    ))
+                    .map(d -> TotalAmountStatisticDTO.builder()
+                            .year(DataUtil.parseInteger(d[0].toString()))
+                            .month(DataUtil.parseInteger(d[1].toString()))
+                            .totalAmount(DataUtil.parseBigDecimal(d[2].toString()))
+                            .build())
                     .toList();
+        } catch (Exception e) {
+            log.error(TAG + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<TotalAmountStatisticDTO> getTotalTreatmentCostByType(TotalTreatmentCostSearchRequest request) {
+        try {
+            List<Object[]> data = null;
+            if (Objects.nonNull(request.getMonth())) {
+                data = treatmentRepo.calTotalTreatmentCostByTypeAndMonth(request.getYear(), request.getMonth());
+                return data.stream()
+                        .map(d -> TotalAmountStatisticDTO.builder()
+                                .year(DataUtil.parseInteger(d[0].toString()))
+                                .month(DataUtil.parseInteger(d[1].toString()))
+                                .totalAmount(DataUtil.parseBigDecimal(d[2].toString()))
+                                .category(DataUtil.parseInteger(d[3].toString()))
+                                .build())
+                        .toList();
+            } else {
+                data = treatmentRepo.calTotalTreatmentCostByType(request.getYear());
+                return data.stream()
+                        .map(d -> TotalAmountStatisticDTO.builder()
+                                .year(DataUtil.parseInteger(d[0].toString()))
+                                .totalAmount(DataUtil.parseBigDecimal(d[1].toString()))
+                                .category(DataUtil.parseInteger(d[2].toString()))
+                                .build())
+                        .toList();
+            }
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -237,7 +270,7 @@ public class TreatmentService implements ITreatmentService {
                                 .rowId(treatment.getId())
                                 .columnName("name")
                                 .oldValue("")
-                                .newValue(treatment.getName())
+                                .newValue(treatment.getName().trim())
                                 .build(),
                         ActionLogDetail.builder()
                                 .tableName(TAG)
@@ -258,7 +291,7 @@ public class TreatmentService implements ITreatmentService {
                                 .rowId(treatment.getId())
                                 .columnName("location")
                                 .oldValue("")
-                                .newValue(treatment.getLocation())
+                                .newValue(treatment.getLocation().trim())
                                 .build(),
                         ActionLogDetail.builder()
                                 .tableName(TAG)

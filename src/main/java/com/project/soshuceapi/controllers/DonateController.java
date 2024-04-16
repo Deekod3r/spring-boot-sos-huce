@@ -79,7 +79,7 @@ public class DonateController {
     @GetMapping("/total")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     public ResponseEntity<?> getTotalDonation(
-            @RequestParam(value = "year", defaultValue = "", required = false) Integer year
+            @RequestParam(value = "year", defaultValue = "") Integer year
     ) {
         Response<List<TotalAmountStatisticDTO>> response = new Response<>();
         response.setSuccess(false);

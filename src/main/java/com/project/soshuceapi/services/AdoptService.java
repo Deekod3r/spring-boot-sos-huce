@@ -283,6 +283,9 @@ public class AdoptService implements IAdoptService {
         try {
             Adopt adopt = adoptRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
+            if (Objects.equals(adopt.getStatus(), Constants.AdoptStatus.COMPLETE)) {
+                throw new BadRequestException(ResponseMessage.Adopt.NOT_AVAILABLE_FOR_DELETE);
+            }
             actionLogService.create(ActionLogDTO.builder()
                     .action(Constants.ActionLog.DELETE_SOFT)
                     .description(Constants.ActionLog.DELETE_SOFT + "." + TAG)
@@ -324,11 +327,11 @@ public class AdoptService implements IAdoptService {
         try {
             List<Object[]> data = adoptRepo.calTotalFeeAdopt(request.getYear());
             return data.stream()
-                    .map(d -> TotalAmountStatisticDTO.of(
-                            DataUtil.parseInteger(d[0].toString()),
-                            DataUtil.parseInteger(d[1].toString()),
-                            DataUtil.parseBigDecimal(d[2].toString())
-                    ))
+                    .map(d -> TotalAmountStatisticDTO.builder()
+                            .year(DataUtil.parseInteger(d[0].toString()))
+                            .month(DataUtil.parseInteger(d[1].toString()))
+                            .totalAmount(DataUtil.parseBigDecimal(d[2].toString()))
+                            .build())
                     .toList();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
@@ -337,18 +340,21 @@ public class AdoptService implements IAdoptService {
     }
 
     @Override
-    public List<AdoptLogDTO> getAdoptsByCircleLog() {
+    public List<AdoptLogDTO> getAdoptsNearLog() {
         try {
-            List<Object[]> data = adoptRepo.findAdoptsByCircleLog();
+            List<Object[]> data = adoptRepo.findAdoptsNearLog();
             return data.stream()
                     .map(d -> AdoptLogDTO.builder()
                             .id(d[0].toString())
                             .code(d[1].toString())
-                            .checkDateFirst(Objects.requireNonNull(DataUtil.parseLocalDateTime(d[2].toString(),
+                            .nameRegister(d[2].toString())
+                            .phoneRegister(d[3].toString())
+                            .emailRegister(d[4].toString())
+                            .checkDateFirst(Objects.requireNonNull(DataUtil.parseLocalDateTime(d[5].toString(),
                                     Constants.FormatPattern.LOCAL_DATETIME_WITH_NANOSECONDS)).toLocalDate())
-                            .checkDateSecond(Objects.requireNonNull(DataUtil.parseLocalDateTime(d[3].toString(),
+                            .checkDateSecond(Objects.requireNonNull(DataUtil.parseLocalDateTime(d[6].toString(),
                                     Constants.FormatPattern.LOCAL_DATETIME_WITH_NANOSECONDS)).toLocalDate())
-                            .checkDateThird(Objects.requireNonNull(DataUtil.parseLocalDateTime(d[4].toString(),
+                            .checkDateThird(Objects.requireNonNull(DataUtil.parseLocalDateTime(d[7].toString(),
                                     Constants.FormatPattern.LOCAL_DATETIME_WITH_NANOSECONDS)).toLocalDate())
                             .build())
                     .toList();
@@ -468,13 +474,6 @@ public class AdoptService implements IAdoptService {
                                 .columnName("status")
                                 .oldValue("")
                                 .newValue(String.valueOf(adopt.getStatus()))
-                                .build(),
-                        ActionLogDetail.builder()
-                                .tableName(TAG)
-                                .rowId(adopt.getId())
-                                .columnName("fee")
-                                .oldValue("")
-                                .newValue(String.valueOf(adopt.getFee()))
                                 .build()
                 ))
                 .build());

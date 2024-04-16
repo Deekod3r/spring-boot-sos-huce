@@ -31,6 +31,8 @@ public class LivingCostCreateRequest {
     @NotNull(message = ResponseMessage.LivingCost.MISSING_DATE)
     @PastOrPresent(message = ResponseMessage.LivingCost.INVALID_DATE)
     LocalDate date;
+    @NotNull(message = ResponseMessage.LivingCost.MISSING_CATEGORY)
+    Integer category;
     @NotEmpty(message = ResponseMessage.LivingCost.MISSING_IMAGES)
     List<MultipartFile> images;
     String note;

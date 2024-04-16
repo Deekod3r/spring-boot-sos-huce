@@ -27,11 +27,11 @@ public class LivingCostUpdateRequest {
     String name;
     @NotNull(message = ResponseMessage.LivingCost.MISSING_COST)
     BigDecimal cost;
+    @NotNull(message = ResponseMessage.LivingCost.MISSING_CATEGORY)
+    Integer category;
     @NotNull(message = ResponseMessage.LivingCost.MISSING_DATE)
     @PastOrPresent(message = ResponseMessage.LivingCost.INVALID_DATE)
     LocalDate date;
-    @NotNull(message = ResponseMessage.LivingCost.MISSING_STATUS)
-    Boolean status;
     String note;
     @JsonIgnore
     String updatedBy;

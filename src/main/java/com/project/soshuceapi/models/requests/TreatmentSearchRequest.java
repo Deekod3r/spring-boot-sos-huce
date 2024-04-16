@@ -16,4 +16,6 @@ public class TreatmentSearchRequest {
     Integer page;
     Integer limit;
     Boolean fullData;
+    Integer type;
+    Integer daysOfTreatment;
 }

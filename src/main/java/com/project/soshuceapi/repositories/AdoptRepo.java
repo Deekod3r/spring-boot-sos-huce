@@ -113,7 +113,7 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "WHERE " +
             "    a.isDeleted = FALSE " +
             "    AND a.status = 5 " +
-            "    AND (:year IS NULL OR EXTRACT(YEAR FROM a.confirmedAt) = :year)" +
+            "    AND EXTRACT(YEAR FROM a.confirmedAt) = :year " +
             "GROUP BY " +
             "    year, " +
             "    month " +
@@ -124,7 +124,7 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             @Param("year") Integer year
     );
 
-    @Query(value = "SELECT adopts.id, adopts.code, " +
+    @Query(value = "SELECT adopts.id, adopts.code, users.name, users.phone_number, users.email, " +
             "           adopts.confirmed_at + " +
             "           (SELECT CAST((config_values.value || ' days') AS INTERVAL) " +
             "           FROM config_values " +
@@ -137,7 +137,7 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "           (SELECT CAST((CAST(config_values.value AS INTEGER) * 3 || ' days') AS INTERVAL) " +
             "           FROM config_values " +
             "           WHERE config_values.key_cv = 'CIRCLE_LOG') as check_date_third " +
-            "FROM adopts " +
+            "FROM adopts INNER JOIN users on users.id = adopts.registered_by " +
             "WHERE status = 5 " +
             "AND is_deleted = false " +
             "AND (" +
@@ -167,8 +167,8 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "            (SELECT CAST((config_values.value || ' days') AS INTERVAL) " +
             "             FROM config_values " +
             "             WHERE config_values.key_cv = 'DEAD_NIGHT')" +
-            ")", nativeQuery = true)
-    List<Object[]> findAdoptsByCircleLog();
+            ") ORDER BY adopts.confirmed_at DESC", nativeQuery = true)
+    List<Object[]> findAdoptsNearLog();
 
 
 }
