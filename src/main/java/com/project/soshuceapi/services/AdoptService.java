@@ -20,7 +20,6 @@ import com.project.soshuceapi.services.iservice.IAdoptService;
 import com.project.soshuceapi.services.iservice.ILocationService;
 import com.project.soshuceapi.services.iservice.IPetService;
 import com.project.soshuceapi.utils.DataUtil;
-import com.project.soshuceapi.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -68,17 +67,6 @@ public class AdoptService implements IAdoptService {
                     "currentPage", adopts.getNumber() + 1,
                     "totalPages", adopts.getTotalPages()
             );
-        } catch (Exception e) {
-            log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
-    @Override
-    public List<AdoptDTO> getAllByUser(String userId) {
-        try {
-            List<Adopt> adopts = adoptRepo.findAllByUser(userId);
-            return adopts.stream().map(this::parseAdoptDTO).toList();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -263,7 +251,7 @@ public class AdoptService implements IAdoptService {
                         .id(request.getUpdatedBy())
                         .build());
                 adopt.setRejectedAt(LocalDateTime.now());
-                adopt.setRejectedReason(!StringUtil.isNullOrBlank(request.getMessage()) ? request.getMessage().trim() : request.getMessage());
+                adopt.setRejectedReason( request.getMessage().trim());
             }
             adoptRepo.save(adopt);
             if (Objects.equals(request.getStatus(), Constants.AdoptStatus.COMPLETE)) {

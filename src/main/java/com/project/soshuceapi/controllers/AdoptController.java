@@ -38,7 +38,7 @@ public class AdoptController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
     public ResponseEntity<?> getAdopts(@RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
                                        @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
                                        @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
@@ -54,6 +54,15 @@ public class AdoptController {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            boolean roleExists = authorities.stream()
+                    .anyMatch(grantedAuthority
+                            -> Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
+            if (roleExists) {
+                registeredBy = auditorAware.getCurrentAuditor().get();
+                fullData = true;
             }
             if (!StringUtil.isNullOrBlank(fromDate) && !DataUtil.isDate(fromDate, Constants.FormatPattern.LOCAL_DATETIME)) {
                 response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
@@ -107,30 +116,8 @@ public class AdoptController {
         }
     }
 
-    @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getAdoptsByUser(@PathVariable(name = "userId") String userId){
-        Response<List<AdoptDTO>> response = new Response<>();
-        response.setSuccess(false);
-        try {
-            if (auditorAware.getCurrentAuditor().isEmpty()
-                    || !Objects.equals(auditorAware.getCurrentAuditor().get(), userId)) {
-                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-            response.setData(adoptService.getAllByUser(userId));
-            response.setMessage(ResponseMessage.Common.SUCCESS);
-            response.setSuccess(true);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.setMessage(ResponseMessage.Common.SERVER_ERROR);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<?> getAdoptById(@PathVariable(name = "id") String id,
-                                          @RequestParam(name = "role") String role) {
+    public ResponseEntity<?> getAdoptById(@PathVariable(name = "id") String id) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -138,17 +125,13 @@ public class AdoptController {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
+            Map<String, Object> data = adoptService.getById(id);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             boolean roleExists = authorities.stream()
                     .anyMatch(grantedAuthority
-                            -> Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + role));
-            if (!roleExists) {
-                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-            Map<String, Object> data = adoptService.getById(id);
-            if (Objects.equals(role, Constants.User.ROLE_USER)) {
+                            -> Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
+            if (roleExists) {
                 String registeredBy = ((AdoptDTO) data.get("adopt")).getRegisteredBy();
                 if (!Objects.equals(auditorAware.getCurrentAuditor().get(), registeredBy)) {
                     response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);

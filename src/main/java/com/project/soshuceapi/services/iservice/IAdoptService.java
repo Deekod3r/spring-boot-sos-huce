@@ -1,6 +1,5 @@
 package com.project.soshuceapi.services.iservice;
 
-import com.project.soshuceapi.models.DTOs.AdoptDTO;
 import com.project.soshuceapi.models.DTOs.AdoptLogDTO;
 import com.project.soshuceapi.models.DTOs.TotalAmountStatisticDTO;
 import com.project.soshuceapi.models.requests.*;
@@ -11,8 +10,6 @@ import java.util.Map;
 public interface IAdoptService {
 
     Map<String, Object> getAll(AdoptSearchRequest request);
-
-    List<AdoptDTO> getAllByUser(String userId);
 
     Map<String, Object> getById(String id);
 
