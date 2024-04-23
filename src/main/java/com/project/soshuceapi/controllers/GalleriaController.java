@@ -8,19 +8,16 @@ import com.project.soshuceapi.models.requests.GalleriaUpdateImageRequest;
 import com.project.soshuceapi.models.requests.GalleriaUpdateRequest;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.IGalleriaService;
+import com.project.soshuceapi.utils.SecurityUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,18 +35,9 @@ public class GalleriaController {
         Response<List<GalleriaDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
-            if (auditorAware.getCurrentAuditor().isEmpty()) {
+            if (auditorAware.getCurrentAuditor().isEmpty()
+                    || SecurityUtil.checkRole(Constants.User.KEY_ROLE + Constants.User.ROLE_USER)) {
                 status = true;
-            } else {
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-                boolean roleExists = authorities.stream()
-                        .anyMatch(grantedAuthority ->
-                                Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
-                if (roleExists) {
-                    status = true;
-
-                }
             }
             response.setData(galleriaService.getAll(status));
             response.setSuccess(true);

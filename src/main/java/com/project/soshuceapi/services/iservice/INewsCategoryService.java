@@ -7,6 +7,7 @@ import com.project.soshuceapi.models.requests.NewsCategoryUpdateRequest;
 import java.util.List;
 
 public interface INewsCategoryService {
+
     List<NewsCategoryDTO> getAll();
 
     NewsCategoryDTO getById(String id);
@@ -16,4 +17,5 @@ public interface INewsCategoryService {
     void update(NewsCategoryUpdateRequest request);
 
     void delete(String id, String deletedBy);
+
 }

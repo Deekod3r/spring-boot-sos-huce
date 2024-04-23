@@ -1,7 +1,5 @@
 package com.project.soshuceapi.entities.locations;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.project.soshuceapi.entities.locations.District;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +17,6 @@ public class Ward {
     private Integer id;
     private String name;
     private String code;
-    private Integer provinceId;
 
     @ManyToOne
     @JoinColumn(name = "district_id", nullable = false)

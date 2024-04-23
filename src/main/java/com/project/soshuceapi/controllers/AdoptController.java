@@ -10,6 +10,7 @@ import com.project.soshuceapi.models.requests.*;
 import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.IAdoptService;
 import com.project.soshuceapi.utils.DataUtil;
+import com.project.soshuceapi.utils.SecurityUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +18,9 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,12 +52,7 @@ public class AdoptController {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-            boolean roleExists = authorities.stream()
-                    .anyMatch(grantedAuthority
-                            -> Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
-            if (roleExists) {
+            if (SecurityUtil.checkRole(Constants.User.KEY_ROLE + Constants.User.ROLE_USER)) {
                 registeredBy = auditorAware.getCurrentAuditor().get();
                 fullData = true;
             }
@@ -126,12 +118,7 @@ public class AdoptController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             Map<String, Object> data = adoptService.getById(id);
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-            boolean roleExists = authorities.stream()
-                    .anyMatch(grantedAuthority
-                            -> Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
-            if (roleExists) {
+            if (SecurityUtil.checkRole(Constants.User.KEY_ROLE + Constants.User.ROLE_USER)) {
                 String registeredBy = ((AdoptDTO) data.get("adopt")).getRegisteredBy();
                 if (!Objects.equals(auditorAware.getCurrentAuditor().get(), registeredBy)) {
                     response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);

@@ -25,4 +25,5 @@ public interface ITreatmentService {
     void update(TreatmentUpdateRequest request);
 
     void delete(String id, String deletedBy);
+
 }

@@ -9,6 +9,7 @@ import com.project.soshuceapi.models.requests.NewsUpdateRequest;
 import java.util.Map;
 
 public interface INewsService {
+
     Map<String, Object> getAll(NewsSearchRequest request);
 
     NewsDTO getById(String id);
@@ -20,4 +21,5 @@ public interface INewsService {
     void updateImage(NewsUpdateImageRequest request);
 
     void delete(String id, String deletedBy);
+
 }

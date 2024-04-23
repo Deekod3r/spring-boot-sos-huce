@@ -107,7 +107,7 @@ public class ResponseMessage {
         public static final String NOT_MATCH = "Thông tin định danh đơn nhận nuôi không khớp";
         public static final String NOT_AVAILABLE_FOR_CANCEL = "Đơn nhận nuôi không trong trạng thái để hủy";
         public static final String MAX_ADOPTS = "Số lượng đơn nhận nuôi cần xử lý của người dùng đã đạt tối đa";
-        public static final String DUPLICATE_ADOPT = "Người dùng đã có đơn nhận nuôi cho thú cưng này cần xử lý";
+        public static final String DUPLICATE_ADOPT = "Người dùng đã có đơn nhận nuôi cho thú cưng này đang cần xử lý";
         public static final String MISSING_ID = "Thông tin định danh đơn nhận nuôi không được bỏ trống";
         public static final String MISSING_STATUS = "Thông tin trạng thái đơn nhận nuôi không được bỏ trống";
         public static final String INVALID_STATUS = "Thông tin trạng thái đơn nhận nuôi không hợp lệ";

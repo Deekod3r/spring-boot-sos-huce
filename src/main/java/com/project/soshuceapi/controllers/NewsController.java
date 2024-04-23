@@ -10,6 +10,7 @@ import com.project.soshuceapi.models.responses.Response;
 import com.project.soshuceapi.services.iservice.INewsCategoryService;
 import com.project.soshuceapi.services.iservice.INewsService;
 import com.project.soshuceapi.utils.DataUtil;
+import com.project.soshuceapi.utils.SecurityUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +18,9 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,17 +56,9 @@ public class NewsController {
                 response.setMessage(ResponseMessage.News.INVALID_SEARCH_DATE);
                 return ResponseEntity.badRequest().body(response);
             }
-            if (auditorAware.getCurrentAuditor().isEmpty()) {
+            if (auditorAware.getCurrentAuditor().isEmpty()
+                    || SecurityUtil.checkRole(Constants.User.KEY_ROLE + Constants.User.ROLE_USER)) {
                 status = true;
-            } else {
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-                boolean roleExists = authorities.stream()
-                        .anyMatch(grantedAuthority ->
-                                Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
-                if (roleExists) {
-                    status = true;
-                }
             }
             response.setData(newsService.getAll(NewsSearchRequest.of(title.trim(), status, categoryId, fromDate, toDate, page, limit, fullData)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
@@ -96,12 +85,7 @@ public class NewsController {
                     response.setMessage(ResponseMessage.News.NOT_FOUND);
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
                 } else {
-                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                    Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-                    boolean roleExists = authorities.stream()
-                            .anyMatch(grantedAuthority ->
-                                    Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + Constants.User.ROLE_USER));
-                    if (roleExists) {
+                    if (SecurityUtil.checkRole(Constants.User.KEY_ROLE + Constants.User.ROLE_USER)) {
                         response.setMessage(ResponseMessage.News.NOT_FOUND);
                         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
                     }

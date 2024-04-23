@@ -11,6 +11,7 @@ import com.project.soshuceapi.services.iservice.IEmailService;
 import com.project.soshuceapi.services.iservice.IRedisService;
 import com.project.soshuceapi.services.iservice.IUserService;
 import com.project.soshuceapi.utils.DataUtil;
+import com.project.soshuceapi.utils.SecurityUtil;
 import com.project.soshuceapi.utils.StringUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,9 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -245,8 +242,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable(value = "id") String id,
-                                         @RequestParam(value = "role") String role) {
+    public ResponseEntity<?> getUserById(@PathVariable(value = "id") String id) {
         Response<UserDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -254,20 +250,11 @@ public class UserController {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
-            if (StringUtil.isNullOrBlank(id) || StringUtil.isNullOrBlank(role)) {
-                response.setMessage(ResponseMessage.User.MISSING_AUTHENTICATION_INFO);
+            if (StringUtil.isNullOrBlank(id)) {
+                response.setMessage(ResponseMessage.User.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-            boolean roleExists = authorities.stream()
-                    .anyMatch(grantedAuthority
-                            -> Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + role));
-            if (!roleExists) {
-                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-            if (Objects.equals(role, Constants.User.ROLE_USER)) {
+            if (SecurityUtil.checkRole(Constants.User.KEY_ROLE +  Constants.User.ROLE_USER)) {
                 if (!Objects.equals(auditorAware.getCurrentAuditor().get(), id)) {
                     response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
@@ -296,8 +283,7 @@ public class UserController {
                                       @RequestParam(value = "email", defaultValue = "", required = false) String email,
                                       @RequestParam(value = "phoneNumber", defaultValue = "", required = false) String phoneNumber,
                                       @RequestParam(value = "isActivated", defaultValue = "", required = false) Boolean isActivated,
-                                      @RequestParam(value = "role", defaultValue = "", required = false) String role,
-                                      @RequestParam(value = "roleRequest", defaultValue = "", required = false) String roleRequest) {
+                                      @RequestParam(value = "role", defaultValue = "", required = false) String role) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -305,19 +291,11 @@ public class UserController {
                 response.setMessage(ResponseMessage.User.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-            boolean roleExists = authorities.stream()
-                    .anyMatch(grantedAuthority
-                            -> Objects.equals(grantedAuthority.getAuthority(), Constants.User.KEY_ROLE + roleRequest));
-            if (!roleExists) {
-                response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-            if (Objects.equals(roleRequest, Constants.User.ROLE_ADMIN)) {
+            if (SecurityUtil.checkRole(Constants.User.KEY_ROLE + Constants.User.ROLE_ADMIN)) {
                 role = Constants.User.ROLE_USER;
             }
-            response.setData(userService.getAll(UserSearchRequest.of(name.trim(), email.trim(), phoneNumber.trim(), role, isActivated, page, limit, fullData)));
+            response.setData(userService.getAll(UserSearchRequest.of(name.trim(), email.trim(), phoneNumber.trim(),
+                    role, isActivated, page, limit, fullData)));
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);

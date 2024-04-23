@@ -102,10 +102,10 @@ public class AdoptService implements IAdoptService {
             long count = adoptRepo.countByStatus(
                     List.of(Constants.AdoptStatus.WAIT_FOR_PROGRESSING, Constants.AdoptStatus.IN_PROGRESS),
                     request.getRegisteredBy());
-            if (count >= 3) {
+            if (count > 3) {
                 throw new BadRequestException(ResponseMessage.Adopt.MAX_ADOPTS);
             }
-            if (checkDuplicate(request.getPetId(), request.getRegisteredBy())) {
+            if (Boolean.TRUE.equals(checkDuplicate(request.getPetId(), request.getRegisteredBy()))) {
                 throw new BadRequestException(ResponseMessage.Adopt.DUPLICATE_ADOPT);
             }
             Adopt adopt = new Adopt();

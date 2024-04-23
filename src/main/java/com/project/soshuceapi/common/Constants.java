@@ -30,7 +30,6 @@ public class Constants {
         public final static Integer MONEY = 1;
         public final static Integer GOODS = 2;
         public final static Integer OTHER = 3;
-
     }
 
     public static class Regex {
