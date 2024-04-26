@@ -75,12 +75,12 @@ public class NewsController {
         Response<NewsDTO> response = new Response<>();
         response.setSuccess(false);
         try {
-            if(StringUtil.isNullOrBlank(id)) {
+            if (StringUtil.isNullOrBlank(id)) {
                 response.setMessage(ResponseMessage.News.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
             NewsDTO news = newsService.getById(id);
-            if(!news.getStatus()) {
+            if (!news.getStatus()) {
                 if (auditorAware.getCurrentAuditor().isEmpty()) {
                     response.setMessage(ResponseMessage.News.NOT_FOUND);
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -182,7 +182,7 @@ public class NewsController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if(!Objects.equals(id, request.getId())) {
+            if (!Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.News.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -211,7 +211,7 @@ public class NewsController {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
-            if(StringUtil.isNullOrBlank(id)) {
+            if (StringUtil.isNullOrBlank(id)) {
                 response.setMessage(ResponseMessage.News.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -250,7 +250,7 @@ public class NewsController {
         Response<NewsCategoryDTO> response = new Response<>();
         response.setSuccess(false);
         try {
-            if(StringUtil.isNullOrBlank(id)) {
+            if (StringUtil.isNullOrBlank(id)) {
                 response.setMessage(ResponseMessage.NewsCategory.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -308,7 +308,7 @@ public class NewsController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if(!Objects.equals(id, request.getId())) {
+            if (!Objects.equals(id, request.getId())) {
                 response.setMessage(ResponseMessage.NewsCategory.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -337,7 +337,7 @@ public class NewsController {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
-            if(StringUtil.isNullOrBlank(id)) {
+            if (StringUtil.isNullOrBlank(id)) {
                 response.setMessage(ResponseMessage.NewsCategory.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }

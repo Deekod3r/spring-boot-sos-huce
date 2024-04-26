@@ -277,7 +277,7 @@ public class LivingCostService implements ILivingCostService {
 
     private void logUpdate(LivingCost oldValue, LivingCostUpdateRequest newValue) {
         List<ActionLogDetail> details = new ArrayList<>();
-        if(!Objects.equals(oldValue.getName(), newValue.getName().trim())) {
+        if (!Objects.equals(oldValue.getName(), newValue.getName().trim())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -286,7 +286,7 @@ public class LivingCostService implements ILivingCostService {
                     .newValue(newValue.getName().trim())
                     .build());
         }
-        if(!Objects.equals(oldValue.getCost(), newValue.getCost())) {
+        if (!Objects.equals(oldValue.getCost(), newValue.getCost())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -295,7 +295,7 @@ public class LivingCostService implements ILivingCostService {
                     .newValue(newValue.getCost().toString())
                     .build());
         }
-        if(!Objects.equals(oldValue.getDate(), newValue.getDate())) {
+        if (!Objects.equals(oldValue.getDate(), newValue.getDate())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -304,7 +304,7 @@ public class LivingCostService implements ILivingCostService {
                     .newValue(newValue.getDate().toString())
                     .build());
         }
-        if(!Objects.equals(oldValue.getCategory(), newValue.getCategory())) {
+        if (!Objects.equals(oldValue.getCategory(), newValue.getCategory())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())
@@ -313,7 +313,7 @@ public class LivingCostService implements ILivingCostService {
                     .newValue(newValue.getCategory().toString())
                     .build());
         }
-        if(!Objects.equals(oldValue.getNote(), !StringUtil.isNullOrBlank(newValue.getNote()) ? newValue.getNote().trim() : newValue.getNote())) {
+        if (!Objects.equals(oldValue.getNote(), !StringUtil.isNullOrBlank(newValue.getNote()) ? newValue.getNote().trim() : newValue.getNote())) {
             details.add(ActionLogDetail.builder()
                     .tableName(TAG)
                     .rowId(oldValue.getId())

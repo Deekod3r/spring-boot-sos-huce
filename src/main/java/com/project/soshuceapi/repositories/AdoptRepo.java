@@ -28,8 +28,8 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "WHERE a.isDeleted = false AND a.pet.isDeleted = false " +
             "AND (:status IS NULL OR a.status = :status) " +
             "AND (:code = '' OR a.code ILIKE CONCAT('%', :code, '%')) " +
-            "AND (cast(:fromDate as timestamp) IS NULL OR a.createdAt >= :fromDate ) " +
-            "AND (cast(:toDate as timestamp) IS NULL OR a.createdAt <= :toDate ) " +
+            "AND (cast(:fromDate AS timestamp) IS NULL OR a.createdAt >= :fromDate ) " +
+            "AND (cast(:toDate AS timestamp) IS NULL OR a.createdAt <= :toDate ) " +
             "AND (:registeredBy = '' OR a.registeredBy.id = :registeredBy) " +
             "AND (:petAdopt = '' OR a.pet.id = :petAdopt) " +
             "ORDER BY a.createdAt DESC, a.updatedAt DESC")
@@ -43,19 +43,10 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             Pageable pageable
     );
 
-    @Query("SELECT a FROM Adopt a " +
-            "JOIN FETCH a.pet " +
-            "JOIN FETCH a.createdBy " +
-            "JOIN FETCH a.registeredBy " +
-            "LEFT JOIN FETCH a.confirmedBy " +
-            "LEFT JOIN FETCH a.rejectedBy " +
-            "WHERE a.isDeleted = false AND a.pet.isDeleted = false " +
-            "AND a.registeredBy.id = :userId " +
-            "ORDER BY a.status, a.updatedAt DESC, a.createdAt DESC")
-    List<Adopt> findAllByUser(@NonNull @Param("userId") String userId);
-
     @NonNull
-    @Query(value = "SELECT a FROM Adopt a WHERE a.isDeleted = false AND a.pet.isDeleted = false AND a.id = :id")
+    @Query(value = "SELECT a " +
+            "FROM Adopt a " +
+            "WHERE a.isDeleted = false AND a.pet.isDeleted = false AND a.id = :id")
     Optional<Adopt> findById(@NonNull @Param("id") String id);
 
     @Query(value = "SELECT COUNT(1) FROM Adopt a " +
@@ -100,7 +91,6 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "    AND is_deleted = false", nativeQuery = true)
     void rejectAllByPet(@Param("petId") String petId, @Param("rejectBy") String rejectBy);
 
-
     @Query(value = "SELECT nextval('adopt_seq')", nativeQuery = true)
     long getSEQ();
 
@@ -128,15 +118,15 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "           adopts.confirmed_at + " +
             "           (SELECT CAST((config_values.value || ' days') AS INTERVAL) " +
             "           FROM config_values " +
-            "           WHERE config_values.key_cv = 'CIRCLE_LOG') as check_date_first, " +
+            "           WHERE config_values.key_cv = 'CIRCLE_LOG') AS check_date_first, " +
             "           adopts.confirmed_at + " +
             "           (SELECT CAST((CAST(config_values.value AS INTEGER) * 2 || ' days') AS INTERVAL) " +
             "           FROM config_values " +
-            "           WHERE config_values.key_cv = 'CIRCLE_LOG') as check_date_second, " +
+            "           WHERE config_values.key_cv = 'CIRCLE_LOG') AS check_date_second, " +
             "           adopts.confirmed_at + " +
             "           (SELECT CAST((CAST(config_values.value AS INTEGER) * 3 || ' days') AS INTERVAL) " +
             "           FROM config_values " +
-            "           WHERE config_values.key_cv = 'CIRCLE_LOG') as check_date_third " +
+            "           WHERE config_values.key_cv = 'CIRCLE_LOG') AS check_date_third " +
             "FROM adopts INNER JOIN users on users.id = adopts.registered_by " +
             "WHERE status = 5 " +
             "AND is_deleted = false " +

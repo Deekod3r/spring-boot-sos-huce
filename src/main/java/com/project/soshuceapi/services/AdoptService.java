@@ -59,6 +59,7 @@ public class AdoptService implements IAdoptService {
                     request.getRegisteredBy(), request.getPetAdopt(),
                     request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
+            List<Adopt> adoptList = adopts.getContent();
             List<AdoptDTO> adoptDTOS = adopts.getContent().stream()
                     .map(this::parseAdoptDTO).toList();
             return Map.of(
