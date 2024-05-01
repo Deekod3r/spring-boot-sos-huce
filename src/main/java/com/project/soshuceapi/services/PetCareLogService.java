@@ -16,6 +16,7 @@ import com.project.soshuceapi.repositories.PetCareLogRepo;
 import com.project.soshuceapi.services.iservice.IActionLogService;
 import com.project.soshuceapi.services.iservice.IAdoptService;
 import com.project.soshuceapi.services.iservice.IPetCareLogService;
+import com.project.soshuceapi.utils.DataUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,13 +44,23 @@ public class PetCareLogService implements IPetCareLogService {
     @Override
     public List<PetCareLogDTO> getAll(PetCareLogSearchRequest request) {
         try {
-            List<PetCareLog> petCareLogs = petCareLogRepo.findAll(
+            List<Object> petCareLogs = petCareLogRepo.findAll(
                     request.getAdoptId(),
                     request.getPetId(),
                     request.getFromDate(),
                     request.getToDate()
             );
-            return petCareLogs.stream().map(this::parsePetCareLogDTO).collect(Collectors.toList());
+            return petCareLogs.stream().map(p -> {
+                Object[] data = (Object[]) p;
+                return PetCareLogDTO.builder()
+                        .id(DataUtil.parseString(data[0]))
+                        .adoptId(DataUtil.parseString(data[1]))
+                        .adoptCode(DataUtil.parseString(data[2]))
+                        .petName(DataUtil.parseString(data[3]))
+                        .date(DataUtil.parseLocalDate(data[4]))
+                        .note(DataUtil.parseString(data[5]))
+                        .build();
+            }).collect(Collectors.toList());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());

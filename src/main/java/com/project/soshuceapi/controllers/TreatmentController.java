@@ -2,6 +2,7 @@ package com.project.soshuceapi.controllers;
 
 import com.project.soshuceapi.common.Constants;
 import com.project.soshuceapi.common.ResponseMessage;
+import com.project.soshuceapi.exceptions.BadRequestException;
 import com.project.soshuceapi.models.DTOs.TotalAmountStatisticDTO;
 import com.project.soshuceapi.models.DTOs.TreatmentDTO;
 import com.project.soshuceapi.models.requests.TotalTreatmentCostSearchRequest;
@@ -35,7 +36,7 @@ public class TreatmentController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getPets(
+    public ResponseEntity<?> getTreatments(
             @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
             @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
             @RequestParam(value = "status", defaultValue = "", required = false) Boolean status,
@@ -63,7 +64,7 @@ public class TreatmentController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getPet(@PathVariable String id) {
+    public ResponseEntity<?> getTreatment(@PathVariable String id) {
         Response<TreatmentDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -116,7 +117,7 @@ public class TreatmentController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createPet(@Valid @ModelAttribute TreatmentCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> createTreatment(@Valid @ModelAttribute TreatmentCreateRequest request, BindingResult bindingResult) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -134,6 +135,9 @@ public class TreatmentController {
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -142,7 +146,7 @@ public class TreatmentController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updatePet(@PathVariable String id, @Valid @RequestBody TreatmentUpdateRequest request,
+    public ResponseEntity<?> updateTreatment(@PathVariable String id, @Valid @RequestBody TreatmentUpdateRequest request,
                                        BindingResult bindingResult) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
@@ -159,12 +163,19 @@ public class TreatmentController {
                 response.setMessage(ResponseMessage.Treatment.NOT_MATCH);
                 return ResponseEntity.badRequest().body(response);
             }
+            if (request.getStartDate().isBefore(request.getEndDate())) {
+                response.setMessage(ResponseMessage.Treatment.INVALID_DATE);
+                return ResponseEntity.badRequest().body(response);
+            }
             request.setUpdatedBy(auditorAware.getCurrentAuditor().get());
             treatmentService.update(request);
             response.setData(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             response.setSuccess(true);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -173,7 +184,7 @@ public class TreatmentController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deletePet(@PathVariable String id) {
+    public ResponseEntity<?> deleteTreatment(@PathVariable String id) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -190,6 +201,9 @@ public class TreatmentController {
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);
+        } catch (BadRequestException e) {
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             response.setMessage(ResponseMessage.Common.SERVER_ERROR);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
