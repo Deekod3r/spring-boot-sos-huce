@@ -21,7 +21,7 @@ public interface LivingCostRepo extends JpaRepository<LivingCost, String> {
             "AND (cast(:toDate AS date) IS NULL OR lv.date <= :toDate) " +
             "AND (:category IS NULL OR lv.category = :category) " +
             "AND lv.isDeleted = FALSE " +
-            "ORDER BY lv.date DESC"
+            "ORDER BY lv.date DESC, lv.createdAt DESC"
     )
     Page<LivingCost> findAll(
             @Param("fromDate") LocalDate fromDate,
