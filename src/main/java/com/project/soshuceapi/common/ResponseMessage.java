@@ -269,6 +269,8 @@ public class ResponseMessage {
         public static final String MISSING_TYPE = "Thông tin loại điều trị không được bỏ trống";
         public static final String INVALID_TYPE = "Thông tin loại điều trị không hợp lệ";
         public static final String MISSING_STATUS = "Thông tin trạng thái thông tin điều trị không được bỏ trống";
+        public static final String INVALID_DATE = "Thông tin thời gian điều trị không hợp lệ";
+        public static final String CONFLICT_DATE = "Thông tin thời gian điều trị không hợp lệ so với thời gian tiếp nhận thú cưng";
     }
 
     public static class Feedback {

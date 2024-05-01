@@ -147,6 +147,12 @@ public class TreatmentService implements ITreatmentService {
                     if (Objects.equals(pet.getStatus(), Constants.PetStatus.DIED)) {
                         throw new BadRequestException(ResponseMessage.Pet.DIED);
                     }
+                    if (pet.getIntakeDate().isBefore(petDetail.getStartDate())) {
+                        throw new BadRequestException(ResponseMessage.Treatment.CONFLICT_DATE);
+                    }
+                    if (petDetail.getStartDate().isBefore(petDetail.getEndDate())) {
+                        throw new BadRequestException(ResponseMessage.Treatment.INVALID_DATE);
+                    }
                     treatment.setPet(pet);
                     treatment.setLocation(request.getLocation().trim());
                     treatment.setName(petDetail.getName().trim());
@@ -186,6 +192,9 @@ public class TreatmentService implements ITreatmentService {
         try {
             Treatment treatment = treatmentRepo.findById(request.getId())
                     .orElseThrow(() -> new BadRequestException(ResponseMessage.Treatment.NOT_FOUND));
+            if (treatment.getPet().getIntakeDate().isBefore(request.getStartDate())) {
+                throw new BadRequestException(ResponseMessage.Treatment.CONFLICT_DATE);
+            }
             logUpdate(treatment, request);
             treatment.setName(request.getName().trim());
             treatment.setStartDate(request.getStartDate());
