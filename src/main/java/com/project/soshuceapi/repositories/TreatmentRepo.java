@@ -20,7 +20,7 @@ public interface TreatmentRepo extends JpaRepository<Treatment, String> {
             "AND (:status IS NULL OR t.status = :status) " +
             "AND (:type IS NULL OR t.type = :type) " +
             "AND (:daysOfTreatment IS NULL OR t.endDate - t.startDate < :daysOfTreatment) " +
-            "AND t.pet.isDeleted = FALSE AND t.isDeleted = FALSE ORDER BY t.endDate DESC")
+            "AND t.pet.isDeleted = FALSE AND t.isDeleted = FALSE ORDER BY t.endDate DESC, t.createdAt DESC")
     Page<Treatment> findAll(
             @Param("petId") String petId,
             @Param("status") Boolean status,
