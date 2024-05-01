@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
 
@@ -48,13 +49,15 @@ public class PetController {
             @RequestParam(value = "vaccine", defaultValue = "", required = false) Integer vaccine,
             @RequestParam(value = "sterilization", defaultValue = "", required = false) Integer sterilization,
             @RequestParam(value = "rabies", defaultValue = "", required = false) Integer rabies,
-            @RequestParam(value = "adoptedBy", defaultValue = "", required = false) String adoptedBy
+            @RequestParam(value = "adoptedBy", defaultValue = "", required = false) String adoptedBy,
+            @RequestParam(value = "intakeDateFrom", defaultValue = "", required = false) LocalDate intakeDateFrom,
+            @RequestParam(value = "intakeDateTo", defaultValue = "", required = false) LocalDate intakeDateTo
     ) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
             response.setData(petService.getAll(PetSearchRequest.of(page, limit, name.trim(), breed.trim(), color.trim(), code.trim(), type, age,
-                    gender, status, diet, vaccine, sterilization, rabies, adoptedBy, fullData)));
+                    gender, status, diet, vaccine, sterilization, rabies, adoptedBy, intakeDateFrom, intakeDateTo , fullData)));
             response.setSuccess(true);
             response.setMessage(ResponseMessage.Common.SUCCESS);
             return ResponseEntity.ok(response);

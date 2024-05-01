@@ -17,8 +17,8 @@ import java.util.Optional;
 public interface LivingCostRepo extends JpaRepository<LivingCost, String> {
 
     @Query("SELECT lv FROM LivingCost lv " +
-            "WHERE (cast(:fromDate as date) IS NULL OR lv.date >= :fromDate) " +
-            "AND (cast(:toDate as date) IS NULL OR lv.date <= :toDate) " +
+            "WHERE (cast(:fromDate AS date) IS NULL OR lv.date >= :fromDate) " +
+            "AND (cast(:toDate AS date) IS NULL OR lv.date <= :toDate) " +
             "AND (:category IS NULL OR lv.category = :category) " +
             "AND lv.isDeleted = FALSE " +
             "ORDER BY lv.date DESC"
@@ -69,11 +69,11 @@ public interface LivingCostRepo extends JpaRepository<LivingCost, String> {
             "GROUP BY " +
             "    year, " +
             "    month," +
-            "    category " +
+            "    lv.category " +
             "ORDER BY " +
             "    EXTRACT(YEAR FROM lv.date), " +
             "    EXTRACT(MONTH FROM lv.date), " +
-            "    category "
+            "    lv.category "
     )
     List<Object[]> calTotalLivingCostByCategoryAndMonth(
             @Param("year") Integer year,

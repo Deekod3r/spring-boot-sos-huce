@@ -18,14 +18,19 @@ import java.util.Optional;
 @Repository
 public interface AdoptRepo extends JpaRepository<Adopt, String> {
 
-    @NonNull
-    @Query("SELECT a FROM Adopt a " +
-            "JOIN FETCH a.pet " +
-            "JOIN FETCH a.createdBy " +
-            "JOIN FETCH a.registeredBy " +
-            "LEFT JOIN FETCH a.confirmedBy " +
-            "LEFT JOIN FETCH a.rejectedBy " +
-            "WHERE a.isDeleted = false AND a.pet.isDeleted = false " +
+    @Query("SELECT a.id, a.code, a.wardId, a.districtId, a.provinceId, a.fee, a.address, a.status, a.reason, a.confirmedAt, " +
+            "a.rejectedAt, a.rejectedReason, a.createdAt, a.pet.id AS petId, CONCAT(a.pet.name, ' - ', a.pet.code) AS petName, " +
+            "a.createdBy.id AS createdBy, CONCAT(a.createdBy.role, ' - ', a.createdBy.name) AS nameCreatedBy, " +
+            "a.registeredBy.id AS registeredBy, a.registeredBy.name AS nameRegisteredBy, a.registeredBy.email AS emailRegisteredBy, " +
+            "a.registeredBy.phoneNumber AS phoneRegisteredBy, a.confirmedBy.id AS confirmedBy, a.confirmedBy.name AS nameConfirmedBy, " +
+            "a.rejectedBy.id AS rejectedBy, a.rejectedBy.name AS nameRejectedBy, " +
+            "(SELECT w.name FROM Ward w WHERE w.id = a.wardId) AS wardName, " +
+            "(SELECT d.name FROM District d WHERE d.id = a.districtId) AS districtName, " +
+            "(SELECT p.name FROM Province p WHERE p.id = a.provinceId) AS provinceName " +
+            "FROM Adopt a " +
+            "LEFT JOIN a.confirmedBy " +
+            "LEFT JOIN a.rejectedBy " +
+            "WHERE a.isDeleted = FALSE AND a.pet.isDeleted = FALSE " +
             "AND (:status IS NULL OR a.status = :status) " +
             "AND (:code = '' OR a.code ILIKE CONCAT('%', :code, '%')) " +
             "AND (cast(:fromDate AS timestamp) IS NULL OR a.createdAt >= :fromDate ) " +
@@ -33,7 +38,7 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "AND (:registeredBy = '' OR a.registeredBy.id = :registeredBy) " +
             "AND (:petAdopt = '' OR a.pet.id = :petAdopt) " +
             "ORDER BY a.createdAt DESC, a.updatedAt DESC")
-    Page<Adopt> findAll(
+    Page<Object[]> findAll(
             @Param("status") Integer status,
             @Param("code") String code,
             @Param("fromDate") LocalDateTime fromDate,

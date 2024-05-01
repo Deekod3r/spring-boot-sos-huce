@@ -18,8 +18,8 @@ public interface NewsRepo extends JpaRepository<News, String> {
             "WHERE (:title = '' OR n.title ILIKE CONCAT('%', :title, '%')) " +
             "AND (:categoryId = '' OR n.newsCategory.id = :categoryId) " +
             "AND (:status IS NULL OR n.status = :status) " +
-            "AND (cast(:fromDate as timestamp) IS NULL OR n.createdAt >= :fromDate ) " +
-            "AND (cast(:toDate as timestamp) IS NULL OR n.createdAt <= :toDate )" +
+            "AND (cast(:fromDate AS timestamp) IS NULL OR n.createdAt >= :fromDate ) " +
+            "AND (cast(:toDate AS timestamp) IS NULL OR n.createdAt <= :toDate )" +
             "ORDER BY n.createdAt DESC"
     )
     Page<Object[]> findAll(

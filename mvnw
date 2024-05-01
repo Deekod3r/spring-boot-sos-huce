@@ -92,7 +92,7 @@ fi
 if [ -z "$JAVA_HOME" ]; then
   javaExecutable="$(which javac)"
   if [ -n "$javaExecutable" ] && ! [ "$(expr "\"$javaExecutable\"" : '\([^ ]*\)')" = "no" ]; then
-    # readlink(1) is not available as standard on Solaris 10.
+    # readlink(1) is not available AS standard on Solaris 10.
     readLink=$(which readlink)
     if [ ! "$(expr "$readLink" : '\([^ ]*\)')" = "no" ]; then
       if $darwin ; then
@@ -199,7 +199,7 @@ else
       wrapperUrl="https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.2.0/maven-wrapper-3.2.0.jar"
     fi
     while IFS="=" read -r key value; do
-      # Remove '\r' from value to allow usage on windows as IFS does not consider '\r' as a separator ( considers space, tab, new line ('\n'), and custom '=' )
+      # Remove '\r' from value to allow usage on windows AS IFS does not consider '\r' AS a separator ( considers space, tab, new line ('\n'), and custom '=' )
       safeValue=$(echo "$value" | tr -d '\r')
       case "$key" in (wrapperUrl) wrapperUrl="$safeValue"; break ;;
       esac

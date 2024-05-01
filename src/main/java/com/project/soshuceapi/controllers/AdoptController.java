@@ -35,7 +35,6 @@ public class AdoptController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    //@PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
     public ResponseEntity<?> getAdopts(@RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
                                        @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
                                        @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,

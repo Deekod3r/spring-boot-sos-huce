@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
@@ -26,6 +28,8 @@ public class PetSearchRequest {
     Integer sterilization;
     Integer rabies;
     String adoptedBy;
+    LocalDate intakeDateFrom;
+    LocalDate intakeDateTo;
     Boolean fullData;
 }
 

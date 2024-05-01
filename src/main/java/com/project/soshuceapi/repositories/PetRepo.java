@@ -36,6 +36,8 @@ public interface PetRepo extends JpaRepository<Pet, String> {
             "AND (:sterilization IS NULL OR p.sterilization = :sterilization) " +
             "AND (:rabies IS NULL OR p.rabies = :rabies) " +
             "AND (:adoptedBy = '' OR p.adoptedBy.id = :adoptedBy) " +
+            "AND (cast(:intakeDateFrom AS date) IS NULL OR p.intakeDate >= :intakeDateFrom) " +
+            "AND (cast(:intakeDateTo AS date) IS NULL OR p.intakeDate <= :intakeDateTo) " +
             "ORDER BY p.createdAt DESC,  p.updatedAt DESC ")
     Page<Pet> findAll(
             @Param("name") String name,
@@ -51,6 +53,8 @@ public interface PetRepo extends JpaRepository<Pet, String> {
             @Param("sterilization") Integer sterilization,
             @Param("rabies") Integer rabies,
             @Param("adoptedBy") String adoptedBy,
+            @Param("intakeDateFrom") LocalDate intakeDateFrom,
+            @Param("intakeDateTo") LocalDate intakeDateTo,
             Pageable pageable
     );
 
@@ -69,7 +73,7 @@ public interface PetRepo extends JpaRepository<Pet, String> {
             "SUM(CASE WHEN status = 4 THEN 1 ELSE 0 END) AS wait " +
             "FROM pets " +
             "WHERE is_deleted = FALSE " +
-            "AND (cast(:date as date) IS NULL OR intake_date <= :date)",
+            "AND (cast(:date AS date) IS NULL OR intake_date <= :date)",
         nativeQuery = true)
     Map<String, Long> getCountsByStatus(@Param("date") LocalDate date);
 

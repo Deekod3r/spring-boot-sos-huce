@@ -56,7 +56,7 @@ public class PetService implements IPetService {
             Page<Pet> pets = petRepo.findAll(request.getName(), request.getBreed(), request.getColor(),
                     request.getCode(), request.getType(), request.getAge(), request.getGender(),
                     request.getStatus(), request.getDiet(), request.getVaccine(), request.getSterilization(),
-                    request.getRabies(), request.getAdoptedBy(),
+                    request.getRabies(), request.getAdoptedBy(), request.getIntakeDateFrom(), request.getIntakeDateTo(),
                     request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1));
             return Map.of(
                     "pets", pets.getContent().stream()

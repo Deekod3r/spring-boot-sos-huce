@@ -19,8 +19,8 @@ public interface DonateRepo extends JpaRepository<Donate, String> {
     @Query("SELECT d FROM Donate d " +
             "WHERE (:remitter = '' OR d.remitter ILIKE CONCAT('%', :remitter, '%')) " +
             "AND (:payee = '' OR d.payee ILIKE CONCAT('%', :payee, '%')) " +
-            "AND (cast(:fromDate as date) IS NULL OR d.date >= :fromDate ) " +
-            "AND (cast(:toDate as date) IS NULL OR d.date <= :toDate ) " +
+            "AND (cast(:fromDate AS date) IS NULL OR d.date >= :fromDate ) " +
+            "AND (cast(:toDate AS date) IS NULL OR d.date <= :toDate ) " +
             "AND d.isDeleted = FALSE " +
             "ORDER BY d.date DESC"
     )

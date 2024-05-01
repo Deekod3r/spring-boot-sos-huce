@@ -52,16 +52,47 @@ public class AdoptService implements IAdoptService {
     @Override
     public Map<String, Object> getAll(AdoptSearchRequest request) {
         try {
-            Page<Adopt> adopts = adoptRepo.findAll(
+            Page<Object[]> adopts = adoptRepo.findAll(
                     request.getStatus(), request.getCode(),
                     DataUtil.parseLocalDateTime(request.getFromDate()),
                     DataUtil.parseLocalDateTime(request.getToDate()),
                     request.getRegisteredBy(), request.getPetAdopt(),
                     request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
-            List<Adopt> adoptList = adopts.getContent();
             List<AdoptDTO> adoptDTOS = adopts.getContent().stream()
-                    .map(this::parseAdoptDTO).toList();
+                    .map(adopt -> {
+                        AdoptDTO adoptDTO = new AdoptDTO();
+                        adoptDTO.setId(DataUtil.parseString(adopt[0]));
+                        adoptDTO.setCode(DataUtil.parseString(adopt[1]));
+                        adoptDTO.setWardId(DataUtil.parseInteger(adopt[2]));
+                        adoptDTO.setDistrictId(DataUtil.parseInteger(adopt[3]));
+                        adoptDTO.setProvinceId(DataUtil.parseInteger(adopt[4]));
+                        adoptDTO.setFee(DataUtil.parseBigDecimal(adopt[5]));
+                        adoptDTO.setAddress(DataUtil.parseString(adopt[6]));
+                        adoptDTO.setStatus(DataUtil.parseInteger(adopt[7]));
+                        adoptDTO.setReason(DataUtil.parseString(adopt[8]));
+                        adoptDTO.setConfirmedAt(DataUtil.parseLocalDateTime(adopt[9]));
+                        adoptDTO.setRejectedAt(DataUtil.parseLocalDateTime(adopt[10]));
+                        adoptDTO.setRejectedReason(DataUtil.parseString(adopt[11]));
+                        adoptDTO.setCreatedAt(DataUtil.parseLocalDateTime(adopt[12]));
+                        adoptDTO.setPetId(DataUtil.parseString(adopt[13]));
+                        adoptDTO.setPetName(DataUtil.parseString(adopt[14]));
+                        adoptDTO.setCreatedBy(DataUtil.parseString(adopt[15]));
+                        adoptDTO.setNameCreatedBy(DataUtil.parseString(adopt[16]));
+                        adoptDTO.setRegisteredBy(DataUtil.parseString(adopt[17]));
+                        adoptDTO.setNameRegisteredBy(DataUtil.parseString(adopt[18]));
+                        adoptDTO.setEmailRegisteredBy(DataUtil.parseString(adopt[19]));
+                        adoptDTO.setPhoneRegisteredBy(DataUtil.parseString(adopt[20]));
+                        adoptDTO.setConfirmedBy(DataUtil.parseString(adopt[21]));
+                        adoptDTO.setNameConfirmedBy(DataUtil.parseString(adopt[22]));
+                        adoptDTO.setRejectedBy(DataUtil.parseString(adopt[23]));
+                        adoptDTO.setNameRejectedBy(DataUtil.parseString(adopt[24]));
+                        adoptDTO.setWardName(DataUtil.parseString(adopt[25]));
+                        adoptDTO.setDistrictName(DataUtil.parseString(adopt[26]));
+                        adoptDTO.setProvinceName(DataUtil.parseString(adopt[27]));
+                        return adoptDTO;
+                    })
+                    .toList();
             return Map.of(
                     "adopts", adoptDTOS,
                     "totalElements", adopts.getTotalElements(),
