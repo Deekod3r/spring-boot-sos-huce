@@ -162,7 +162,8 @@ public interface AdoptRepo extends JpaRepository<Adopt, String> {
             "            (SELECT CAST((config_values.value || ' days') AS INTERVAL) " +
             "             FROM config_values " +
             "             WHERE config_values.key_cv = 'DEAD_NIGHT')" +
-            ") ORDER BY adopts.confirmed_at DESC", nativeQuery = true)
+            ")  AND (SELECT COUNT(1) FROM pet_care_logs WHERE adopt_id = adopts.id) < 3 " +
+            "   ORDER BY adopts.confirmed_at DESC", nativeQuery = true)
     List<Object[]> findAdoptsNearLog();
 
 
