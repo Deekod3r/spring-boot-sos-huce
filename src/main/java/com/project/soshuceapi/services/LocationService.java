@@ -34,7 +34,7 @@ public class LocationService implements ILocationService {
             return provinceRepo.findAll();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -47,7 +47,7 @@ public class LocationService implements ILocationService {
             return districtRepo.findAllByProvince(provinceId);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -60,7 +60,7 @@ public class LocationService implements ILocationService {
             return wardRepo.findAllByDistrict(districtId);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -70,7 +70,7 @@ public class LocationService implements ILocationService {
             return provinceRepo.findById(id).orElseThrow(() ->
                     new RuntimeException(ResponseMessage.Location.GET_INFO_PROVINCE_FAIL));
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -80,7 +80,7 @@ public class LocationService implements ILocationService {
             return districtRepo.findById(id).orElseThrow(() ->
                     new RuntimeException(ResponseMessage.Location.GET_INFO_DISTRICT_FAIL));
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -90,7 +90,7 @@ public class LocationService implements ILocationService {
             return wardRepo.findById(id).orElseThrow(() ->
                     new RuntimeException(ResponseMessage.Location.GET_INFO_WARD_FAIL));
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

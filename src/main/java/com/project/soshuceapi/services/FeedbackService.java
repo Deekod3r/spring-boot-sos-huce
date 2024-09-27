@@ -28,7 +28,7 @@ public class FeedbackService implements IFeedbackService {
             return feedbackRepo.findAll(request.getFromDate(), request.getToDate());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -45,7 +45,7 @@ public class FeedbackService implements IFeedbackService {
             feedbackRepo.save(feedback);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

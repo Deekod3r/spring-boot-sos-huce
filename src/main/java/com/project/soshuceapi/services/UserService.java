@@ -62,7 +62,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -84,7 +84,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -116,7 +116,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -151,7 +151,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -186,7 +186,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -221,7 +221,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -262,7 +262,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -301,7 +301,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -339,7 +339,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -365,7 +365,7 @@ public class UserService implements IUserService {
             );
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -379,7 +379,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -390,7 +390,7 @@ public class UserService implements IUserService {
                     userMapper.mapTo(user, UserDTO.class)).orElse(null);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -401,7 +401,7 @@ public class UserService implements IUserService {
                     userMapper.mapTo(user, UserDTO.class)).orElse(null);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -412,7 +412,7 @@ public class UserService implements IUserService {
                     userMapper.mapTo(user, UserDTO.class)).orElse(null);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -421,7 +421,7 @@ public class UserService implements IUserService {
         try {
             return userRepo.countByPhoneNumberOrEmail(phoneNumber, email) > 0;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -435,7 +435,7 @@ public class UserService implements IUserService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

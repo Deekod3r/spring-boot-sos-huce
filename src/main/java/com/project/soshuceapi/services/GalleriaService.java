@@ -46,7 +46,7 @@ public class GalleriaService implements IGalleriaService {
                     .toList();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -59,7 +59,7 @@ public class GalleriaService implements IGalleriaService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -82,7 +82,7 @@ public class GalleriaService implements IGalleriaService {
             logCreate(galleriaRepo.save(galleria));
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -105,7 +105,7 @@ public class GalleriaService implements IGalleriaService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -139,7 +139,7 @@ public class GalleriaService implements IGalleriaService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -196,7 +196,7 @@ public class GalleriaService implements IGalleriaService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

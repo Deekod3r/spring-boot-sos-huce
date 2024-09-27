@@ -43,7 +43,7 @@ public class ConfigService implements IConfigService {
             return configRepo.findAll();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -62,7 +62,7 @@ public class ConfigService implements IConfigService {
                     .build();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -72,7 +72,7 @@ public class ConfigService implements IConfigService {
             return configValueRepo.findAllByConfig(keyConfig);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -115,7 +115,7 @@ public class ConfigService implements IConfigService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

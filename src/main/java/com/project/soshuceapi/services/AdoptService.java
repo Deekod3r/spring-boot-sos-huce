@@ -103,7 +103,7 @@ public class AdoptService implements IAdoptService {
             );
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -120,7 +120,7 @@ public class AdoptService implements IAdoptService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -166,7 +166,7 @@ public class AdoptService implements IAdoptService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -193,7 +193,7 @@ public class AdoptService implements IAdoptService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -231,7 +231,7 @@ public class AdoptService implements IAdoptService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -296,7 +296,7 @@ public class AdoptService implements IAdoptService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -331,7 +331,7 @@ public class AdoptService implements IAdoptService {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -341,7 +341,7 @@ public class AdoptService implements IAdoptService {
             return adoptRepo.countAll(userId);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -358,7 +358,7 @@ public class AdoptService implements IAdoptService {
                     .toList();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -383,7 +383,7 @@ public class AdoptService implements IAdoptService {
                     .toList();
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

@@ -46,7 +46,7 @@ public class ActionLogService implements IActionLogService {
         } catch (Exception e) {
             log.error(TAG + ": error.create.action.log");
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -57,7 +57,7 @@ public class ActionLogService implements IActionLogService {
         } catch (Exception e) {
             log.error(TAG + ": error.create.action.log.detail");
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

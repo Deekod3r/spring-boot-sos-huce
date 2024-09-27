@@ -41,7 +41,7 @@ public class LogoutService implements LogoutHandler {
             }
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
