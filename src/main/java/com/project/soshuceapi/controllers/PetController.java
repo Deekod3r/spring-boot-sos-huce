@@ -33,7 +33,7 @@ public class PetController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getPets(
+    public ResponseEntity<Response<Map<String, Object>>> getPets(
             @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
             @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
             @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
@@ -51,8 +51,8 @@ public class PetController {
             @RequestParam(value = "rabies", defaultValue = "", required = false) Integer rabies,
             @RequestParam(value = "adoptedBy", defaultValue = "", required = false) String adoptedBy,
             @RequestParam(value = "intakeDateFrom", defaultValue = "", required = false) LocalDate intakeDateFrom,
-            @RequestParam(value = "intakeDateTo", defaultValue = "", required = false) LocalDate intakeDateTo
-    ) {
+            @RequestParam(value = "intakeDateTo", defaultValue = "", required = false) LocalDate intakeDateTo)
+    {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -68,7 +68,8 @@ public class PetController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPetById(@PathVariable("id") String id) {
+    public ResponseEntity<Response<PetDTO>> getPetById(@PathVariable("id") String id)
+    {
         Response<PetDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -90,9 +91,9 @@ public class PetController {
     }
 
     @GetMapping("/statistic-cases")
-    public ResponseEntity<?> getStatisticStatus(
-            @RequestParam(value = "compare", defaultValue = "false", required = false) Boolean compare
-    ) {
+    public ResponseEntity<Response<Map<String, Long>>> getStatisticStatus(
+            @RequestParam(value = "compare", defaultValue = "false", required = false) Boolean compare)
+    {
         Response<Map<String, Long>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -108,7 +109,9 @@ public class PetController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createPet(@Valid @ModelAttribute PetCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> createPet(
+            @Valid @ModelAttribute PetCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -134,8 +137,10 @@ public class PetController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updatePet(@Valid @RequestBody PetUpdateRequest request, BindingResult bindingResult,
-                                       @PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> updatePet(
+            @Valid @RequestBody PetUpdateRequest request, BindingResult bindingResult,
+            @PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -168,8 +173,10 @@ public class PetController {
 
     @PutMapping("/update-image/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateImagePet(@Valid @ModelAttribute PetUpdateImageRequest request, BindingResult bindingResult,
-                                            @PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> updateImagePet(
+            @Valid @ModelAttribute PetUpdateImageRequest request, BindingResult bindingResult,
+            @PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -202,7 +209,8 @@ public class PetController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deletePet(@PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> deletePet(@PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

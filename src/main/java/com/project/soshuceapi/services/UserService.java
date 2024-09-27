@@ -30,7 +30,7 @@ import java.util.Objects;
 @Slf4j
 public class UserService implements IUserService {
 
-    private final static String TAG = "USER";
+    private static final String TAG = "USER";
 
     @Autowired
     private UserRepo userRepo;
@@ -45,7 +45,7 @@ public class UserService implements IUserService {
     @Transactional
     public void create(UserCreateRequest request) {
         try {
-            if (isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())) {
+            if (Boolean.TRUE.equals(isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail()))) {
                 throw new BadRequestException(ResponseMessage.User.USER_EXISTED);
             }
             request.setPhoneNumber(request.getPhoneNumber().trim());
@@ -352,7 +352,9 @@ public class UserService implements IUserService {
                     request.getPhoneNumber(),
                     request.getIsActivated(),
                     request.getRole(),
-                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
+                    Boolean.TRUE.equals(request.getFullData())
+                            ? Pageable.unpaged()
+                            : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             return Map.of(
                     "users", users.getContent().stream().map(user ->

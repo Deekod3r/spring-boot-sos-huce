@@ -69,4 +69,5 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             new ObjectMapper().writeValue(response.getOutputStream(), Map.of("error", e.getMessage()));
         }
     }
+
 }

@@ -28,7 +28,9 @@ public class AuthController {
     private IAuthService authService;
 
     @PostMapping(value = "/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
+    public ResponseEntity<Response<Map<String, Object>>> login(
+            @Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult)
+    {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {

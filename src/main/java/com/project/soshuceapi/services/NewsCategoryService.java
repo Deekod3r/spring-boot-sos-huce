@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Service
 public class NewsCategoryService implements INewsCategoryService {
 
-    private final String TAG = "NEWS_CATEGORY";
+    private static final String TAG = "NEWS_CATEGORY";
 
     @Autowired
     private NewsCategoryRepo newsCategoryRepo;

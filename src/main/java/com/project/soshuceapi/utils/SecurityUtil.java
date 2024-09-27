@@ -9,6 +9,9 @@ import java.util.Objects;
 
 public class SecurityUtil {
 
+    private SecurityUtil() {
+    }
+
     public static boolean checkRole(String role) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();

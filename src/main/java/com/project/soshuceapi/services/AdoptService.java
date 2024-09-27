@@ -36,7 +36,7 @@ import java.util.*;
 @Slf4j
 public class AdoptService implements IAdoptService {
 
-    private final String TAG = "ADOPT";
+    private static final String TAG = "ADOPT";
 
     @Autowired
     private AdoptRepo adoptRepo;
@@ -57,7 +57,9 @@ public class AdoptService implements IAdoptService {
                     DataUtil.parseLocalDateTime(request.getFromDate()),
                     DataUtil.parseLocalDateTime(request.getToDate()),
                     request.getRegisteredBy(), request.getPetAdopt(),
-                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
+                    Boolean.TRUE.equals(request.getFullData())
+                            ? Pageable.unpaged()
+                            : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             List<AdoptDTO> adoptDTOS = adopts.getContent().stream()
                     .map(adopt -> {
@@ -110,10 +112,10 @@ public class AdoptService implements IAdoptService {
         try {
             Adopt adopt = adoptRepo.findById(id).orElseThrow(
                     () -> new BadRequestException(ResponseMessage.Adopt.NOT_FOUND));
-            return new HashMap<>() {{
-                put("adopt", parseAdoptDTO(adopt));
-                put("pet", petService.parsePetDTO(adopt.getPet()));
-            }};
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("adopt", parseAdoptDTO(adopt));
+            resultMap.put("pet", petService.parsePetDTO(adopt.getPet()));
+            return resultMap;
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
@@ -121,6 +123,7 @@ public class AdoptService implements IAdoptService {
             throw new RuntimeException(e.getMessage());
         }
     }
+
 
     @Override
     @Transactional
@@ -409,7 +412,6 @@ public class AdoptService implements IAdoptService {
         adoptDTO.setRejectedAt(adopt.getRejectedAt());
         adoptDTO.setRejectedReason(adopt.getRejectedReason());
         adoptDTO.setCreatedAt(adopt.getCreatedAt());
-
         adoptDTO.setPetId(adopt.getPet().getId());
         adoptDTO.setPetName(adopt.getPet().getCode() + " - " + adopt.getPet().getName());
         adoptDTO.setCreatedBy(adopt.getCreatedBy().getId());

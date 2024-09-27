@@ -29,7 +29,9 @@ public class FileController {
 
     @PostMapping("/upload")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> uploadMultipleFiles(@Valid @ModelAttribute ImageCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> uploadMultipleFiles(
+            @Valid @ModelAttribute ImageCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -55,7 +57,8 @@ public class FileController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deleteFile(@PathVariable String id) {
+    public ResponseEntity<Response<Boolean>> deleteFile(@PathVariable String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

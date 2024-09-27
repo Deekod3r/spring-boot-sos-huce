@@ -49,7 +49,9 @@ public class DonateService implements IDonateService {
                     request.getPayee(),
                     request.getFromDate(),
                     request.getToDate(),
-                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
+                    Boolean.TRUE.equals(request.getFullData())
+                            ? Pageable.unpaged()
+                            : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             return Map.of(
                     "donates", donates.getContent().stream()

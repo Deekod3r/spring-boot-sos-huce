@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class EmailService implements IEmailService {
 
-    private final static String TAG = "EMAIL";
+    private static final String TAG = "EMAIL";
 
     @Autowired
     private JavaMailSender emailSender;

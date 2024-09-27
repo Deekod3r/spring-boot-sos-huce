@@ -34,15 +34,15 @@ public class DonateController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getDonates(
+    public ResponseEntity<Response<Map<String, Object>>> getDonates(
             @RequestParam(value = "remitter", defaultValue = "", required = false) String remitter,
             @RequestParam(value = "payee", defaultValue = "", required = false) String payee,
             @RequestParam(value = "fromDate", defaultValue = "", required = false) LocalDate fromDate,
             @RequestParam(value = "toDate", defaultValue = "", required = false) LocalDate toDate,
             @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
             @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-            @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData
-    ) {
+            @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData)
+    {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -58,7 +58,8 @@ public class DonateController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getDonateById(@PathVariable("id") String id) {
+    public ResponseEntity<Response<DonateDTO>> getDonateById(@PathVariable("id") String id)
+    {
         Response<DonateDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -78,9 +79,9 @@ public class DonateController {
 
     @GetMapping("/total")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getTotalDonation(
-            @RequestParam(value = "year", defaultValue = "") Integer year
-    ) {
+    public ResponseEntity<Response<List<TotalAmountStatisticDTO>>> getTotalDonation(
+            @RequestParam(value = "year", defaultValue = "") Integer year)
+    {
         Response<List<TotalAmountStatisticDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -96,7 +97,9 @@ public class DonateController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createDonate(@Valid @RequestBody DonateCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> createDonate(
+            @Valid @RequestBody DonateCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -122,8 +125,10 @@ public class DonateController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateDonate(@PathVariable("id") String id,
-                                          @Valid @RequestBody DonateUpdateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updateDonate(
+            @PathVariable("id") String id,
+            @Valid @RequestBody DonateUpdateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -153,7 +158,8 @@ public class DonateController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deleteDonate(@PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> deleteDonate(@PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

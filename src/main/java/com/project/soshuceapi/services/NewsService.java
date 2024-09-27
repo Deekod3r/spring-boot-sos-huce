@@ -32,7 +32,7 @@ import java.util.*;
 @Service
 public class NewsService implements INewsService {
 
-    private final String TAG = "NEWS";
+    private static final String TAG = "NEWS";
 
     @Autowired
     private NewsRepo newsRepo;
@@ -50,11 +50,12 @@ public class NewsService implements INewsService {
                     request.getTitle(), request.getCategoryId(), request.getStatus(),
                     DataUtil.parseLocalDateTime(request.getFromDate()),
                     DataUtil.parseLocalDateTime(request.getToDate()),
-                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
+                    Boolean.TRUE.equals(request.getFullData())
+                            ? Pageable.unpaged()
+                            : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             List<NewsDTO> newsDTOs = new ArrayList<>();
-            for (Object object : news.getContent()) {
-                Object[] item = (Object[]) object;
+            for (Object[] item : news.getContent()) {
                 NewsDTO newsDTO = NewsDTO.builder()
                         .id(DataUtil.parseString(item[0]))
                         .title(DataUtil.parseString(item[1]))

@@ -16,7 +16,7 @@ public class LocationController {
     private ILocationService locationService;
 
     @GetMapping("/provinces")
-    public ResponseEntity<?> getAllProvince() {
+    public ResponseEntity<Object> getAllProvince() {
         try {
             return ResponseEntity.ok(locationService.getAllProvinces());
         } catch (Exception e) {
@@ -25,8 +25,9 @@ public class LocationController {
     }
 
     @GetMapping("/districts")
-    public ResponseEntity<?> getAllDistrict(@RequestParam(value = "provinceId", required = false, defaultValue = "0")
-                                                 int provinceId) {
+    public ResponseEntity<Object> getAllDistrict(
+            @RequestParam(value = "provinceId", required = false, defaultValue = "0") int provinceId)
+    {
         try {
             return ResponseEntity.ok(locationService.getAllDistricts(provinceId));
         } catch (Exception e) {
@@ -35,8 +36,9 @@ public class LocationController {
     }
 
     @GetMapping("/wards")
-    public ResponseEntity<?> getAllWard(@RequestParam(value = "districtId", required = false, defaultValue = "0")
-                                             int districtId) {
+    public ResponseEntity<Object> getAllWard(
+            @RequestParam(value = "districtId", required = false, defaultValue = "0") int districtId)
+    {
         try {
             return ResponseEntity.ok(locationService.getAllWards(districtId));
         } catch (Exception e) {
@@ -45,7 +47,8 @@ public class LocationController {
     }
 
     @GetMapping("/province")
-    public ResponseEntity<?> getProvinceById(@RequestParam(value = "id") int id) {
+    public ResponseEntity<Object> getProvinceById(@RequestParam(value = "id") int id)
+    {
         try {
             return ResponseEntity.ok(locationService.getProvinceById(id));
         } catch (Exception e) {
@@ -54,7 +57,8 @@ public class LocationController {
     }
 
     @GetMapping("/district")
-    public ResponseEntity<?> getDistrictById(@RequestParam(value = "id") int id) {
+    public ResponseEntity<Object> getDistrictById(@RequestParam(value = "id") int id)
+    {
         try {
             return ResponseEntity.ok(locationService.getDistrictById(id));
         } catch (Exception e) {
@@ -63,7 +67,8 @@ public class LocationController {
     }
 
     @GetMapping("/ward")
-    public ResponseEntity<?> getWardById(@RequestParam(value = "id") int id) {
+    public ResponseEntity<Object> getWardById(@RequestParam(value = "id") int id)
+    {
         try {
             return ResponseEntity.ok(locationService.getWardById(id));
         } catch (Exception e) {

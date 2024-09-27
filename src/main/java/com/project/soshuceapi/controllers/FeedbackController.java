@@ -27,10 +27,10 @@ public class FeedbackController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getFeedbacks(
+    public ResponseEntity<Response<List<Feedback>>> getFeedbacks(
             @RequestParam(value = "fromDate") LocalDate fromDate,
-            @RequestParam(value = "toDate") LocalDate toDate
-    ) {
+            @RequestParam(value = "toDate") LocalDate toDate)
+    {
         Response<List<Feedback>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -45,7 +45,9 @@ public class FeedbackController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createFeedback(@Valid @RequestBody FeedbackCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<String>> createFeedback(
+            @Valid @RequestBody FeedbackCreateRequest request, BindingResult bindingResult)
+    {
         Response<String> response = new Response<>();
         response.setSuccess(false);
         try {

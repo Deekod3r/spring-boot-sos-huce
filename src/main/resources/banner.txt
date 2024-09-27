@@ -11,5 +11,6 @@ ${AnsiColor.RED}****************************************************************
 ${AnsiColor.RED}******************************************************************************************
 ${AnsiColor.BRIGHT_CYAN}Service: ${AnsiColor.RED}${application.name}${AnsiColor.WHITE}
 ${AnsiColor.BRIGHT_CYAN}Version: ${AnsiColor.RED}${application.version}${AnsiColor.WHITE}
-${AnsiColor.BRIGHT_CYAN}Powered by ${AnsiColor.RED}HUCE Tech ${AnsiColor.WHITE}<${AnsiColor.BRIGHT_CYAN}Spring Boot ${AnsiColor.RED}${spring-boot.version}${AnsiColor.WHITE}>
+${AnsiColor.BRIGHT_CYAN}Powered by ${AnsiColor.RED}HUCE Tech ${AnsiColor.BRIGHT_CYAN}with${AnsiColor.WHITE} <${AnsiColor.RED}Spring Boot ${spring-boot.version}${AnsiColor.WHITE}>
 ${AnsiColor.RED}******************************************************************************************
+${AnsiStyle.NORMAL}

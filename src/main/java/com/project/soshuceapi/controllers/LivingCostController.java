@@ -86,15 +86,15 @@ public class LivingCostController {
 
     @GetMapping("/total")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getTotalLivingCost(
+    public ResponseEntity<Response<List<TotalAmountStatisticDTO>>> getTotalLivingCost(
             @RequestParam(value = "year", defaultValue = "") Integer year,
             @RequestParam(value = "month", defaultValue = "", required = false) Integer month,
-            @RequestParam(value = "byCategory", required = false, defaultValue = "false") Boolean byCategory
-    ) {
+            @RequestParam(value = "byCategory", required = false, defaultValue = "false") Boolean byCategory)
+    {
         Response<List<TotalAmountStatisticDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
-            if (byCategory) {
+            if (Boolean.TRUE.equals(byCategory)) {
                 response.setData(
                         livingCostService.getTotalLivingCostByCategory(TotalLivingCostSearchRequest.builder()
                                 .year(year)
@@ -119,7 +119,9 @@ public class LivingCostController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> create(@Valid @ModelAttribute LivingCostCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> create(
+            @Valid @ModelAttribute LivingCostCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -145,8 +147,10 @@ public class LivingCostController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> update(@PathVariable String id,
-                                    @Valid @RequestBody LivingCostUpdateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> update(
+            @PathVariable String id,
+            @Valid @RequestBody LivingCostUpdateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -179,7 +183,7 @@ public class LivingCostController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> delete(@PathVariable String id) {
+    public ResponseEntity<Response<Boolean>> delete(@PathVariable String id) {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

@@ -2,18 +2,30 @@ package com.project.soshuceapi.common;
 
 public class ResponseMessage {
 
+    private ResponseMessage() {
+    }
+
     public static class Common {
+        private Common() {
+        }
+
         public static final String SERVER_ERROR = "Hệ thống đang gặp sự cố, vui lòng thử lại sau";
         public static final String SUCCESS = "Thành công";
     }
 
     public static class Authentication {
+        private Authentication() {
+        }
+
         public static final String VERIFY_CODE_EXPIRED = "Mã xác thực đã hết hạn";
         public static final String VERIFY_CODE_INCORRECT = "Mã xác thực không chính xác";
         public static final String PERMISSION_DENIED = "Không có quyền truy cập";
     }
 
     public static class User {
+        private User() {
+        }
+
         public static final String MISSING_PHONE_NUMBER = "Thông tin số điện thoaại không được bỏ trống";
         public static final String INVALID_PHONE_NUMBER = "Thông tin số điện thoại không hợp lệ";
         public static final String MISSING_NAME = "Thông tin họ và tên không được bỏ trống";
@@ -48,6 +60,9 @@ public class ResponseMessage {
     }
 
     public static class Pet {
+        private Pet() {
+        }
+
         public static final String MISSING_NAME = "Thông tin tên thú cưng không được bỏ trống";
         public static final String INVALID_NAME = "Thông tin tên thú cưng không hợp lệ";
         public static final String MISSING_TYPE = "Thông tin loại thú cưng không được bỏ trống";
@@ -95,6 +110,9 @@ public class ResponseMessage {
     }
 
     public static class Adopt {
+        private Adopt() {
+        }
+
         public static final String MISSING_WARD_ID = "Thông tin phường/xã không được bỏ trống";
         public static final String MISSING_DISTRICT_ID = "Thông tin quận/huyện không được bỏ trống";
         public static final String MISSING_PROVINCE_ID = "Thông tin tỉnh/thành phố không được bỏ trống";
@@ -120,6 +138,9 @@ public class ResponseMessage {
     }
 
     public static class PetCareLog {
+        private PetCareLog() {
+        }
+
         public static final String MISSING_DATE = "Thông tin ngày kiểm tra không được bỏ trống";
         public static final String INVALID_DATE = "Thông tin ngày kiểm tra không hợp lệ";
         public static final String MISSING_NOTE = "Thông tin ghi chú không được bỏ trống";
@@ -130,6 +151,9 @@ public class ResponseMessage {
     }
 
     public static class Galleria {
+        private Galleria() {
+        }
+
         public static final String MISSING_TITLE = "Thông tin tiêu đề không được bỏ trống";
         public static final String INVALID_TITLE = "Thông tin tiêu đề không hợp lệ";
         public static final String MISSING_DESCRIPTION = "Thông tin mô tả không được bỏ trống";
@@ -144,12 +168,18 @@ public class ResponseMessage {
     }
 
     public static class Location {
+        private Location() {
+        }
+
         public static final String GET_INFO_PROVINCE_FAIL = "Lấy thông tin tỉnh/thành phố thất bại";
         public static final String GET_INFO_DISTRICT_FAIL = "Lấy thông tin quận/huyện thất bại";
         public static final String GET_INFO_WARD_FAIL = "Lấy thông tin phường/xã thất bại";
     }
 
     public static class Config {
+        private Config() {
+        }
+
         public static final String MISSING_KEY = "Thông tin khóa cấu hình không được bỏ trống";
         public static final String INVALID_KEY = "Thông tin khóa cấu hình không hợp lệ";
         public static final String MISSING_DESCRIPTION = "Thông tin mô tả cấu hình không được bỏ trống";
@@ -165,6 +195,9 @@ public class ResponseMessage {
     }
 
     public static class Bank {
+        private Bank() {
+        }
+
         public static final String MISSING_NAME = "Thông tin tên tài khoản nhận hỗ trợ không được bỏ trống";
         public static final String INVALID_NAME = "Thông tin tên tài khoản nhận hỗ trợ không hợp lệ";
         public static final String MISSING_ACCOUNT_NUMBER = "Thông tin số tài khoản không được bỏ trống";
@@ -181,6 +214,9 @@ public class ResponseMessage {
     }
 
     public static class News {
+        private News() {
+        }
+
         public static final String MISSING_TITLE = "Thông tin tiêu đề tin tức không được bỏ trống";
         public static final String INVALID_TITLE = "Thông tin tiêu đề tin tức không hợp lệ";
         public static final String MISSING_CONTENT = "Thông tin nội dung tin tức không được bỏ trống";
@@ -197,6 +233,9 @@ public class ResponseMessage {
     }
 
     public static class NewsCategory {
+        private NewsCategory() {
+        }
+
         public static final String MISSING_NAME = "Thông tin tên danh mục tin tức không được bỏ trống";
         public static final String INVALID_NAME = "Thông tin tên danh mục tin tức không hợp lệ";
         public static final String MISSING_DESCRIPTION = "Thông tin mô tả danh mục tin tức không được bỏ trống";
@@ -208,6 +247,9 @@ public class ResponseMessage {
     }
 
     public static class Donate {
+        private Donate() {
+        }
+
         public static final String MISSING_REMITTER = "Thông tin người chuyển không được bỏ trống";
         public static final String MISSING_PAYEE = "Thông tin người nhận không được bỏ trống";
         public static final String MISSING_AMOUNT = "Thông tin số tiền không được bỏ trống";
@@ -222,6 +264,9 @@ public class ResponseMessage {
     }
 
     public static class LivingCost {
+        private LivingCost() {
+        }
+
         public static final String MISSING_NAME = "Thông tin tên chi phí không được bỏ trống";
         public static final String INVALID_NAME = "Thông tin tên chi phí không hợp lệ";
         public static final String MISSING_COST = "Thông tin số tiền chi phí không được bỏ trống";
@@ -237,6 +282,9 @@ public class ResponseMessage {
     }
 
     public static class Image {
+        private Image() {
+        }
+
         public static final String MISSING_IMAGES = "Thông tin hình ảnh không được bỏ trống";
         public static final String MISSING_OBJECT_ID = "Thông tin định danh đối tượng không được bỏ trống";
         public static final String MISSING_OBJECT_NAME = "Thông tin tên đối tượng không được bỏ trống";
@@ -244,6 +292,9 @@ public class ResponseMessage {
     }
 
     public static class Treatment {
+        private Treatment() {
+        }
+
         public static final String MISSING_NAME = "Thông tin tên điều trị không được bỏ trống";
         public static final String INVALID_NAME = "Thông tin tên điều trị không hợp lệ";
         public static final String MISSING_START_DATE = "Thông tin ngày bắt đầu không được bỏ trống";
@@ -274,6 +325,9 @@ public class ResponseMessage {
     }
 
     public static class Feedback {
+        private Feedback() {
+        }
+
         public static final String MISSING_FULL_NAME = "Thông tin họ và tên không được bỏ trống";
         public static final String INVALID_FULL_NAME = "Thông tin họ và tên không hợp lệ";
         public static final String MISSING_MESSAGE = "Thông tin nội dung phản hồi không được bỏ trống";

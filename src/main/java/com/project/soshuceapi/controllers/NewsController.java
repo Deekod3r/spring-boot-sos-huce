@@ -37,14 +37,16 @@ public class NewsController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getNews(@RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
-                                     @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-                                     @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
-                                     @RequestParam(value = "title", defaultValue = "", required = false) String title,
-                                     @RequestParam(value = "status", defaultValue = "", required = false) Boolean status,
-                                     @RequestParam(value = "categoryId", defaultValue = "", required = false) String categoryId,
-                                     @RequestParam(value = "fromDate", defaultValue = "", required = false) String fromDate,
-                                     @RequestParam(value = "toDate", defaultValue = "", required = false) String toDate) {
+    public ResponseEntity<Response<Map<String, Object>>> getNews(
+            @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
+            @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
+            @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
+            @RequestParam(value = "title", defaultValue = "", required = false) String title,
+            @RequestParam(value = "status", defaultValue = "", required = false) Boolean status,
+            @RequestParam(value = "categoryId", defaultValue = "", required = false) String categoryId,
+            @RequestParam(value = "fromDate", defaultValue = "", required = false) String fromDate,
+            @RequestParam(value = "toDate", defaultValue = "", required = false) String toDate)
+    {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -71,7 +73,8 @@ public class NewsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getNewsById(@PathVariable("id") String id) {
+    public ResponseEntity<Response<NewsDTO>> getNewsById(@PathVariable("id") String id)
+    {
         Response<NewsDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -80,7 +83,7 @@ public class NewsController {
                 return ResponseEntity.badRequest().body(response);
             }
             NewsDTO news = newsService.getById(id);
-            if (!news.getStatus()) {
+            if (Boolean.FALSE.equals(news.getStatus())) {
                 if (auditorAware.getCurrentAuditor().isEmpty()) {
                     response.setMessage(ResponseMessage.News.NOT_FOUND);
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -106,7 +109,9 @@ public class NewsController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createNews(@Valid @ModelAttribute NewsCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> createNews(
+            @Valid @ModelAttribute NewsCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -135,8 +140,10 @@ public class NewsController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateNews(@Valid @ModelAttribute NewsUpdateRequest request, BindingResult bindingResult,
-                                        @PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> updateNews(
+            @Valid @ModelAttribute NewsUpdateRequest request, BindingResult bindingResult,
+            @PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -169,8 +176,10 @@ public class NewsController {
 
     @PutMapping("/update-image/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateImageNews(@Valid @ModelAttribute NewsUpdateImageRequest request, BindingResult bindingResult,
-                                             @PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> updateImageNews(
+            @Valid @ModelAttribute NewsUpdateImageRequest request, BindingResult bindingResult,
+            @PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -203,7 +212,8 @@ public class NewsController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deleteNews(@PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> deleteNews(@PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -230,7 +240,8 @@ public class NewsController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<?> getCategories() {
+    public ResponseEntity<Response<List<NewsCategoryDTO>>> getCategories()
+    {
         Response<List<NewsCategoryDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -246,7 +257,8 @@ public class NewsController {
 
     @GetMapping("/categories/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getCategoryById(@PathVariable("id") String id) {
+    public ResponseEntity<Response<NewsCategoryDTO>> getCategoryById(@PathVariable("id") String id)
+    {
         Response<NewsCategoryDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -266,7 +278,9 @@ public class NewsController {
 
     @PostMapping("/categories/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createCategories(@Valid @RequestBody NewsCategoryCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> createCategories(
+            @Valid @RequestBody NewsCategoryCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -295,8 +309,10 @@ public class NewsController {
 
     @PutMapping("/categories/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateCategories(@Valid @RequestBody NewsCategoryUpdateRequest request, BindingResult bindingResult,
-                                              @PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> updateCategories(
+            @Valid @RequestBody NewsCategoryUpdateRequest request, BindingResult bindingResult,
+            @PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -329,7 +345,8 @@ public class NewsController {
 
     @DeleteMapping("/categories/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deleteCategories(@PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> deleteCategories(@PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

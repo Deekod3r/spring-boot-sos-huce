@@ -16,6 +16,9 @@ import java.util.Objects;
 
 public class DataUtil {
 
+    private DataUtil() {
+    }
+
     public static <T> String toJSON(T t) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -35,10 +38,10 @@ public class DataUtil {
     }
 
     public static String getIP() {
-        InetAddress IP = null;
+        InetAddress ip = null;
         try {
-            IP = InetAddress.getLocalHost();
-            return IP.getHostAddress();
+            ip = InetAddress.getLocalHost();
+            return ip.getHostAddress();
         } catch (UnknownHostException e) {
             return "UNKNOWN";
         }
@@ -66,7 +69,7 @@ public class DataUtil {
             }
             return null;
         } catch (DateTimeParseException e) {
-            throw new RuntimeException("Error when parsing date", e);
+            return null;
         }
     }
 
@@ -203,6 +206,5 @@ public class DataUtil {
     public static BigDecimal parseBigDecimal(Object obj) {
         return Objects.isNull(obj) ? null : new BigDecimal(obj.toString());
     }
-
 
 }

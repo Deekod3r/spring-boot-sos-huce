@@ -29,7 +29,7 @@ import java.util.Objects;
 @Slf4j
 public class GalleriaService implements IGalleriaService {
 
-    private final String TAG = "GALLERIA";
+    private static final String TAG = "GALLERIA";
 
     @Autowired
     private GalleriaRepo galleriaRepo;

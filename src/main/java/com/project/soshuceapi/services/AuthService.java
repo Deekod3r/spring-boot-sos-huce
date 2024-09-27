@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class AuthService implements IAuthService {
 
-    private final static String TAG = "AUTH";
+    private static final String TAG = "AUTH";
 
     @Autowired
     private IUserService userService;

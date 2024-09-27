@@ -35,25 +35,28 @@ public class AdoptController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getAdopts(@RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-                                       @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
-                                       @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
-                                       @RequestParam(value = "status", defaultValue = "", required = false) Integer status,
-                                       @RequestParam(value = "code", defaultValue = "", required = false) String code,
-                                       @RequestParam(value = "registeredBy", defaultValue = "", required = false) String registeredBy,
-                                       @RequestParam(value = "petAdopt", defaultValue = "", required = false) String petAdopt,
-                                       @RequestParam(value = "fromDate", defaultValue = "", required = false) String fromDate,
-                                       @RequestParam(value = "toDate", defaultValue = "", required = false) String toDate) {
+    public ResponseEntity<Response<Map<String, Object>>> getAdopts(
+            @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
+            @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
+            @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
+            @RequestParam(value = "status", defaultValue = "", required = false) Integer status,
+            @RequestParam(value = "code", defaultValue = "", required = false) String code,
+            @RequestParam(value = "registeredBy", defaultValue = "", required = false) String registeredBy,
+            @RequestParam(value = "petAdopt", defaultValue = "", required = false) String petAdopt,
+            @RequestParam(value = "fromDate", defaultValue = "", required = false) String fromDate,
+            @RequestParam(value = "toDate", defaultValue = "", required = false) String toDate)
+    {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
             if (auditorAware.getCurrentAuditor().isEmpty()) {
                 response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-            if (SecurityUtil.checkRole(Constants.User.KEY_ROLE + Constants.User.ROLE_USER)) {
-                registeredBy = auditorAware.getCurrentAuditor().get();
-                fullData = true;
+            } else {
+                if (SecurityUtil.checkRole(Constants.User.KEY_ROLE + Constants.User.ROLE_USER)) {
+                    registeredBy = auditorAware.getCurrentAuditor().get();
+                    fullData = true;
+                }
             }
             if (!StringUtil.isNullOrBlank(fromDate) && !DataUtil.isDate(fromDate, Constants.FormatPattern.LOCAL_DATETIME)) {
                 response.setMessage(ResponseMessage.Adopt.INVALID_SEARCH_DATE);
@@ -75,9 +78,8 @@ public class AdoptController {
 
     @GetMapping("/total-fee")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getTotalFeeAdopt(
-            @RequestParam(value = "year", defaultValue = "") Integer year
-    ) {
+    public ResponseEntity<Response<List<TotalAmountStatisticDTO>>> getTotalFeeAdopt(
+            @RequestParam(value = "year", defaultValue = "") Integer year) {
         Response<List<TotalAmountStatisticDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -93,7 +95,7 @@ public class AdoptController {
 
     @GetMapping("/near-log")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getNearLog() {
+    public ResponseEntity<Response<List<AdoptLogDTO>>> getNearLog() {
         Response<List<AdoptLogDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -108,7 +110,7 @@ public class AdoptController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getAdoptById(@PathVariable(name = "id") String id) {
+    public ResponseEntity<Response<Map<String, Object>>> getAdoptById(@PathVariable(name = "id") String id) {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -138,7 +140,9 @@ public class AdoptController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createAdopt(@RequestBody @Valid AdoptCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> createAdopt(
+            @RequestBody @Valid AdoptCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -167,7 +171,8 @@ public class AdoptController {
 
     @PutMapping("cancel/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> cancelAdopt(@PathVariable(name = "id") String id) {
+    public ResponseEntity<Response<Boolean>> cancelAdopt(@PathVariable(name = "id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -195,8 +200,10 @@ public class AdoptController {
 
     @PutMapping("update-status/{id}")
     @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
-    public ResponseEntity<?> updateStatusAdopt(@Valid @RequestBody AdoptUpdateStatusRequest request, BindingResult bindingResult,
-                                               @PathVariable(name = "id") String id) {
+    public ResponseEntity<Response<String>> updateStatusAdopt(
+            @Valid @RequestBody AdoptUpdateStatusRequest request, BindingResult bindingResult,
+            @PathVariable(name = "id") String id)
+    {
         Response<String> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -239,8 +246,10 @@ public class AdoptController {
 
     @PutMapping("update/{id}")
     @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
-    public ResponseEntity<?> updateAdopt(@RequestBody @Valid AdoptUpdateRequest request, BindingResult bindingResult,
-                                         @PathVariable(name = "id") String id) {
+    public ResponseEntity<Response<Boolean>> updateAdopt(
+            @RequestBody @Valid AdoptUpdateRequest request, BindingResult bindingResult,
+            @PathVariable(name = "id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -273,7 +282,8 @@ public class AdoptController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('MANAGER') || hasRole('ADMIN')")
-    public ResponseEntity<?> deleteAdopt(@PathVariable(name = "id") String id) {
+    public ResponseEntity<Response<Boolean>> deleteAdopt(@PathVariable(name = "id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -300,9 +310,11 @@ public class AdoptController {
     }
 
     @GetMapping("statistic")
-    public ResponseEntity<?> getAdoptStatistic(@RequestParam(value = "fromDate", defaultValue = "", required = false) String fromDate,
-                                               @RequestParam(value = "toDate", defaultValue = "", required = false) String toDate,
-                                               @RequestParam(value = "user", defaultValue = "", required = false) String user) {
+    public ResponseEntity<Response<Map<String, Long>>> getAdoptStatistic(
+            @RequestParam(value = "fromDate", defaultValue = "", required = false) String fromDate,
+            @RequestParam(value = "toDate", defaultValue = "", required = false) String toDate,
+            @RequestParam(value = "user", defaultValue = "", required = false) String user)
+    {
         Response<Map<String, Long>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -327,4 +339,5 @@ public class AdoptController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
 }

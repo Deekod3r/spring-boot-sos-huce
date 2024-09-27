@@ -26,7 +26,7 @@ import java.util.Objects;
 @Service
 public class BankService implements IBankService {
 
-    private final static String TAG = "BANK";
+    private static final String TAG = "BANK";
 
     @Autowired
     private BankRepo bankRepo;
@@ -86,7 +86,7 @@ public class BankService implements IBankService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = {BadRequestException.class, RuntimeException.class})
     public void update(BankUpdateRequest request) {
         try {
             Bank bank = bankRepo.findById(request.getId()).orElseThrow(

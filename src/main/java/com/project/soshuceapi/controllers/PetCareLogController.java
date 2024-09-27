@@ -31,12 +31,12 @@ public class PetCareLogController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getPetCareLogs(
+    public ResponseEntity<Response<List<PetCareLogDTO>>> getPetCareLogs(
             @RequestParam(value = "adoptId", required = false, defaultValue = "") String adoptId,
             @RequestParam(value = "petId", required = false, defaultValue = "") String petId,
             @RequestParam(value = "fromDate", required = false, defaultValue = "") LocalDate fromDate,
-            @RequestParam(value = "toDate", required = false, defaultValue = "") LocalDate toDate
-    ) {
+            @RequestParam(value = "toDate", required = false, defaultValue = "") LocalDate toDate)
+    {
         Response<List<PetCareLogDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -52,7 +52,8 @@ public class PetCareLogController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getPetCareLog(@PathVariable String id) {
+    public ResponseEntity<Response<PetCareLogDTO>> getPetCareLog(@PathVariable String id)
+    {
         Response<PetCareLogDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -72,7 +73,9 @@ public class PetCareLogController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createPetCareLog(@RequestBody @Valid PetCareLogCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> createPetCareLog(
+            @RequestBody @Valid PetCareLogCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -98,8 +101,10 @@ public class PetCareLogController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updatePetCareLog(@PathVariable String id,
-                                              @RequestBody @Valid PetCareLogUpdateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updatePetCareLog(
+            @PathVariable String id,
+            @RequestBody @Valid PetCareLogUpdateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -130,7 +135,8 @@ public class PetCareLogController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deletePetCareLog(@PathVariable String id) {
+    public ResponseEntity<Response<Boolean>> deletePetCareLog(@PathVariable String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

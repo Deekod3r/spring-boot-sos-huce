@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RedisService implements IRedisService {
 
-    private final static String TAG = "REDIS";
+    private static final String TAG = "REDIS";
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;

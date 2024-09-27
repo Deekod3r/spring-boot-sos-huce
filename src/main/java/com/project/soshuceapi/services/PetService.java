@@ -38,7 +38,7 @@ import static com.project.soshuceapi.utils.StringUtil.uppercaseFirstLetter;
 @Slf4j
 public class PetService implements IPetService {
 
-    private final static String TAG = "PET";
+    private static final String TAG = "PET";
 
     @Autowired
     private PetRepo petRepo;
@@ -57,7 +57,9 @@ public class PetService implements IPetService {
                     request.getCode(), request.getType(), request.getAge(), request.getGender(),
                     request.getStatus(), request.getDiet(), request.getVaccine(), request.getSterilization(),
                     request.getRabies(), request.getAdoptedBy(), request.getIntakeDateFrom(), request.getIntakeDateTo(),
-                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1));
+                    Boolean.TRUE.equals(request.getFullData())
+                            ? Pageable.unpaged()
+                            : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1));
             return Map.of(
                     "pets", pets.getContent().stream()
                         .map(this::parsePetDTO)
@@ -225,7 +227,7 @@ public class PetService implements IPetService {
     @Override
     public Map<String, Long> getStatisticCases(Boolean compare) {
         try {
-            if (compare) {
+            if (Boolean.TRUE.equals(compare)) {
                 LocalDate firstDayOfPreviousMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
                 LocalDate lastDayOfPreviousMonth = YearMonth.from(firstDayOfPreviousMonth).atEndOfMonth();
                 Map<String, Long> current = new HashMap<>(petRepo.getCountsByStatus(null));

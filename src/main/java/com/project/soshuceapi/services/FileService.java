@@ -40,7 +40,7 @@ import java.util.UUID;
 @Slf4j
 public class FileService implements IFileService {
 
-    private final static String TAG = "FILE";
+    private static final String TAG = "FILE";
 
     @Autowired
     private ResourceConfig resourceConfig;
@@ -56,11 +56,11 @@ public class FileService implements IFileService {
             assert fileName != null;
             fileName = UUID.randomUUID().toString().concat(this.getExtension(fileName));
             File file = this.convertToFile(multipartFile, fileName);
-            String URL = this.uploadFile(file, fileName);
+            String url = this.uploadFile(file, fileName);
             if (!file.delete()) {
                 log.error(TAG + ": error.delete.file");
             }
-            return Map.of("url", URL, "fileName", fileName);
+            return Map.of("url", url, "fileName", fileName);
         } catch (Exception e) {
             log.error(TAG + ": " + e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -129,8 +129,8 @@ public class FileService implements IFileService {
             Credentials credentials = GoogleCredentials.fromStream(inputStream);
             Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
             storage.create(blobInfo, Files.readAllBytes(file.toPath()));
-            String DOWNLOAD_URL = "https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media";
-            return String.format(DOWNLOAD_URL,
+            String downloadUrl = "https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media";
+            return String.format(downloadUrl,
                     URLEncoder.encode(resourceConfig.getFirebaseBucketName(), StandardCharsets.UTF_8),
                     URLEncoder.encode(fileName, StandardCharsets.UTF_8));
         } catch (Exception e) {

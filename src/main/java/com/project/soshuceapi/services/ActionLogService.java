@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class ActionLogService implements IActionLogService {
 
-    private final static String TAG = "ACTION_LOG";
+    private static final String TAG = "ACTION_LOG";
 
     @Autowired
     private ActionLogRepo actionLogRepo;

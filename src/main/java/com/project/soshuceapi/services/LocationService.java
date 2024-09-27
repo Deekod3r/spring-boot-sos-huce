@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 public class LocationService implements ILocationService {
 
-    private final static String TAG = "LOCATION";
+    private static final String TAG = "LOCATION";
 
     @Autowired
     private DistrictRepo districtRepo;

@@ -29,7 +29,8 @@ public class BankController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getBanks() {
+    public ResponseEntity<Response<List<BankDTO>>> getBanks()
+    {
         Response<List<BankDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -45,7 +46,8 @@ public class BankController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> getBankById(@PathVariable("id") String id) {
+    public ResponseEntity<Response<BankDTO>> getBankById(@PathVariable("id") String id)
+    {
         Response<BankDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -68,7 +70,9 @@ public class BankController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> createBank(@RequestBody @Valid BankCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> createBank(
+            @RequestBody @Valid BankCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -97,8 +101,10 @@ public class BankController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> updateBank(@RequestBody @Valid BankUpdateRequest request, BindingResult bindingResult,
-                                        @PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> updateBank(
+            @RequestBody @Valid BankUpdateRequest request, BindingResult bindingResult,
+            @PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -131,7 +137,8 @@ public class BankController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> deleteBank(@PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> deleteBank(@PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

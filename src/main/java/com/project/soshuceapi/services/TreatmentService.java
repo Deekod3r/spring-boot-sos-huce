@@ -36,7 +36,7 @@ import java.util.Objects;
 @Service
 public class TreatmentService implements ITreatmentService {
 
-    private final static String TAG = "TREATMENT";
+    private static final String TAG = "TREATMENT";
 
     @Autowired
     private TreatmentRepo treatmentRepo;
@@ -57,7 +57,9 @@ public class TreatmentService implements ITreatmentService {
                     request.getStatus(),
                     request.getType(),
                     Objects.nonNull(request.getDaysOfTreatment()) ? Duration.ofDays(request.getDaysOfTreatment()) : null,
-                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
+                    Boolean.TRUE.equals(request.getFullData())
+                            ? Pageable.unpaged()
+                            : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1)
             );
             return Map.of(
                     "treatments", treatments.getContent().stream().map(treatment -> parseTreatmentDTO(treatment, false)).toList(),
@@ -264,7 +266,7 @@ public class TreatmentService implements ITreatmentService {
                 treatment.getPet().getId(),
                 treatment.getPet().getName(),
                 treatment.getPet().getCode(),
-                withImages ? imageRepo.findByObjectId(treatment.getId()) : null
+                Boolean.TRUE.equals(withImages) ? imageRepo.findByObjectId(treatment.getId()) : null
         );
     }
 

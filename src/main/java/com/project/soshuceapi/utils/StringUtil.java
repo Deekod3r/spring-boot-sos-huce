@@ -6,6 +6,9 @@ import java.util.Random;
 
 public class StringUtil {
 
+    private StringUtil() {
+    }
+
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final Random RANDOM = new SecureRandom();
 

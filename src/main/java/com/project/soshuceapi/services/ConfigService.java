@@ -28,7 +28,7 @@ import java.util.Objects;
 @Slf4j
 public class ConfigService implements IConfigService {
 
-    private final static String TAG = "CONFIG";
+    private static final String TAG = "CONFIG";
 
     @Autowired
     private ConfigRepo configRepo;

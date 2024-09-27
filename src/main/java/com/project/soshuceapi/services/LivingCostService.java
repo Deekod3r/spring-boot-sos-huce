@@ -38,7 +38,7 @@ import java.util.Objects;
 @Service
 public class LivingCostService implements ILivingCostService {
 
-    private final String TAG = "LIVING_COST";
+    private static final String TAG = "LIVING_COST";
 
     @Autowired
     private LivingCostRepo livingCostRepo;
@@ -54,7 +54,9 @@ public class LivingCostService implements ILivingCostService {
         try {
             Page<LivingCost> livingCosts = livingCostRepo.findAll(
                     request.getFromDate(), request.getToDate(), request.getCategory(),
-                    request.getFullData() ? Pageable.unpaged() : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1));
+                    Boolean.TRUE.equals(request.getFullData())
+                            ? Pageable.unpaged()
+                            : Pageable.ofSize(request.getLimit()).withPage(request.getPage() - 1));
             return Map.of(
                     "livingCosts", livingCosts.getContent().stream()
                             .map(livingCost -> parseLivingCostDTO(livingCost, false))
@@ -226,7 +228,7 @@ public class LivingCostService implements ILivingCostService {
                 .cost(livingCost.getCost())
                 .date(livingCost.getDate())
                 .note(livingCost.getNote())
-                .images(withImages ? imageRepo.findByObjectId(livingCost.getId()) : null)
+                .images(Boolean.TRUE.equals(withImages) ? imageRepo.findByObjectId(livingCost.getId()) : null)
                 .build();
     }
 

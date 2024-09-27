@@ -36,15 +36,15 @@ public class TreatmentController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getTreatments(
+    public ResponseEntity<Response<Map<String, Object>>> getTreatments(
             @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
             @RequestParam(value = "limit", defaultValue = "5", required = false) Integer limit,
             @RequestParam(value = "status", defaultValue = "", required = false) Boolean status,
             @RequestParam(value = "fullData", required = false, defaultValue = "false") Boolean fullData,
             @RequestParam(value = "petId", defaultValue = "", required = false) String petId,
             @RequestParam(value = "type", defaultValue = "", required = false) Integer type,
-            @RequestParam(value = "daysOfTreatment", defaultValue = "", required = false) Integer daysOfTreatment
-    ) {
+            @RequestParam(value = "daysOfTreatment", defaultValue = "", required = false) Integer daysOfTreatment)
+    {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -64,7 +64,8 @@ public class TreatmentController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getTreatment(@PathVariable String id) {
+    public ResponseEntity<Response<TreatmentDTO>> getTreatment(@PathVariable String id)
+    {
         Response<TreatmentDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -87,12 +88,12 @@ public class TreatmentController {
     public ResponseEntity<?> getTotalTreatmentCost(
             @RequestParam(value = "year", defaultValue = "") Integer year,
             @RequestParam(value = "month", defaultValue = "", required = false) Integer month,
-            @RequestParam(value = "byType", required = false, defaultValue = "false") Boolean byType
-    ) {
+            @RequestParam(value = "byType", required = false, defaultValue = "false") Boolean byType)
+    {
         Response<List<TotalAmountStatisticDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
-            if (byType) {
+            if (Boolean.TRUE.equals(byType)) {
                 response.setData(treatmentService
                         .getTotalTreatmentCostByType(TotalTreatmentCostSearchRequest.builder()
                                 .year(year)
@@ -117,7 +118,9 @@ public class TreatmentController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createTreatment(@Valid @ModelAttribute TreatmentCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> createTreatment(
+            @Valid @ModelAttribute TreatmentCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -146,8 +149,10 @@ public class TreatmentController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateTreatment(@PathVariable String id, @Valid @RequestBody TreatmentUpdateRequest request,
-                                       BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updateTreatment(
+            @PathVariable String id,
+            @Valid @RequestBody TreatmentUpdateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -184,7 +189,8 @@ public class TreatmentController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deleteTreatment(@PathVariable String id) {
+    public ResponseEntity<Response<Boolean>> deleteTreatment(@PathVariable String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

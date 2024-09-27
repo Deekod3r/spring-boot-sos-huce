@@ -40,8 +40,9 @@ public class UserController {
     private AuditorAware<String> auditorAware;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request,
-                                      BindingResult bindingResult) {
+    public ResponseEntity<Response<Map<String, String>>> register(
+            @Valid @RequestBody UserCreateRequest request, BindingResult bindingResult)
+    {
         Response<Map<String, String>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -49,7 +50,7 @@ public class UserController {
                 response.setMessage(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
                 return ResponseEntity.badRequest().body(response);
             }
-            if (userService.isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())) {
+            if (Boolean.TRUE.equals(userService.isExistByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail()))) {
                 response.setMessage(ResponseMessage.User.USER_EXISTED);
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
@@ -75,7 +76,10 @@ public class UserController {
     }
 
     @GetMapping("/verify-register/{id}")
-    public ResponseEntity<?> verifyRegister(@PathVariable("id") String id, @RequestParam("code") String code) {
+    public ResponseEntity<Response<Boolean>> verifyRegister(
+            @PathVariable("id") String id,
+            @RequestParam("code") String code)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -117,7 +121,8 @@ public class UserController {
     }
 
     @GetMapping("/check-exist")
-    public ResponseEntity<?> checkUserExist(@RequestParam(value = "account") String account) {
+    public ResponseEntity<Response<String>> checkUserExist(@RequestParam(value = "account") String account)
+    {
         Response<String> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -143,7 +148,8 @@ public class UserController {
     }
 
     @GetMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestParam(value = "email") String email) {
+    public ResponseEntity<Response<Map<String, String>>> forgotPassword(@RequestParam(value = "email") String email)
+    {
         Response<Map<String, String>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -173,8 +179,10 @@ public class UserController {
     }
 
     @GetMapping("/verify-forgot-password/{id}")
-    public ResponseEntity<?> verifyForgotPassword(@PathVariable(value = "id") String id,
-                                                  @RequestParam(value = "code") String code) {
+    public ResponseEntity<Response<Map<String, String>>> verifyForgotPassword(
+            @PathVariable(value = "id") String id,
+            @RequestParam(value = "code") String code)
+    {
         Response<Map<String, String>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -206,8 +214,9 @@ public class UserController {
     }
 
     @PutMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@Valid @RequestBody UserResetPasswordRequest request,
-                                           BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> resetPassword(
+            @Valid @RequestBody UserResetPasswordRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -242,7 +251,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable(value = "id") String id) {
+    public ResponseEntity<Response<UserDTO>> getUserById(@PathVariable(value = "id") String id)
+    {
         Response<UserDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -254,11 +264,10 @@ public class UserController {
                 response.setMessage(ResponseMessage.User.MISSING_ID);
                 return ResponseEntity.badRequest().body(response);
             }
-            if (SecurityUtil.checkRole(Constants.User.KEY_ROLE +  Constants.User.ROLE_USER)) {
-                if (!Objects.equals(auditorAware.getCurrentAuditor().get(), id)) {
+            if (SecurityUtil.checkRole(Constants.User.KEY_ROLE +  Constants.User.ROLE_USER)
+                    && !Objects.equals(auditorAware.getCurrentAuditor().get(), id)) {
                     response.setMessage(ResponseMessage.Authentication.PERMISSION_DENIED);
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-                }
             }
             UserDTO user = userService.getById(id);
             response.setData(user);
@@ -276,14 +285,16 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getUsers(@RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-                                      @RequestParam(value = "size", defaultValue = "5", required = false) Integer limit,
-                                      @RequestParam(value = "fullData", defaultValue = "", required = false) Boolean fullData,
-                                      @RequestParam(value = "name", defaultValue = "", required = false) String name,
-                                      @RequestParam(value = "email", defaultValue = "", required = false) String email,
-                                      @RequestParam(value = "phoneNumber", defaultValue = "", required = false) String phoneNumber,
-                                      @RequestParam(value = "isActivated", defaultValue = "", required = false) Boolean isActivated,
-                                      @RequestParam(value = "role", defaultValue = "", required = false) String role) {
+    public ResponseEntity<Response<Map<String, Object>>> getUsers(
+            @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
+            @RequestParam(value = "size", defaultValue = "5", required = false) Integer limit,
+            @RequestParam(value = "fullData", defaultValue = "", required = false) Boolean fullData,
+            @RequestParam(value = "name", defaultValue = "", required = false) String name,
+            @RequestParam(value = "email", defaultValue = "", required = false) String email,
+            @RequestParam(value = "phoneNumber", defaultValue = "", required = false) String phoneNumber,
+            @RequestParam(value = "isActivated", defaultValue = "", required = false) Boolean isActivated,
+            @RequestParam(value = "role", defaultValue = "", required = false) String role)
+    {
         Response<Map<String, Object>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -310,9 +321,10 @@ public class UserController {
 
     @PutMapping("/update/name/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> updateName(@PathVariable(value = "id") String id,
-                                        @Valid @RequestBody UserUpdateNameRequest request,
-                                        BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updateName(
+            @PathVariable(value = "id") String id,
+            @Valid @RequestBody UserUpdateNameRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -345,9 +357,10 @@ public class UserController {
 
     @PutMapping("/update/phone/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> updatePhone(@PathVariable(value = "id") String id,
-                                         @Valid @RequestBody UserUpdatePhoneRequest request,
-                                         BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updatePhone(
+            @PathVariable(value = "id") String id,
+            @Valid @RequestBody UserUpdatePhoneRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -380,9 +393,10 @@ public class UserController {
 
     @PutMapping("/update/email/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> updateEmail(@PathVariable(value = "id") String id,
-                                         @Valid @RequestBody UserUpdateEmailRequest request,
-                                         BindingResult bindingResult) {
+    public ResponseEntity<Response<Map<String, String>>> updateEmail(
+            @PathVariable(value = "id") String id,
+            @Valid @RequestBody UserUpdateEmailRequest request, BindingResult bindingResult)
+    {
         Response<Map<String, String>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -403,7 +417,7 @@ public class UserController {
                 response.setMessage(ResponseMessage.User.USER_EXISTED);
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
-            if (!userService.checkPassword(id, request.getCurrentPassword())) {
+            if (Boolean.FALSE.equals(userService.checkPassword(id, request.getCurrentPassword()))) {
                 response.setMessage(ResponseMessage.User.INVALID_PASSWORD);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
@@ -430,8 +444,10 @@ public class UserController {
 
     @GetMapping("/update/verify-email/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> verifyUpdateEmail(@PathVariable(value = "id") String id,
-                                               @RequestParam(value = "code") String code) {
+    public ResponseEntity<Response<Boolean>> verifyUpdateEmail(
+            @PathVariable(value = "id") String id,
+            @RequestParam(value = "code") String code)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -478,9 +494,10 @@ public class UserController {
 
     @PutMapping("/update/password/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> updatePassword(@PathVariable(value = "id") String id,
-                                            @Valid @RequestBody UserUpdatePasswordRequest request,
-                                            BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updatePassword(
+            @PathVariable(value = "id") String id,
+            @Valid @RequestBody UserUpdatePasswordRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -513,9 +530,10 @@ public class UserController {
 
     @PutMapping("update/status/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateStatus(@PathVariable(value = "id") String id,
-                                          @Valid @RequestBody UserUpdateStatusRequest request,
-                                          BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updateStatus(
+            @PathVariable(value = "id") String id,
+            @Valid @RequestBody UserUpdateStatusRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -552,8 +570,9 @@ public class UserController {
 
     @PostMapping("/create/admin")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> createAdmin(@Valid @RequestBody UserCreateRequest request,
-                                         BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> createAdmin(
+            @Valid @RequestBody UserCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -583,9 +602,10 @@ public class UserController {
 
     @PutMapping("/update/admin/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> updateAdmin(@PathVariable(value = "id") String id,
-                                         @Valid @RequestBody AdminUpdateRequest request,
-                                         BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updateAdmin(
+            @PathVariable(value = "id") String id,
+            @Valid @RequestBody AdminUpdateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -618,9 +638,10 @@ public class UserController {
 
     @PutMapping("/update/password/admin/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> updateAdminPassword(@PathVariable(value = "id") String id,
-                                                 @Valid @RequestBody AdminUpdatePasswordRequest request,
-                                                 BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updateAdminPassword(
+            @PathVariable(value = "id") String id,
+            @Valid @RequestBody AdminUpdatePasswordRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

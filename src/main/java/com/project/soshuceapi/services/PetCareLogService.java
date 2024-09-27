@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PetCareLogService implements IPetCareLogService {
 
-    private final String TAG = "ADOPT";
+    private static final String TAG = "ADOPT";
 
     @Autowired
     private PetCareLogRepo petCareLogRepo;

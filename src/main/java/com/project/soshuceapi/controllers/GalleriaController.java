@@ -31,7 +31,9 @@ public class GalleriaController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getGallerias(@RequestParam(name = "status", defaultValue = "", required = false) Boolean status) {
+    public ResponseEntity<Response<List<GalleriaDTO>>> getGallerias(
+            @RequestParam(name = "status", defaultValue = "", required = false) Boolean status)
+    {
         Response<List<GalleriaDTO>> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -51,7 +53,8 @@ public class GalleriaController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> getGalleria(@PathVariable("id") String id) {
+    public ResponseEntity<Response<GalleriaDTO>> getGalleria(@PathVariable("id") String id)
+    {
         Response<GalleriaDTO> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -67,7 +70,9 @@ public class GalleriaController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> createGalleria(@Valid @ModelAttribute GalleriaCreateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> createGalleria(
+            @Valid @ModelAttribute GalleriaCreateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -93,8 +98,10 @@ public class GalleriaController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateGalleria(@PathVariable("id") String id,
-                                            @Valid @RequestBody GalleriaUpdateRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updateGalleria(
+            @PathVariable("id") String id,
+            @Valid @RequestBody GalleriaUpdateRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -124,9 +131,10 @@ public class GalleriaController {
 
     @PutMapping("/update-image/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> updateGalleriaImage(@PathVariable("id") String id,
-                                                 @Valid @ModelAttribute GalleriaUpdateImageRequest request,
-                                                 BindingResult bindingResult) {
+    public ResponseEntity<Response<Boolean>> updateGalleriaImage(
+            @PathVariable("id") String id,
+            @Valid @ModelAttribute GalleriaUpdateImageRequest request, BindingResult bindingResult)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -156,7 +164,8 @@ public class GalleriaController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
-    public ResponseEntity<?> deleteGalleria(@PathVariable("id") String id) {
+    public ResponseEntity<Response<Boolean>> deleteGalleria(@PathVariable("id") String id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

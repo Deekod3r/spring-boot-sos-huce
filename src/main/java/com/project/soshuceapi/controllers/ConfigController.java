@@ -27,7 +27,9 @@ public class ConfigController {
     private AuditorAware<String> auditorAware;
 
     @GetMapping
-    public ResponseEntity<?> getConfigs(@RequestParam(name = "key", defaultValue = "", required = false) String key) {
+    public ResponseEntity<Response<Object>> getConfigs(
+            @RequestParam(name = "key", defaultValue = "", required = false) String key)
+    {
         Response<Object> response = new Response<>();
         response.setSuccess(false);
         try {
@@ -51,8 +53,10 @@ public class ConfigController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> updateConfig(@Valid @RequestBody ConfigUpdateRequest request, BindingResult bindingResult,
-                                          @PathVariable("id") Long id){
+    public ResponseEntity<Response<Boolean>> updateConfig(
+            @Valid @RequestBody ConfigUpdateRequest request, BindingResult bindingResult,
+            @PathVariable("id") Long id)
+    {
         Response<Boolean> response = new Response<>();
         response.setSuccess(false);
         try {

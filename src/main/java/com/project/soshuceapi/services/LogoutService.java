@@ -18,7 +18,7 @@ import java.util.Objects;
 @Slf4j
 public class LogoutService implements LogoutHandler {
 
-    private final static String TAG = "LOGOUT";
+    private static final String TAG = "LOGOUT";
 
     @Autowired
     private IRedisService redisService;
